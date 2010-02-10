@@ -11,8 +11,9 @@ use Error qw/:try/;
 
 use Hoya::Util;
 
-__PACKAGE__->mk_accessors(qw/env/);
+__PACKAGE__->mk_accessors(qw/req/);
 
+my $_req;
 my $_env;
 my $_conf;
 
@@ -20,7 +21,8 @@ my $_conf;
 
 sub init {
     my $self = shift;
-    $_env  = $self->env;
+    $_req  = $self->req;
+    $_env  = $_req->{env};
     $_conf = {};
 
     # PATH
@@ -31,7 +33,7 @@ sub init {
     $PATH->{ROOT}     = $project_root;
     $PATH->{CONF}     = "$PATH->{ROOT}/conf";
     $PATH->{PL}       = "$PATH->{ROOT}/pl";
-    $PATH->{TEMPLATE} = "$PATH->{ROOT}/template";
+    $PATH->{SKIN}     = "$PATH->{ROOT}/skin";
     $PATH->{STATIC}   = "$PATH->{ROOT}/static";
     $PATH->{ACTION}   = "$PATH->{PL}/action";
     $PATH->{MODEL}    = "$PATH->{PL}/model";
@@ -47,9 +49,29 @@ sub init {
         $self->_add_from_yaml($file);
     }
 
+    # LOCATION
+    my $LOCATION = {};
+    (my $_PROTOCOL = lc $_req->protocol) =~ s{/.*$}{};
+    $LOCATION->{PROTOCOL} = $_conf->{LOCATION}{PROTOCOL} || $_PROTOCOL;
+
+    # URL_BASE
+    my $URL_BASE = '';
+    $URL_BASE = sprintf(
+        '%s://%s',
+        $LOCATION->{PROTOCOL},
+        $_env->{SERVER_NAME},
+    );
+    $URL_BASE .= ':' . $_env->{SERVER_PORT}  if $_env->{SERVER_PORT};
+    $URL_BASE .= $_conf->{LOCATION}{PATH}  if $_conf->{LOCATION}{PATH};
+    $URL_BASE .= '/';
+    $URL_BASE =~ s{/+$}{/};
+
+
     # merge
     $self->_add({
-        PATH => $PATH,
+        PATH     => $PATH,
+        LOCATION => $LOCATION,
+        URL_BASE => $URL_BASE,
     });
 
     return $self;

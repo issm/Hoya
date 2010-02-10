@@ -91,7 +91,7 @@ sub %s (&) {
 
     if (ref $code_or_self eq 'CODE') {
         $_code_xx->{%s} = $code_or_self;
-warn d 'SET; ' . ((caller 0)[3]);
+#warn d 'SET; ' . ((caller 0)[3]);
     }
     elsif(ref $code_or_self eq '%s') {
         my $v = $code_or_self->get_param();
@@ -115,7 +115,7 @@ sub _xx_%s {
     my $ret;
     my $ret_ = {};
 
-warn d 'GET: ' . ((caller 0)[3]);
+#warn d 'GET: ' . ((caller 0)[3]);
 
     try {
         if (defined $_super) {
@@ -269,6 +269,8 @@ sub go {
     }
     #$__view_info->{name} = ''  unless defined $__view_info->{name};
     $_view_info->{name} = ''  unless defined $_view_info->{name};
+
+    $_view_info->{name} = $_name  if $_view_info->{name} eq '';
 
     return $_view_info;
 }
