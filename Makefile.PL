@@ -2,7 +2,13 @@ use inc::Module::Install;
 name 'Hoya';
 all_from 'lib/Hoya.pm';
 
-# requires '';
+requires 'URI::Escape';
+requires 'YAML::Syck';
+requires 'JSON::Syck';
+requires 'UUID::Tiny';
+requires 'Data::Recursive::Encode';
+requires 'Hash::Merge';
+requires 'Text::MicroTemplate::Extended';
 
 tests 't/*.t';
 author_tests 'xt';
