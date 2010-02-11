@@ -30,13 +30,16 @@ sub init {
     my $script_dir = dirname(File::Spec->rel2abs($_env->{SCRIPT_NAME}));
     (my $project_root = $script_dir) =~ s{/www$}{};
 
-    $PATH->{ROOT}     = $project_root;
-    $PATH->{CONF}     = "$PATH->{ROOT}/conf";
-    $PATH->{PL}       = "$PATH->{ROOT}/pl";
-    $PATH->{SKIN}     = "$PATH->{ROOT}/skin";
-    $PATH->{STATIC}   = "$PATH->{ROOT}/static";
-    $PATH->{ACTION}   = "$PATH->{PL}/action";
-    $PATH->{MODEL}    = "$PATH->{PL}/model";
+    $PATH->{ROOT}      = $project_root;
+    $PATH->{CONF}      = "$PATH->{ROOT}/conf";
+    $PATH->{PL}        = "$PATH->{ROOT}/pl";
+    $PATH->{DATA}      = "$PATH->{ROOT}/data";
+    $PATH->{SKIN}      = "$PATH->{ROOT}/skin";
+    $PATH->{STATIC}    = "$PATH->{ROOT}/static";
+    $PATH->{TMP}       = "$PATH->{ROOT}/tmp";
+    $PATH->{ACTION}    = "$PATH->{PL}/action";
+    $PATH->{MODEL}     = "$PATH->{PL}/model";
+    $PATH->{FILECACHE} = "$PATH->{TMP}/FileCache";
 
     # base.yml, additional.yml
     for my $f (qw/base additional/) {
@@ -66,12 +69,26 @@ sub init {
     $URL_BASE .= '/';
     $URL_BASE =~ s{/+$}{/};
 
+    # CACHE
+    my $CACHE = {};
+    {
+        my $project_name = $_conf->{PROJECT_NAME};
+        my $a = substr($project_name, 0, 1);
+        my $z = substr($project_name, -1);
+        $CACHE->{NAMESPACE} = sprintf(
+            '%s%s',
+            random_key(1, $_conf->{PROJECT_NAME}),
+            random_key(1, "$a$z"),
+        );
+    }
+
 
     # merge
     $self->_add({
         PATH     => $PATH,
         LOCATION => $LOCATION,
         URL_BASE => $URL_BASE,
+        CACHE    => $CACHE,
     });
 
     return $self;

@@ -52,6 +52,15 @@ sub go {
     #$_mm = Hoya::MetaModel->new({
     #})->init;
 
+#    use Hoya::DSH;
+#    my $_dsh = Hoya::DSH->new({
+#        type => 'DBI',
+#        env  => $_env,
+#        conf => $_conf,
+#    })->init;
+#    warn d $_dsh->q('+sample::sample', []);
+#    warn d $_dsh->q('+SELECT SHA1("hoge")');
+
     # url mapping
     my ($url_mapper, $action_info);
     $url_mapper = Hoya::Mapper::URL->new({

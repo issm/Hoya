@@ -9,6 +9,7 @@ requires 'UUID::Tiny';
 requires 'Data::Recursive::Encode';
 requires 'Hash::Merge';
 requires 'Text::MicroTemplate::Extended';
+requires 'Digest::SHA1';
 
 tests 't/*.t';
 author_tests 'xt';
