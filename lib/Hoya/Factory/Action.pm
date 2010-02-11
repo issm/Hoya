@@ -271,7 +271,12 @@ sub go {
     #$__view_info->{name} = ''  unless defined $__view_info->{name};
     $_view_info->{name} = ''  unless defined $_view_info->{name};
 
-    $_view_info->{name} = $_name  if $_view_info->{name} eq '';
+    if (
+        $_view_info->{name} eq ''  ||
+        $_view_info->{name} eq $Hoya::FINISH_ACTION
+    ) {
+        $_view_info->{name} = $_name;
+    }
 
     return $_view_info;
 }

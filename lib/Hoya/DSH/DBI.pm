@@ -204,7 +204,7 @@ sub _q_mysql {
 
         if ($cache) {
             my $data_cached = $_cache->get($cache_key);
-            warn d 'get cache.'  if defined $data_cached;
+            #warn d 'get cache.'  if defined $data_cached;
             return $data_cached  if defined $data_cached;
         }
 
@@ -222,7 +222,7 @@ sub _q_mysql {
         # データをキャッシュする
         if ($cache) {
             $_cache->set($cache_key, $fetch, $CACHE_EXPIRES);
-            warn d 'set cache.';
+            #warn d 'set cache.';
         }
 
         return $fetch;
