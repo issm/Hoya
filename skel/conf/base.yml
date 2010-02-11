@@ -1,0 +1,59 @@
+#--------------------------------------------------------------------------------
+#
+#  base.yml
+#    基本設定ファイル
+#    Hoya::Config が使用する
+#
+#--------------------------------------------------------------------------------
+---
+LOCAL: 0
+
+PROJECT_NAME: my project
+YEAR_RELEASE: 2010
+
+WEBSITE_NAME: welcome to my project
+
+LOCATION:
+  PROTOCOL: 
+  HOST:     
+  PATH:     
+
+PAGE:
+  CSS_COMMON: [_base, _layout, _additional]
+  JS_COMMON:  [_base, _additional]
+
+DSH:
+  DBI:  1
+  YAML: 1
+
+DB:
+  TYPE:   mysql
+  NAME:   dbname
+  HOST:   localhost
+  USER:   user
+  PASSWD: password
+  TABLE_PREFIX: pre_
+
+CACHE:
+  ENABLED:   1
+  NAMESPACE: hoya
+  EXPIRES:   600
+
+COOKIE:
+  EXPIRES: +14d
+  DOMAIN:  
+  PATH:    /
+  SECURE:  0
+
+MAIL:
+  SERVER_SMTP: localhost:587
+  ADDRESS:
+    FROM: noreply@example.com
+    CC:
+  SIGNATURE: |
+    --
+    your email signature.
+
+SESSION_KEY_NAME: session_id
+
+CONTENT_TYPE_DEFAULT: text/html; charset=utf-8

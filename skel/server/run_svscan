@@ -1,0 +1,22 @@
+#!/bin/sh
+
+PROJECT_ROOT=/var/www/project
+BINDIR=/usr/bin
+SBINDIR=/usr/sbin
+HOYADIR=/path/to/Hoya
+
+HOST=localhost
+
+exec 2>&1
+cd $PROJECT_ROOT || exit 1
+exec \
+  $BINDIR/plackup --port=5000 --host=$HOST \
+  -R www,lib,$HOYADIR \
+  -s Standalone::Prefork \
+  -I $HOYADIR/lib \
+  -I lib \
+  -I extlib \
+  $PROJECT_ROOT/www/index.psgi
+
+#exec $BINDIR/start_server --port=5000 -- $SBINDIR/setuidgid apache \
+#  $BINDIR/plackup -s Standalone::Prefork::Server::Starter hello.psgi
