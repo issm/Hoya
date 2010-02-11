@@ -10,7 +10,7 @@ use Hoya::Util;
 use Hoya::Config;
 use Hoya::Mapper::URL;
 use Hoya::Mapper::UserAgent;
-#use Hoya::MetaModel;
+use Hoya::MetaModel;
 use Hoya::Factory::Action;
 use Hoya::View;
 
@@ -49,17 +49,10 @@ sub go {
     my $req = $self->req;
 
     # metamodel
-    #$_mm = Hoya::MetaModel->new({
-    #})->init;
-
-#    use Hoya::DSH;
-#    my $_dsh = Hoya::DSH->new({
-#        type => 'DBI',
-#        env  => $_env,
-#        conf => $_conf,
-#    })->init;
-#    warn d $_dsh->q('+sample::sample', []);
-#    warn d $_dsh->q('+SELECT SHA1("hoge")');
+    $_mm = Hoya::MetaModel->new({
+        env  => $_env,
+        conf => $_conf,
+    })->init;
 
     # url mapping
     my ($url_mapper, $action_info);
@@ -94,6 +87,7 @@ sub go {
         conf => $_conf,
         q    => $_q,
         qq   => $_qq,
+        mm   => $_mm,
     })->init;
     $view_info = $_action->go;
 

@@ -13,7 +13,7 @@ my $_name;
 
 
 #
-__PACKAGE__->mk_accessors(qw/name req conf q qq view_name var/);
+__PACKAGE__->mk_accessors(qw/name req conf q qq mm view_name var/);
 
 
 sub init {
@@ -34,11 +34,12 @@ Hoya::Action::${_name}->new({
     conf => \$self->conf,
     q    => \$self->q,
     qq   => \$self->qq,
+    mm   => \$self->mm,
 })->init;
 ...
     }
     catch Error with {
-        warn d shift->text;
+        warn shift->text;
     };
 
     return $action;
@@ -52,7 +53,7 @@ sub _load {
     my $pl = sprintf(
         '%s/%s.pl',
         $self->conf->{PATH}{ACTION},
-        name2path($self->name),
+        name2path($_name),
     );
 
     my $buff;
@@ -169,9 +170,9 @@ my $_name;
 my $_req;
 my $_env;
 my $_conf;
-
 my $_q;
 my $_qq;
+my $_mm;
 
 my $_super;
 
@@ -194,7 +195,7 @@ my $_code_xx = {
 
 
 
-__PACKAGE__->mk_accessors(qw/name req conf q qq view_name var/);
+__PACKAGE__->mk_accessors(qw/name req conf q qq mm view_name var/);
 
 sub init {
     my $self = shift;
@@ -203,9 +204,9 @@ sub init {
     $_req  = $self->req;
     $_env  = $_req->{env};
     $_conf = $self->conf;
-
-    $_q  = $self->q;
-    $_qq = $self->qq;
+    $_q    = $self->q;
+    $_qq   = $self->qq;
+    $_mm   = $self->mm;
 
     $_var = {};
 
