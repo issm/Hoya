@@ -9,8 +9,8 @@ use Hoya::Util;
 
 
 my ($CSS_COMMON, $JS_COMMON);
-my ($CSS_IMPORT, $JS_IMPORT) = ([], []);
-my ($CSS_IMPORT_IE, $JS_IMPORT_IE) = ({}, {});
+my ($CSS_IMPORT, $JS_IMPORT);
+my ($CSS_IMPORT_IE, $JS_IMPORT_IE);
 my ($DIR_CSS, $DIR_JS, $DIR_IMG);
 
 my @IE = map "ie$_", reverse 6..9, '';
@@ -34,14 +34,14 @@ sub init {
     $CSS_COMMON = $_conf->{PAGE}{CSS_COMMON};
     $JS_COMMON  = $_conf->{PAGE}{JS_COMMON};
 
+    ($CSS_IMPORT, $JS_IMPORT) = ([], []);
+    ($CSS_IMPORT_IE, $JS_IMPORT_IE) = ({}, {});
+
     for my $ie (@IE) {
         $CSS_IMPORT_IE->{$ie} = [];
         $JS_IMPORT_IE->{$ie}  = [];
     }
 
-    #$DIR_CSS = sprintf '%s/css', $_conf->{PATH}{ROOT};
-    #$DIR_JS  = sprintf '%s/js',  $_conf->{PATH}{ROOT};
-    #$DIR_IMG = sprintf '%s/img', $_conf->{PATH}{ROOT};
     $DIR_CSS = sprintf '%s/%s/css', $_conf->{PATH}{SKIN}, $_conf->{SKIN_NAME};
     $DIR_JS  = sprintf '%s/%s/js',  $_conf->{PATH}{SKIN}, $_conf->{SKIN_NAME};
     $DIR_IMG = sprintf '%s/%s/img', $_conf->{PATH}{SKIN}, $_conf->{SKIN_NAME};
@@ -101,7 +101,7 @@ sub import_css {
         }
     }
 
-    [$CSS_IMPORT, $CSS_IMPORT_IE];
+    return ($CSS_IMPORT, $CSS_IMPORT_IE);
 }
 
 
@@ -151,7 +151,7 @@ sub import_js {
     }
   }
 
-  [$JS_IMPORT, $JS_IMPORT_IE];
+  return ($JS_IMPORT, $JS_IMPORT_IE);
 }
 
 

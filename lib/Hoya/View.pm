@@ -74,10 +74,10 @@ sub _init_page {
         conf => $_conf,
     })->init;
 
-    my $css_import = $_page->import_css;
-    my $js_import  = $_page->import_js;
-    ($_var->{CSS_IMPORT}, $_var->{CSS_IMPORT_IE}) = @$css_import;
-    ($_var->{JS_IMPORT}, $_var->{JS_IMPORT_IE})   = @$js_import;
+    my @css_import = $_page->import_css;
+    my @js_import  = $_page->import_js;
+    ($_var->{CSS_IMPORT}, $_var->{CSS_IMPORT_IE}) = @css_import;
+    ($_var->{JS_IMPORT}, $_var->{JS_IMPORT_IE})   = @js_import;
 
     return 1;
 }
