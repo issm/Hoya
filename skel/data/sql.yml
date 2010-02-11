@@ -1,0 +1,10 @@
+---
+sample: |
+  SELECT 'Hello!';
+
+
+sample2: |
+  SELECT id
+    FROM %%table
+
+
