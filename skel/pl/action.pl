@@ -2,7 +2,7 @@
 # $_conf : 設定
 # $_q    : HTTPクエリ
 # $_qq   : URLマップパラメータ
-
+# $_mm   : メタモデル
 
 # 指定のアクションを継承する
 #super 'hogehoge';
