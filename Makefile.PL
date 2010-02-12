@@ -8,6 +8,7 @@ requires 'JSON::Syck';
 requires 'UUID::Tiny';
 requires 'Data::Recursive::Encode';
 requires 'Hash::Merge';
+requires 'Hash::MultiValue';
 requires 'Text::MicroTemplate::Extended';
 requires 'Digest::SHA1';
 
