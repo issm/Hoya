@@ -77,9 +77,8 @@ sub go {
     #
     # q, qq, up
     #
-    $_q  = de $req->parameters; # Hash::MultiValueオブジェクト
+    ($_q, $_up) = $self->_decode_queries;
     $_qq = $action_info->{qq};  # Hash::MultiValueオブジェクト
-    $_up = $req->uploads;       # Hash::MultiValueオブジェクト
 
     #
     # user agent mapping
@@ -161,6 +160,25 @@ sub go {
     # ^ PSGIフォーマットに「スキン」情報を追加
 
     return $psgi;
+}
+
+
+sub _decode_queries {
+    my $self = shift;
+    my ($q, $up);
+    my $req = $self->req;
+
+    $q  = de $req->parameters; # Hash::MultiValueオブジェクト
+    $up = $req->uploads;       # Hash::MultiValueオブジェクト
+
+    $up->each(
+        sub {
+            my (undef, $f) = @_;
+            $f->{filename} = de $f->filename;
+        }
+    );
+
+    return ($q, $up);
 }
 
 

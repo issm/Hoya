@@ -120,7 +120,7 @@ $content
 <pre>
 ** error **
 $content
-template: $_name
+template: ${_name}.mt
 skin:     $_conf->{SKIN_NAME}
 </pre>
 ...
