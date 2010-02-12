@@ -72,8 +72,6 @@ sub go {
     $_qq = $action_info->{qq};  # Hash::MultiValueオブジェクト
     $_up = $req->uploads;       # Hash::MultiValueオブジェクト
 
-    warn d $_up;
-
     # ua mapping
     my ($ua_mapper, $ua_info);
     $ua_mapper = Hoya::Mapper::UserAgent->new({
