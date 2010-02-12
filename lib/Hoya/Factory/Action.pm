@@ -66,6 +66,7 @@ sub _load {
         open my $fh, '<', $pl or die $!;
         $buff = de <$fh>;
         close $fh;
+        $buff =~ s/__(?:END|DATA)__.*$//s; # __END__ 以降を削除する
     }
     catch Error with {
         warn shift->text;
@@ -200,7 +201,9 @@ my $_code_xx = {
 
 
 __PACKAGE__->mk_accessors(
-    qw/name req conf q qq up mm view_name var/
+    qw/name req conf q qq up mm view_name var
+       status content_type cookies
+      /
 );
 
 sub init {
@@ -217,9 +220,101 @@ sub init {
 
     $_var = {};
 
+    $self->status(200);
+    $self->content_type(
+        $_conf->{CONTENT_TYPE_DEFAULT} || 'text/plain'
+    );
+    $self->cookies({});
+
     $self->_main();
     return $self;
 }
+
+sub cookie {
+    my $self = shift;
+    # getter
+    if (!defined $_[0]) {
+        return $self->_get_cookie;
+    }
+    elsif (!defined $_[1]  &&  ref $_[0] eq '') {
+        return $self->_get_cookie(@_);
+    }
+    # setter
+    else {
+        return $self->_set_cookie(@_);
+    }
+}
+# remove_cookie($name);
+sub remove_cookie {
+    my ($self, $name) = @_;
+    return $self->cookie($name, '', undef, undef, -60*60);
+}
+sub _get_cookie {
+    my $self = shift;
+    my ($name) = @_;
+    #
+    if (!defined $name) {
+        return de $_req->cookies;
+    }
+    #
+    else {
+        return de $_req->cookies->{$name};
+    }
+}
+sub _set_cookie {
+    my $self = shift;
+    my ($name, $value, $path, $domain, $expires);
+
+    # hashref type or Hash::MultiValue
+    if (ref $_[0] eq 'HASH'  or  ref $_[0] eq 'Hash::MultiValue') {
+        my $c = shift;
+        $name    = $c->{name};
+        $value   = $c->{value};
+        $path    = $c->{path};
+        $domain  = $c->{domain};
+        $expires = $c->{expires};
+    }
+    # array type
+    elsif (defined $_[0]  &&  defined $_[1]) {
+        ($name, $value, $path, $domain, $expires) = @_;
+    }
+    # others
+    else {
+        return {};
+    }
+
+    $self->cookies->{$name} = {
+        value  => $value,
+        path   => $path    || $_conf->{COOKIE}{PATH},
+        domain => $domain  || $_conf->{COOKIE}{DOMAIN},
+    };
+    if (defined $expires  or  defined $_conf->{COOKIE}{EXPIRES}) {
+        $self->cookies->{$name}{expires}
+            = $self->_to_time($expires || $_conf->{COOKIE}{EXPIRES});
+    }
+
+    return $self->cookies->{$name};
+}
+
+sub _to_time {
+    my ($self, $t) = @_;
+    return undef  unless defined $t;
+
+    my ($n, $u_sec, $u_min, $u_hour, $u_day, $u_week)
+        = $t =~ /^\s*
+                 ([\+\-]?\d+)
+                 (?:(s|sec) | (m|min) | (h|hour) | (d|day) | (w|week))?
+                 \s*$
+                /x;
+    my $rate = 1;
+    if ($u_min)  { $rate = 60; }
+    if ($u_hour) { $rate = 60 * 60; }
+    if ($u_day)  { $rate = 60 * 60 * 24; }
+    if ($u_week) { $rate = 60 * 60 * 24 * 7; }
+
+    return time + int($n) * $rate;
+}
+
 
 
 sub go {
@@ -289,7 +384,6 @@ sub go {
 }
 
 
-# super $name
 sub super ($) {
     my $name = shift;
     return undef  if $name eq $_name; # 再帰防止？
@@ -307,7 +401,6 @@ sub super ($) {
 
 
 
-# set_var($name, $value);
 sub set_var {
     my ($self, @args) = @_;
     my $size = scalar @args;
@@ -395,6 +488,43 @@ sub finish {
 sub _main {%s}
 
 1;
+
+__END__
+
+new
+
+
+go
+
+
+# getter
+cookie;
+cookie($name);
+# setter
+cookie({name => $name, value => $value, path => $path, domain => $domain, expires => $expires});
+cookie($name, $value, $path, $domain, $expires);
+
+
+remove_cookie($name);
+
+
+
+====
+
+super $name;
+
+
+BEFORE \&sub;
+GET    \&sub;
+POST   \&sub;
+AFTER  \&sub;
+
+
+get_var($name);
+
+
+set_var($name, $value);
+
 ...
         $action_class,
         $methods,

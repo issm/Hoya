@@ -61,6 +61,7 @@ sub _load {
         open my $fh, '<', $pl or die $!;
         $buff = de <$fh>;
         close $fh;
+        $buff =~ s/__(?:END|DATA)__.*$//s; # __END__ 以降を削除する
     }
     catch Error with {
         warn shift->text;

@@ -33,6 +33,8 @@ __PACKAGE__->mk_accessors(
        q qq var action_name
        content error
        no_escape
+
+       status content_type
       /
 );
 

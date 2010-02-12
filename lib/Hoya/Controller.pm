@@ -52,13 +52,20 @@ sub go {
     my $self = shift;
     my $req = $self->req;
 
+    # Plack::Response
+    my $res = $req->new_response(404);
+
+    #
     # metamodel
+    #
     $_mm = Hoya::MetaModel->new({
         env  => $_env,
         conf => $_conf,
     })->init;
 
-    # url mapping
+    #
+    # url mapping (dispatching)
+    #
     my ($url_mapper, $action_info);
     $url_mapper = Hoya::Mapper::URL->new({
         req      => $req,
@@ -67,12 +74,16 @@ sub go {
     })->init;
     $action_info = $url_mapper->get_action_info;
 
+    #
     # q, qq, up
+    #
     $_q  = de $req->parameters; # Hash::MultiValueオブジェクト
     $_qq = $action_info->{qq};  # Hash::MultiValueオブジェクト
     $_up = $req->uploads;       # Hash::MultiValueオブジェクト
 
-    # ua mapping
+    #
+    # user agent mapping
+    #
     my ($ua_mapper, $ua_info);
     $ua_mapper = Hoya::Mapper::UserAgent->new({
         req  => $req,
@@ -81,10 +92,14 @@ sub go {
     $ua_info = $ua_mapper->get_info;
     $_conf->{UA_INFO} = $ua_info;
 
+    #
     # skin
+    #
     $_conf->{SKIN_NAME} = $_conf->{UA_INFO}{name} || 'default';
 
+    #
     # action
+    #
     my ($view_info);
     $_action = Hoya::Factory::Action->new({
         name => $action_info->{name},
@@ -97,27 +112,51 @@ sub go {
     })->init;
     $view_info = $_action->go;
 
-    # view
-    $_view = Hoya::View->new({
-        name => $view_info->{name},
-        type => 'MT',
-        env  => $req->{env},
-        conf => $_conf,
-        q    => $view_info->{q},
-        qq   => $view_info->{qq},
-        var  => $view_info->{var},
-        action_name => $_action->name,
-    })->init;
-    #$_view->no_escape(1);
-    $_view->go;
+    #
+    # cookieを発行する
+    #
+    $res->cookies(en $_action->cookies);
 
+    #
+    # ビュー名がURL書式の場合：そのURLへのリダイレクト処理を行う
+    #
+    if ($view_info->{name} =~ qr{^(?:https?|ftp)://}) {
+        my $url_to = $view_info->{name};
+        $res->redirect($url_to);
+    }
+    #
+    # ビュー名がURL書式でない場合：通常の処理を行う
+    #
+    else {
+        $res->status($_action->status);
+        $res->content_type($_action->content_type);
 
-    # Plack::Response
-    my $res = $req->new_response(200);
-    $res->content_type('text/html');
-    $res->content($_view->content);
-    my $psgi = $res->finalize;  # PSGIフォーマット
+        # view
+        $_view = Hoya::View->new({
+            name => $view_info->{name},
+            type => 'MT',
+            env  => $req->{env},
+            conf => $_conf,
+            q    => $view_info->{q},
+            qq   => $view_info->{qq},
+            var  => $view_info->{var},
+            action_name => $_action->name,
+        })->init;
+        #$_view->no_escape(1);
+        $_view->go;
 
+        $res->status($_view->status)
+            if defined $_view->status;
+        $res->content_type($_view->content_type)
+            if defined $_view->content_type;
+
+        $res->content($_view->content);
+    }
+
+    #
+    # PSGI formatting
+    #
+    my $psgi = $res->finalize;
     push @$psgi, [$_conf->{SKIN_NAME}];
     # ^ PSGIフォーマットに「スキン」情報を追加
 
