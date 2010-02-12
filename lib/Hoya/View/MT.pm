@@ -81,6 +81,8 @@ sub go {
                 qq   => $_qq,
                 var  => $_var,
 
+                URL  => $_conf->{LOCATION}{URL},
+
                 VIEW_NAME   => $_name,
                 ACTION_NAME => $_action_name,
             },

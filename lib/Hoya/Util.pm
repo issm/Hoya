@@ -8,7 +8,8 @@ use Encode;
 use Data::Recursive::Encode;
 use Data::Dumper qw/Dumper/;
 use Hash::Merge qw/merge/;
-use Error;
+use Hash::MultiValue;
+use Error qw/:try/;
 
 our @EXPORT = qw/
                     self_param
@@ -170,6 +171,12 @@ sub en {
     elsif ($ref =~ /^(ARRAY|HASH)$/) {
         return Data::Recursive::Encode->encode($charset_to, $data);
     }
+    # Hash::MultiValue
+    elsif ($ref eq 'Hash::MultiValue') {
+        my $flatten = [$data->flatten];
+        $flatten = Data::Recursive::Encode->encode($charset_to, $flatten);
+        return Hash::MultiValue->new(@$flatten);
+    }
 }
 
 # exported
@@ -192,6 +199,17 @@ sub de {
     elsif ($ref =~ /^(ARRAY|HASH)$/) {
         try {
             return Data::Recursive::Encode->decode($charset_from, $data);
+        }
+        catch Error with {
+            return $data;
+        };
+    }
+    # Hash::MultiValue object
+    elsif ($ref eq 'Hash::MultiValue') {
+        try {
+            my $flatten = [$data->flatten];
+            $flatten = Data::Recursive::Encode->decode($charset_from, $flatten);
+            return Hash::MultiValue->new(@$flatten);
         }
         catch Error with {
             return $data;

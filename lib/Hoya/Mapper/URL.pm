@@ -7,6 +7,7 @@ use base qw/Class::Accessor::Faster/;
 use YAML::Syck;
 use URI::Escape;
 use Hash::Merge qw/merge/;
+use Hash::MultiValue;
 use Error qw/:try/;
 
 use Hoya::Util;
@@ -69,7 +70,7 @@ sub get_action_info {
     my $self = shift;
     my $action_info = {
         name => '',
-        qq   => {},
+        qq   => Hash::MultiValue->new(),
     };
     my $path_info = $self->_get_path_info();
 
@@ -79,6 +80,9 @@ sub get_action_info {
     # v $hoge or ${hoge}
     my $re_var = qr/(?:\$([a-zA-Z0-9_]+) | \$\{([^\}]+)\} )/x;
 
+    #
+    # 適用ルールを検索する
+    #
     for my $pair (@$_map_rule) {
         my $re_path = (keys %$pair)[0];
         my $re_path_eval = $re_path; # 「変数」展開用
@@ -101,6 +105,8 @@ sub get_action_info {
     }
 
     #
+    # ルールからアクションの情報を生成する
+    #
     if (defined $rule_applied) {
         $action_info->{name} = shift @$rule_applied;
         my ($param, $const) = @$rule_applied;
@@ -108,16 +114,15 @@ sub get_action_info {
         if (defined $param  &&  ref $param eq 'ARRAY') {
             for (my $i = 0; $i < scalar @$param; $i++) {
                 my $k = $param->[$i];
-                $action_info->{qq}{$k} = $params[$i]
+                $action_info->{qq}->add($k, $params[$i])
                     if defined $params[$i];
             }
         }
         #
         if (defined $const  &&  ref $const eq 'HASH') {
-            $action_info->{qq} = merge(
-                $const,
-                $action_info->{qq},
-            );
+            while (my ($k, $v) = each %$const) {
+                $action_info->{qq}->add($k, $v);
+            }
         }
 
     }

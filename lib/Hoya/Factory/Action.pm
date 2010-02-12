@@ -13,7 +13,9 @@ my $_name;
 
 
 #
-__PACKAGE__->mk_accessors(qw/name req conf q qq mm view_name var/);
+__PACKAGE__->mk_accessors(
+    qw/name req conf q qq up mm view_name var/
+);
 
 
 sub init {
@@ -34,6 +36,7 @@ Hoya::Action::${_name}->new({
     conf => \$self->conf,
     q    => \$self->q,
     qq   => \$self->qq,
+    up   => \$self->up,
     mm   => \$self->mm,
 })->init;
 ...
@@ -172,6 +175,7 @@ my $_env;
 my $_conf;
 my $_q;
 my $_qq;
+my $_up;
 my $_mm;
 
 my $_super;
@@ -195,7 +199,9 @@ my $_code_xx = {
 
 
 
-__PACKAGE__->mk_accessors(qw/name req conf q qq mm view_name var/);
+__PACKAGE__->mk_accessors(
+    qw/name req conf q qq up mm view_name var/
+);
 
 sub init {
     my $self = shift;
@@ -206,6 +212,7 @@ sub init {
     $_conf = $self->conf;
     $_q    = $self->q;
     $_qq   = $self->qq;
+    $_up   = $self->up;
     $_mm   = $self->mm;
 
     $_var = {};

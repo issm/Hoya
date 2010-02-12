@@ -19,7 +19,9 @@ my $_conf;
 
 my $_q;  # クエリパラメータ群
 my $_qq; # URLマッピングによって得られるパラメータ群
-my $_mm; # metamodel
+my $_up; # Plack::Request::Uploadオブジェクトの集合
+
+my $_mm; # メタモデル（Hoya::MetaModelオブジェクト）
 my $_action;
 my $_view;
 
@@ -32,12 +34,14 @@ __PACKAGE__->mk_accessors(qw/req app_name/);
 sub init {
     my $self = shift;
 
-    # env
     $_env = $self->req->{env};
-    # conf
     $_conf = Hoya::Config->new({
         req => $self->req,
     })->init->get;
+
+    $_q  = {}; # Hash::MultiValueオブジェクト
+    $_qq = {}; # Hash::MultiValueオブジェクト
+    $_up = {}; # Hash::MultiValueオブジェクト
 
     return $self;
 }
@@ -63,9 +67,12 @@ sub go {
     })->init;
     $action_info = $url_mapper->get_action_info;
 
-    # q, qq
-    $_q  = de $req->parameters;
-    $_qq = $action_info->{qq};
+    # q, qq, up
+    $_q  = de $req->parameters; # Hash::MultiValueオブジェクト
+    $_qq = $action_info->{qq};  # Hash::MultiValueオブジェクト
+    $_up = $req->uploads;       # Hash::MultiValueオブジェクト
+
+    warn d $_up;
 
     # ua mapping
     my ($ua_mapper, $ua_info);
@@ -87,6 +94,7 @@ sub go {
         conf => $_conf,
         q    => $_q,
         qq   => $_qq,
+        up   => $_up,
         mm   => $_mm,
     })->init;
     $view_info = $_action->go;
