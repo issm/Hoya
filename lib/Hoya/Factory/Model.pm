@@ -129,6 +129,14 @@ sub dsh_type ($) {
 
 
 1;
+__END__
+
+init
+
+========
+
+
+dsh_type
 ...
         $model_class,
         $pl,

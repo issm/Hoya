@@ -167,3 +167,9 @@ sub go {
 
 1;
 __END__
+
+
+init;
+
+
+go;

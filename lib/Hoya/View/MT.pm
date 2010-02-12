@@ -137,4 +137,9 @@ skin:     $_conf->{SKIN_NAME}
 
 
 1;
+__END__
 
+init;
+
+
+go;
