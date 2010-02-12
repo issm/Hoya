@@ -27,7 +27,7 @@ sub init {
 
     # PATH
     my $PATH = {};
-    my $script_dir = dirname(File::Spec->rel2abs($_env->{SCRIPT_NAME}));
+    my $script_dir = dirname(File::Spec->rel2abs($_env->{SCRIPT_PATH_FULL}));
     (my $project_root = $script_dir) =~ s{/www$}{};
 
     $PATH->{ROOT}      = $project_root;
@@ -56,20 +56,10 @@ sub init {
     my $LOCATION = {};
     (my $_PROTOCOL = lc $_req->protocol) =~ s{/.*$}{};
     $LOCATION->{PROTOCOL} = $_conf->{LOCATION}{PROTOCOL} || $_PROTOCOL;
-    $LOCATION->{URL} = $_env->{REQUEST_URI};
-
+    $LOCATION->{URL} = $_req->uri;
 
     # URL_BASE
-    my $URL_BASE = '';
-    $URL_BASE = sprintf(
-        '%s://%s',
-        $LOCATION->{PROTOCOL},
-        $_env->{SERVER_NAME},
-    );
-    $URL_BASE .= ':' . $_env->{SERVER_PORT}  if $_env->{SERVER_PORT};
-    $URL_BASE .= $_conf->{LOCATION}{PATH}  if $_conf->{LOCATION}{PATH};
-    $URL_BASE .= '/';
-    $URL_BASE =~ s{/+$}{/};
+    my $URL_BASE = $_req->base;
 
     # CACHE
     my $CACHE = {};
@@ -82,6 +72,9 @@ sub init {
             random_key(1, $_conf->{PROJECT_NAME}),
             random_key(1, "$a$z"),
         );
+        # ^ PROJECT_NAME が 'project' の場合，
+        # ^ 'project'，最初の'p'，最後の't' を順に連結した文字列を，
+        # ^ random_key の引数に渡している
     }
 
 

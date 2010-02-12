@@ -61,7 +61,7 @@ sub go {
     # url mapping
     my ($url_mapper, $action_info);
     $url_mapper = Hoya::Mapper::URL->new({
-        env      => $_env,
+        req      => $req,
         conf     => $_conf,
         app_name => $self->app_name,
     })->init;
@@ -75,7 +75,7 @@ sub go {
     # ua mapping
     my ($ua_mapper, $ua_info);
     $ua_mapper = Hoya::Mapper::UserAgent->new({
-        env  => $_env,
+        req  => $req,
         conf => $_conf,
     })->init;
     $ua_info = $ua_mapper->get_info;

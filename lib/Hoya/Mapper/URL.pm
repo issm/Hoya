@@ -12,6 +12,7 @@ use Error qw/:try/;
 
 use Hoya::Util;
 
+my $_req;
 my $_env;
 my $_conf;
 my $_app_name;
@@ -20,12 +21,13 @@ my $_map_var;
 
 
 #
-__PACKAGE__->mk_accessors(qw/env conf app_name/);
+__PACKAGE__->mk_accessors(qw/req env conf app_name/);
 
 #
 sub init {
     my $self = shift;
-    $_env      = $self->env;
+    $_req      = $self->req;
+    $_env      = $_req->env;
     $_conf     = $self->conf;
     $_app_name = $self->app_name;
     $_map_rule = {};

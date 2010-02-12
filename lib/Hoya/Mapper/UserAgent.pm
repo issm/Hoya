@@ -10,6 +10,7 @@ use Hoya::Util;
 
 our $UA_DEFAULT = 'default';
 
+my $_req;
 my $_env;
 my $_conf;
 
@@ -20,12 +21,13 @@ my $_map_rule;
 my $__map = [];
 
 
-__PACKAGE__->mk_accessors(qw/env conf/);
+__PACKAGE__->mk_accessors(qw/req env conf/);
 
 
 sub init {
   my $self = shift;
-  $_env  = $self->env;
+  $_req  = $self->req;
+  $_env  = $_req->env;
   $_conf = $self->conf;
 
   $self->_load;
@@ -56,10 +58,10 @@ sub _load {
 sub get_info {
     my ($self) = @_;
     my $ua_info = {
-        name => 'default',
+        name => 'defaultx',
     };
 
-    my $ua = $_env->{HTTP_USER_AGENT};
+    my $ua = $_req->user_agent;
 
     my ($matched, $rule_applied);
 
