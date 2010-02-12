@@ -1,9 +1,3 @@
-# $_env  : 環境変数
-# $_conf : 設定
-# $_q    : HTTPクエリ
-# $_qq   : URLマップパラメータ
-# $_mm   : メタモデル
-
 # 指定のアクションを継承する
 #super 'hogehoge';
 
@@ -44,4 +38,11 @@ AFTER {
 };
 
 
-#warn d "**** END: $_name";
+
+__END__
+$_env  : 環境変数
+$_conf : 設定
+$_q    : HTTPクエリ          # Hash::Multivalueオブジェクト
+$_qq   : URLマップパラメータ   # Hash::Multivalueオブジェクト
+$_up   : アップロードファイル  # Hash::Multivalueオブジェクト
+$_mm   : メタモデル
