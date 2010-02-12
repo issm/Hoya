@@ -64,7 +64,12 @@ sub _load {
         $buff =~ s/__(?:END|DATA)__.*$//s; # __END__ 以降を削除する
     }
     catch Error with {
-        warn shift->text;
+        #warn shift->text;
+        my $text = sprintf(
+            '[notice] Model file not found: %s',
+            $_name,
+        );
+        warn $text;
         $buff = '';
     };
 
