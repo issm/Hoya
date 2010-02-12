@@ -56,6 +56,8 @@ sub init {
     my $LOCATION = {};
     (my $_PROTOCOL = lc $_req->protocol) =~ s{/.*$}{};
     $LOCATION->{PROTOCOL} = $_conf->{LOCATION}{PROTOCOL} || $_PROTOCOL;
+    $LOCATION->{URL} = $_env->{REQUEST_URI};
+
 
     # URL_BASE
     my $URL_BASE = '';
