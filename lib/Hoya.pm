@@ -21,9 +21,9 @@ sub run {
     my $c = Hoya::Controller->new({
         req      => $req,
         app_name => $app_name,
-    });
-    $c->init;
-    $c->go;
+    })->init;
+
+    return $c->go;
 }
 
 sub auth {

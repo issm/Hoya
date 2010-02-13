@@ -169,6 +169,7 @@ no warnings 'closure';  #ad-hoc
 use utf8;
 use base qw/Class::Accessor::Faster/;
 
+use Hash::MultiValue;
 use Error qw/:try/;
 
 use Hoya::Util;
@@ -182,6 +183,7 @@ my $_conf;
 my $_q;
 my $_qq;
 my $_up;
+my $_m;
 my $_mm;
 
 my $_super;
@@ -222,6 +224,7 @@ sub init {
     $_qq   = $self->qq;
     $_up   = $self->up;
     $_mm   = $self->mm;
+    $_m    = Hash::MultiValue->new;
 
     $_var = {};
 
@@ -389,22 +392,6 @@ sub go {
 }
 
 
-sub super ($) {
-    my $name = shift;
-    return undef  if $name eq $_name; # 再帰防止？
-
-    $_super = Hoya::Factory::Action->new({
-        name => $name,
-        req  => $_req,
-        conf => $_conf,
-        q    => $_q,
-        qq   => $_qq,
-    })->init;
-
-    $_super;
-}
-
-
 sub var {
     my ($self, $name, $value) = @_;
     return undef  unless is_def $name;
@@ -502,6 +489,39 @@ sub finish {
 %s
 
 
+sub super ($) {
+    my $name = shift;
+    return undef  if ref $name =~ /^Hoya::Action::/;
+    return undef  if $name eq $_name; # 再帰防止？
+
+    $_super = Hoya::Factory::Action->new({
+        name => $name,
+        req  => $_req,
+        conf => $_conf,
+        q    => $_q,
+        qq   => $_qq,
+    })->init;
+
+    $_super;
+}
+
+
+sub model {
+    my @names = @_;
+    return $_m  unless @names;
+    return $_m  if $names[0] =~ /^Hoya::Action::/;
+
+    for my $name (@names) {
+        $_m->add(
+            $name,
+            $_mm->get_model($name),
+        );
+    }
+
+    return $_m;
+}
+
+
 sub _main {%s}
 
 1;
@@ -563,6 +583,8 @@ w / week: week(s)
 
 =item remove_cookie($name)
 
+Removes cookie which is associated with name $name.
+
 =item var($name)
 
 =item var($name, $var)
@@ -581,13 +603,23 @@ Sets variables that are available on "view".
 
 When 1st argument is hashref, \%%var is merged to "variable hash".
 
-Removes cookie which is associated with name $name.
+=item finish
+
+Finish "action propagation".
 
 =back
 
 =head1 FUNCTIONS IN "ACTION FILE"
 
 =over 4
+
+=item super $name
+
+Extends action named $name.
+
+=item model $model1, $model2, ...
+
+Include "model" named $model1, $model2, ...
 
 =item BEFORE \&callback
 
