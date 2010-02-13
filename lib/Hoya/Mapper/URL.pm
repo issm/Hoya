@@ -277,3 +277,38 @@ sub url_to_action {
 
 1;
 __END__
+
+=head1 NAME
+
+Hoya::Mapper::URL - Maps "path_info" to "action" info under the "rule".
+
+=head1 SYNOPSIS
+
+  use Hoya::Mapper::URL;
+
+=head1 DESCRIPTION
+
+Hoya::Mapper::URL is
+
+=head1 METHODS
+
+=over 4
+
+=item init
+
+initialize.
+
+=back
+
+=head1 AUTHOR
+
+issm E<lt>issmxx@gmail.comE<gt>
+
+=head1 SEE ALSO
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut

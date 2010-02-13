@@ -156,4 +156,47 @@ sub import_js {
 
 
 1;
+__END__
 
+=head1 NAME
+
+Hoya::Page - Utilities for "web page".
+
+=head1 SYNOPSIS
+
+  use Hoya::Page;
+
+=head1 DESCRIPTION
+
+Hoya::Factory::Action is
+
+=head1 METHODS
+
+=over 4
+
+=item init
+
+initialize.
+
+=item import_css
+
+searches "css" files and returns those info.
+
+=item import_js
+
+searches "js" files and return those info.
+
+=back
+
+=head1 AUTHOR
+
+issm E<lt>issmxx@gmail.comE<gt>
+
+=head1 SEE ALSO
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut

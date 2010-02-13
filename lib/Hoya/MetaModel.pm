@@ -78,3 +78,42 @@ sub _create_model {
 
 1;
 __END__
+
+=head1 NAME
+
+Hoya::MetaModel - Model of "Model" classes.
+
+=head1 SYNOPSIS
+
+  use Hoya::MetaModel;
+
+=head1 DESCRIPTION
+
+Hoya::Controller is
+
+=head1 METHODS
+
+=over 4
+
+=item init
+
+initialize.
+
+=item get_model($name)
+
+returns Hoya::Model::*.
+
+=back
+
+=head1 AUTHOR
+
+issm E<lt>issmxx@gmail.comE<gt>
+
+=head1 SEE ALSO
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut

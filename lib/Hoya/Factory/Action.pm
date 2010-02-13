@@ -405,6 +405,19 @@ sub super ($) {
 }
 
 
+sub var {
+    my ($self, $name, $value) = @_;
+    return undef  unless is_def $name;
+
+    # setter
+    if (is_def $name, $value) {
+        return $self->set_var($name, $value);
+    }
+    # getter
+    elsif (is_def $name) {
+        return $self->get_var($name);
+    }
+}
 
 sub set_var {
     my ($self, @args) = @_;
@@ -425,7 +438,6 @@ sub set_var {
     return $_var;
 }
 
-#
 sub get_var {
     my ($self, @names) = @_;
     return undef  unless @names;
@@ -496,40 +508,119 @@ sub _main {%s}
 
 __END__
 
-new
+=head1 NAME
 
+Hoya::Action::* - "Action" class.
 
-go
+=head1 SYNOPSIS
 
+  use Hoya::Action::*;
 
-# getter
-cookie;
-cookie($name);
-# setter
-cookie({name => $name, value => $value, path => $path, domain => $domain, expires => $expires});
-cookie($name, $value, $path, $domain, $expires);
+=head1 DESCRIPTION
 
+Hoya::Action* is
 
-remove_cookie($name);
+=head1 METHODS
 
+=over 4
 
+=item init
 
-====
+initialize.
 
-super $name;
+=item go
 
+Go.
 
-BEFORE \&sub;
-GET    \&sub;
-POST   \&sub;
-AFTER  \&sub;
+=item cookie
 
+=item cookie($name)
 
-get_var($name);
+=item cookie($name, $value, $path, $domain, $expires)
 
+=item cookie(\%%opts)
 
-set_var($name, $value);
+Gets/Sets cookie.
 
+\%%opts
+
+- name
+- value
+- path
+- domain
+- expires
+time to be expired.
+
+Format of "expires"
+
+can be set with "units" like '+3min', '-1d'.
+available "units" are:
+s / sec: second(s)
+m / min: minute(s)
+h / hour: hour(s)
+d / day: day(s)
+w / week: week(s)
+
+=item remove_cookie($name)
+
+=item var($name)
+
+=item var($name, $var)
+
+Gets/Sets variable associated with name $name. These variables are available on "view".
+
+=item get_var($name1, $name2, ...)
+
+Gets variables that are available on "view".
+
+=item set_var($name1 => $var1, $name2 => $var2, ...)
+
+=item set_var(\%%var)
+
+Sets variables that are available on "view".
+
+When 1st argument is hashref, \%%var is merged to "variable hash".
+
+Removes cookie which is associated with name $name.
+
+=back
+
+=head1 FUNCTIONS IN "ACTION FILE"
+
+=over 4
+
+=item BEFORE \&callback
+
+Proceeds \&callback BEFORE GET/POST function. Common for GET and POST request methods.
+
+In \&callback, first argument($_[0]) refers Hoya::Action;;* object.
+
+=item GET \&callback
+
+Proceeds \&callback on GET request method.
+
+=item POST \&callback
+
+Proceeds \&callback on POST request method.
+
+=item AFTER \&callback
+
+Proceeds \&callback AFTER GET/POST function. Common for GET and POST request methods.
+
+=back
+
+=head1 AUTHOR
+
+issm E<lt>issmxx@gmail.comE<gt>
+
+=head1 SEE ALSO
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
 ...
         $action_class,
         $methods,
@@ -545,3 +636,38 @@ set_var($name, $value);
 
 1;
 __END__
+
+=head1 NAME
+
+Hoya::Factory::Action - Generates "Action Class" dynamically.
+
+=head1 SYNOPSIS
+
+  use Hoya::Factory::Action;
+
+=head1 DESCRIPTION
+
+Hoya::Factory::Action is
+
+=head1 METHODS
+
+=over 4
+
+=item init
+
+initialize.
+
+=back
+
+=head1 AUTHOR
+
+issm E<lt>issmxx@gmail.comE<gt>
+
+=head1 SEE ALSO
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut

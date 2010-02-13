@@ -139,7 +139,41 @@ skin:     $_conf->{SKIN_NAME}
 1;
 __END__
 
-init;
+=head1 NAME
 
+Hoya::View::MT - View class using Text::MicroTemplate::Extended.
 
-go;
+=head1 SYNOPSIS
+
+  use Hoya::View::MT;
+
+=head1 DESCRIPTION
+
+Hoya::View::MT is
+
+=head1 METHODS
+
+=over 4
+
+=item init
+
+initialize.
+
+=item go
+
+go.
+
+=back
+
+=head1 AUTHOR
+
+issm E<lt>issmxx@gmail.comE<gt>
+
+=head1 SEE ALSO
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut

@@ -102,41 +102,37 @@ sub get_info {
 1;
 __END__
 
-
 =head1 NAME
 
-Megane::Web::App::URLMapper
+Hoya::Mapper::UserAgent - Maps user agent info to "skin" info uner the "rule".
 
+=head1 SYNOPSIS
 
+  use Hoya::Mapper::UserAgent;
+
+=head1 DESCRIPTION
+
+Hoya::Mapper::UserAgent is
 
 =head1 METHODS
 
 =over 4
 
-=item $mapper = Megane::Web::App::URLMapper->new( config => $config [, %options ] )
+=item init
 
-B<parameters>
-
-=over 2
-
-=item config
-
-hashref
+initialize.
 
 =back
 
-B<%options>
+=head1 AUTHOR
 
+issm E<lt>issmxx@gmail.comE<gt>
 
-=item $mapper->load_config
+=head1 SEE ALSO
 
-PATH.CONF で設定したディレクトリ下の urlmap.yml を読み込む
+=head1 LICENSE
 
-
-=item $mapper->get_ua
-
-
-=back
-
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut

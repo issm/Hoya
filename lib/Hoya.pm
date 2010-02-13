@@ -42,7 +42,7 @@ __END__
 
 =head1 NAME
 
-Hoya -
+Hoya - A simple web application framework.
 
 =head1 SYNOPSIS
 
@@ -51,6 +51,16 @@ Hoya -
 =head1 DESCRIPTION
 
 Hoya is
+
+=head1 METHODS
+
+=over 4
+
+=item Hoya->run($req, $app_name)
+
+hogehoge
+
+=back
 
 =head1 AUTHOR
 

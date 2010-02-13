@@ -244,4 +244,79 @@ sub merge_hash {
 
 
 1;
+__END__
 
+=head1 NAME
+
+Hoya::Util - Utilities.
+
+=head1 SYNOPSIS
+
+  use Hoya::Util;
+
+=head1 DESCRIPTION
+
+Hoya::Util is
+
+=head1 EXPORTED FUNCTIONS
+
+=over 4
+
+=item name2path($name)
+
+$path = name2path('foo_bar_baz');  # 'foo/bar/baz'
+
+=item d($var)
+
+synonym for "Dumper()" using Data::Dumper.
+
+=item D($var)
+
+synonym for "Data::Dumper->Dump()".
+
+=item en($data [, $charset_to])
+
+Encodes $data to character set $charset_to. $charset_to default to 'utf-8'.
+
+Encodes each data recursively, if $data is complex (hashref or arrayref).
+
+Encodes each pair, if $data is Hash::MultiValue object.
+
+=item de($data [, $charset_from])
+
+Decodes $data to utf-8 from character set $charset_from. $charset_from default to 'utf-8'.
+
+Decodes each data recursively, if $data is complex (hashref or arrayref).
+
+Decodes each pair, if $data is Hash::MultiValue object.
+
+=item is_def($var1, $var2, ...)
+
+Returns "TRUE" if all arguments ($var1, $var2, ...) are defined. Otherwise, returns "FALSE".
+
+=item merge_hash(\%hash1, \%hash2)
+
+Merges hashref \%hash2 to \%hash1 and returns hashref which is merged.
+
+Using Hash::Merge.
+
+=item random_key([$n, $str])
+
+Returns "random" string with length a multiple of 8 (8 * $n). Defaut, $n is set to 1.
+
+If $str is set, return "hashed" string based on $str.
+
+=back
+
+=head1 AUTHOR
+
+issm E<lt>issmxx@gmail.comE<gt>
+
+=head1 SEE ALSO
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut

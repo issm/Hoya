@@ -186,8 +186,37 @@ sub _decode_queries {
 1;
 __END__
 
+=head1 NAME
 
-init;
+Hoya::Controller - "Controller" class.
 
+=head1 SYNOPSIS
 
-go;
+  use Hoya;
+
+=head1 DESCRIPTION
+
+Hoya::Controller is
+
+=head1 METHODS
+
+=over 4
+
+=item init
+
+initialize.
+
+=back
+
+=head1 AUTHOR
+
+issm E<lt>issmxx@gmail.comE<gt>
+
+=head1 SEE ALSO
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
