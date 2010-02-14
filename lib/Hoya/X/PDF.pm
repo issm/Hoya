@@ -798,13 +798,13 @@ __END__
 
 =head1 NAME
 
-Megane::Tool::PDF - Simplifies to create simple PDF files.
+Hoya::X::PDF - Simplifies to create simple PDF files.
 
 
 =head1 SYNOPSIS
 
-  use Megane::Tool::PDF;
-  $pdf = Megane::Tool::PDF->new;
+  use Hoya::X::PDF;
+  $pdf = Hoya::X::PDF->new;
   $pdf->page;
   $pdf->text( x => 0, y => 20, text => 'hoge' );
   $pdf->image( x => '5mm', y => '10%', file => '/path/to/image.jpg' );
@@ -945,14 +945,15 @@ B<%options>
   action  描画方法． stroke, fill, fillstroke
 
 
-
-
-
 =head1 AUTHOR
 
-IWATA, Susumu
+issm E<lt>issmxx@gmail.comE<gt>
 
+=head1 SEE ALSO
 
+=head1 LICENSE
 
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
