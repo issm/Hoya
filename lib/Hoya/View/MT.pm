@@ -100,7 +100,7 @@ sub go {
         }
         catch {
             $self->error(1);
-            $content = shift->text;
+            $content = shift;
             $content = << "...";
 <pre>
 ** error **
@@ -116,7 +116,7 @@ $content
         }
         catch {
             $self->error(1);
-            $content = shift->text;
+            $content = shift;
             $content = << "...";
 <pre>
 ** error **
