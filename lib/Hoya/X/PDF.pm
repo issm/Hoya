@@ -30,15 +30,17 @@ use Hoya::Util;
 
 
 my $RE = {
-  NL               => qr/(?:\x0d?\x0a|\x0d)/x,        # 改行文字の正規表現: CR+LF, LF, CR
-  CHAR_TATE_ROTATE => qr/[ー（）｛｝「」『』\(\)]/x,  #
-  CHAR_TATE_SLIDE  => qr/[、。，．]/x,                #
-  #CHAR_HANKAKU     => qr/[\x20-\x7E\xA1-\xDF]/,  # 半角カナを含む
-  CHAR_HANKAKU     => qr/[\x20-\x7E]/x,  # 半角カナを含まない
+    NL               => qr/(?:\x0d?\x0a|\x0d)/x,     # 改行文字の正規表現: CR+LF, LF, CR
+    CHAR_TATE_ROTATE => qr/[ー（）｛｝「」『』\(\)]/x,  #
+    CHAR_TATE_SLIDE  => qr/[、。，．]/x,              #
+    #CHAR_HANKAKU     => qr/[\x20-\x7E\xA1-\xDF]/,    # 半角カナを含む
+    CHAR_HANKAKU     => qr/[\x20-\x7E]/x,            # 半角カナを含まない
+    LENGTH           => qr/^\s* ([\+\-]? \d+(?:\.\d+)? ) \s* (\D+)? \s*$/x,  # （単位つき）長さ
 };
 
+
 my $MAP_YOKO2TATE = {
-  #'、' => "\x{2661}",
+    #'、' => "\x{2661}",
 };
 
 
@@ -90,34 +92,52 @@ qw/
 #  初期化
 #
 sub init {
-  my ( $self, $param ) = self_param( @_ );
+    my ($self, $para ) = self_param(@_);
 
-  $self->_DPI( defined $self->dpi  ?  $self->dpi  :  $DPI );
-  $self->_MEASURE( defined $self->measure  ?  $self->measure  :  $MEASURE );
-  $self->_WIDTH( $self->to_px( defined $self->width  ?  $self->width  :  $PAGE_WIDTH ) );
-  $self->_HEIGHT( $self->to_px( defined $self->height  ?  $self->height  :  $PAGE_HEIGHT ) );
+    $self->_DPI(
+        defined $self->dpi  ?  $self->dpi  :  $DPI
+    );
+    $self->_MEASURE(
+        defined $self->measure  ?  $self->measure  :  $MEASURE
+    );
+    $self->_WIDTH(
+        $self->to_px(defined $self->width  ?  $self->width  :  $PAGE_WIDTH)
+    );
+    $self->_HEIGHT(
+        $self->to_px(defined $self->height  ?  $self->height  :  $PAGE_HEIGHT)
+    );
 
-  $self->_PDF( $PDF = PDF::API2::Lite->new );
-  $self->page;
+    $self->_PDF(
+        $PDF = PDF::API2::Lite->new
+    );
+    $self->page;
 
-  $self->_FONT( $PDF->ttfont( $self->ttfont ) )  if defined $self->ttfont;
+    $self->_FONT($PDF->ttfont( $self->ttfont ))  if defined $self->ttfont;
 
-  $self->_FONT_SIZE( $self->to_px( defined $self->fontsize  ?  $self->fontsize  :  $FONT_SIZE ) );
-  $self->_LINE_HEIGHT( defined $self->line_height  ?  $self->line_height  :  $LINE_HEIGHT );
+    $self->_FONT_SIZE(
+        $self->to_px(defined $self->fontsize  ?  $self->fontsize  :  $FONT_SIZE)
+    );
+    $self->_LINE_HEIGHT(
+        defined $self->line_height  ?  $self->line_height  :  $LINE_HEIGHT
+    );
 
-  $self->_COLOR_STROKE( defined $self->strokecolor  ?  $self->strokecolor  :  $COLOR_STROKE );
-  $self->_COLOR_FILL( defined $self->fillcolor  ?  $self->fillcolor  :  $COLOR_FILL );
+    $self->_COLOR_STROKE(
+        defined $self->strokecolor  ?  $self->strokecolor  :  $COLOR_STROKE
+    );
+    $self->_COLOR_FILL(
+        defined $self->fillcolor  ?  $self->fillcolor  :  $COLOR_FILL
+    );
 
-  $self->_LINE_WIDTH( defined $self->linewidth  ?  $self->linewidth  :  $LINE_WIDTH );
+    $self->_LINE_WIDTH(
+        defined $self->linewidth  ?  $self->linewidth  :  $LINE_WIDTH
+    );
 
 
-  $PDF->strokecolor( $self->_COLOR_STROKE );
-  $PDF->fillcolor( $self->_COLOR_FILL );
+    $PDF->strokecolor($self->_COLOR_STROKE);
+    $PDF->fillcolor($self->_COLOR_FILL);
 
-  $self;
+    $self;
 }
-
-
 
 
 #
@@ -128,34 +148,31 @@ sub init {
 #  @return  scalar  ピクセル数
 #
 sub to_px {
-  my $self = shift;
-  my $length = shift  ||  0;
-  my ( $val, $measure ) = ( 0, $self->_MEASURE );
-  my $ret = 0;
+    my $self = shift;
+    my $length = shift  ||  0;
 
-  if(  $length =~ m{^\s* ( -? \d+(\.\d+)? ) \s* ( \D+ )? \s*$}x  ) {
-    $val  = $1;
-    $measure = $3  if $3;  # 数字の後に何らかの文字列があった場合，その単位（一時）と認識する
-    #$measure = $self->hogehoge( $3 )  if $3;  # 数字の後に何らかの文字列があった場合，その単位（一時）と認識する
-  }
-  else { return 0; }
+    my ($val, $measure) = $length =~ $RE->{LENGTH};
+    $measure = $self->_MEASURE  unless is_def $measure;
+    return 0  unless is_def $val;
 
-  #$val *= $self->{RATE}  unless lc $measure =~ m{^\%(w|h)$};
+    my $ret = 0;
 
-  # mm
-  if   ( lc $measure eq 'mm' )     { $ret = $self->mm( $val ); }
-  # cm
-  elsif( lc $measure eq 'cm' )     { $ret = $self->mm( $val * 10 ); }
-  # pt
-  elsif( lc $measure eq 'pt' )     { $ret = $self->pt( $val); }
-  # %w, %W
-  elsif( lc $measure =~ m{^\%w$} ) { $ret = int( $self->_WIDTH * $val / 100 ); }
-  # %h, %H
-  elsif( lc $measure =~ m{^\%h$} ) { $ret = int( $self->_HEIGHT * $val / 100 ); }
-  # その他もしくは px
-  else                             { $ret = $val; }
+    #$val *= $self->{RATE}  unless lc $measure =~ m{^\%(w|h)$};
 
-  $ret;
+    # mm
+    if    (lc $measure eq 'mm')    { $ret = $self->mm($val); }
+    # cm
+    elsif (lc $measure eq 'cm')    { $ret = $self->mm($val * 10); }
+    # pt
+    elsif (lc $measure eq 'pt')    { $ret = $self->pt($val); }
+    # %w, %W
+    elsif (lc $measure =~ /^\%w$/) { $ret = int($self->_WIDTH * $val / 100); }
+    # %h, %H
+    elsif (lc $measure =~ /^\%h$/) { $ret = int($self->_HEIGHT * $val / 100); }
+    # その他もしくは px
+    else                           { $ret = $val; }
+
+    return $ret;
 }
 
 
@@ -167,22 +184,18 @@ sub to_px {
 #  @return  scalar  ピクセル数
 #
 sub mm {
-  my $self = shift;
-  my $mm   = shift  ||  0;
-  my $mm2px_rate = $self->_DPI / 25.4;
-
-  int(  $mm * $mm2px_rate );
+    my ($self, $mm) = @_;
+    my $mm2px_rate = $self->_DPI / 25.4;
+    return int(($mm || 0) * $mm2px_rate);
 };
 
 #
 #  [pt] を [px] に変換する
 #
 sub pt {
-  my $self = shift;
-  my $pt   = shift  ||  0;
-  my $pt2px_rate = $self->_DPI / 72;
-
-  int( $pt * $pt2px_rate );
+    my ($self, $pt) = @_;
+    my $pt2px_rate = $self->_DPI / 72;
+    return int(($pt || 0) * $pt2px_rate);
 }
 
 #
@@ -195,14 +208,17 @@ sub pt {
 #  @return  ( scalar, scalar )  変換後の座標
 #
 sub convert_coordinate {
-  my $self = shift;
-  my ( $x, $y ) = @_;
-  $x .= 'w'  if $x =~ m{\%\s*$};
-  $y .= 'h'  if $y =~ m{\%\s*$};
+    my $self = shift;
+    my ($x, $y) = @_;
+    $x .= 'w'  if $x =~ m{\%\s*$};
+    $y .= 'h'  if $y =~ m{\%\s*$};
 
-  warn 'not specified x or/and y'  unless( defined $x  &&  defined $y );
+    carp 'not specified x or/and y'  unless is_def $x, $y;
 
-  ( $self->to_px( $x ), $self->_HEIGHT - $self->to_px( $y ) );
+    return (
+        $self->to_px($x),
+        $self->_HEIGHT - $self->to_px($y),
+    );
 }
 
 
@@ -211,9 +227,15 @@ sub convert_coordinate {
 #
 #
 sub load {
-  my ( $self, $param ) = self_param( @_ );
-  my $file = $param->{file};
-  $PDF->{api} = PDF::API2->open( $file )  ||  die $!;
+    my ($self, $param) = self_param( @_ );
+    my $file = $param->{file};
+    try {
+        $PDF->{api} = PDF::API2->open($file);
+    }
+    catch {
+        carp shift;
+        $PDF->{api} = undef;
+    }
 }
 
 
@@ -222,8 +244,8 @@ sub load {
 #  新規にページを作成する
 #
 sub page {
-  my $self = shift;
-  $PDF->page( $self->_WIDTH, $self->_HEIGHT );
+    my $self = shift;
+    $PDF->page($self->_WIDTH, $self->_HEIGHT);
 }
 
 
@@ -231,18 +253,18 @@ sub page {
 #  指定したページを開く（？）
 #
 sub openpage {
-  my ( $self, $param ) = self_param( @_ );
-  $PDF->{api}->openpage( $param->{page}  ||  -1 );
+  my ($self, $param) = self_param @_;
+  $PDF->{api}->openpage($param->{page} || -1);
 }
 
 #
 #  指定したページを指定した角度で回転させる
 #
 sub rotatepage {
-  my ( $self, $param ) = self_param( @_ );
-  my $page   = $param->{page}  ||  -1;
-  my $degree = $param->{degree}  ||  $param->{deg}  ||  0;
-  $self->openpage( page => $page )->rotate( $degree );
+    my ($self, $param) = self_param @_;
+    my $page   = $param->{page} || -1;
+    my $degree = $param->{degree} || $param->{deg} || 0;
+    $self->openpage(page => $page)->rotate($degree);
 }
 
 
@@ -537,68 +559,70 @@ sub text {
 #  @return
 #
 sub image {
-  my ( $self, $param ) = self_param( @_ );
-  my $x        = $param->{x};
-  my $y        = $param->{y};
-  my $file     = $param->{file};
-  my $width    = defined $param->{width}   ?  $param->{width}   :  0;
-  my $height   = defined $param->{height}  ?  $param->{height}  :  0;
-  my $scale    = defined $param->{scale}  ?  $param->{scale}  :  1;
-  my $rotate   = $param->{rotate}    ||  $self->{ROTATE};
-  my $debug    = $param->{debug}     ||  0;
+    my ( $self, $param ) = self_param( @_ );
+    my $x      = $param->{x};
+    my $y      = $param->{y};
+    my $file   = $param->{file};
+    my $width  = defined $param->{width}  ? $param->{width}  : 0;
+    my $height = defined $param->{height} ? $param->{height} : 0;
+    my $scale  = defined $param->{scale}  ? $param->{scale}  : 1;
+    my $rotate = $param->{rotate} || 0;
+    my $debug  = $param->{debug}  || 0;
 
-  return 0  unless( defined $x  &&  defined $y  &&  defined $file );
-  return 0  unless -f $file;
+    return 0  unless  defined $x  &&  defined $y  &&  defined $file;
+    return 0  unless -f $file;
 
-  ( $x, $y ) = $self->convert_coordinate( $x, $y );
+    ($x, $y) = $self->convert_coordinate($x, $y);
 
-  $width  .= 'w'  if $width  =~ m{\%\s*$};  $width  = $self->to_px( $width );
-  $height .= 'h'  if $height =~ m{\%\s*$};  $height = $self->to_px( $height );
+    $width  .= 'w'  if $width  =~ m{\%\s*$};
+    $height .= 'h'  if $height =~ m{\%\s*$};
+    $width  = $self->to_px($width);
+    $height = $self->to_px($height);
 
-  my ( $w, $h, $type ) = imgsize( $file );
-  my $img;
-  my $flg = 1;
+    my ($w, $h, $type) = imgsize($file);
+    my $img;
+    my $flg = 1;
 
-  # 幅，高さが未定義の場合
-  $width ||= $w;  $height ||= $h;
+    # 幅，高さが未定義の場合
+    $width ||= $w;  $height ||= $h;
 
-  # 幅・高さどちらも指定
-  if( $width  &&  $height ) {
-    1;
-  }
-  # 幅のみ指定
-  elsif( $width ) {
-    $scale = $width / $w;
-  }
-  # 高さのみ指定
-  elsif( $height ) {
-    $scale = $height / $h;
-  }
+    # 幅・高さどちらも指定
+    if ($width  &&  $height) {
+        1;
+    }
+    # 幅のみ指定
+    elsif ($width) {
+        $scale = $width / $w;
+    }
+    # 高さのみ指定
+    elsif ($height) {
+        $scale = $height / $h;
+    }
 
-  # JPG
-  if( uc $type eq 'JPG' ) {
-    $img = $PDF->image_jpeg( $file );
-  }
-  # PNG
-  elsif( uc $type eq 'PNG' ) {
-    $img = $PDF->image_png( $file );
-  }
-  # TIF
-  elsif( uc $type eq 'TIF' ) {
-    $img = $PDF->image_tiff( $file );
-  }
-  else {
-    $flg = 0;
-  }
+    # JPG
+    if (uc $type eq 'JPG') {
+        $img = $PDF->image_jpeg($file);
+    }
+    # PNG
+    elsif (uc $type eq 'PNG') {
+        $img = $PDF->image_png($file);
+    }
+    # TIF
+    elsif (uc $type eq 'TIF') {
+        $img = $PDF->image_tiff($file);
+    }
+    else {
+        $flg = 0;
+    }
 
-  if( $flg ) {
-    $width  &&  $height
-      ?  $PDF->image( $img, $x, $y - $height, $width, $height )
-      :  $PDF->image( $img, $x, $y - int( $h * $scale ), $scale )
-    ;
-  }
+    if ($flg) {
+        $width  &&  $height
+            ?  $PDF->image($img, $x, $y - $height, $width, $height)
+            :  $PDF->image($img, $x, $y - int($h * $scale), $scale)
+        ;
+    }
 
-  $flg ? 1 : 0;
+    $flg ? 1 : 0;
 }
 
 
