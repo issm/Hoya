@@ -39,6 +39,9 @@ sub body_from_template {
     my $name = $params->{name};
     my $body = '';
 
+    $self->template_dir($params->{dir})
+        if is_def $params->{dir};
+
     my $mt = Text::MicroTemplate::Extended->new(
         include_path  => $self->template_dir || '.',
         template_args => {
