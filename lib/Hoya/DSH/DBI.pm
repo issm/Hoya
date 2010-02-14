@@ -7,7 +7,8 @@ use base qw/Class::Accessor::Faster/;
 use DBI;
 use YAML::Syck;
 use Digest::SHA1 qw/sha1_hex/;
-use Error qw/:try/;
+use Carp;
+use Try::Tiny;
 
 use Hoya::Util;
 
@@ -47,7 +48,7 @@ sub connect {
     my $db_type = lc ($_conf->{DB}{TYPE} || 'mysql');
 
     if($_dbh  &&  $_sth) {
-        warn sprintf 'Already connected to %s', $db_type;
+        carp sprintf 'Already connected to %s', $db_type;
         return;
     }
 
@@ -63,7 +64,7 @@ sub connect {
             $_conf->{DB}{PASSWD},
             { AutoCommit => 1 },
         ) or
-            (warn "Could not connect to database: " . DBI->errstr
+            (carp("Could not connect to database: " . DBI->errstr)
              && return);
         $self->prepare;
     }
@@ -204,7 +205,7 @@ sub _q_mysql {
 
         if ($cache) {
             my $data_cached = $_cache->get($cache_key);
-            #warn d 'get cache.'  if defined $data_cached;
+            #carp d 'get cache.'  if defined $data_cached;
             return $data_cached  if defined $data_cached;
         }
 
@@ -222,7 +223,7 @@ sub _q_mysql {
         # データをキャッシュする
         if ($cache) {
             $_cache->set($cache_key, $fetch, $CACHE_EXPIRES);
-            #warn d 'set cache.';
+            #carp d 'set cache.';
         }
 
         return $fetch;
@@ -263,11 +264,11 @@ sub load_sql {
             $data = LoadFile($yamlfile);
             $_sql_cache->{$name} = $data;
         }
-        catch Error with {
-            warn shift->text;
-            #warn sprintf '[%s] YAML file does not exist: %s.', __PACKAGE__, $yamlfile;
+        catch {
+            carp shift;
+            #carp sprintf '[%s] YAML file does not exist: %s.', __PACKAGE__, $yamlfile;
             return undef;
-        }
+        };
     }
     my $sql;
     ($sql = $_sql_cache->{$name}->{$key}  ||  '')

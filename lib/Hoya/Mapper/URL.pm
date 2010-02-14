@@ -8,7 +8,7 @@ use YAML::Syck;
 use URI::Escape;
 use Hash::Merge qw/merge/;
 use Hash::MultiValue;
-use Error qw/:try/;
+use Try::Tiny;
 
 use Hoya::Util;
 
@@ -50,7 +50,7 @@ sub _load_map {
         $_map_rule = $map->{$_app_name}
             if exists $map->{$_app_name};
     }
-    catch Error with {
+    catch {
         return 0;
     };
     return 1;

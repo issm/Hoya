@@ -3,8 +3,9 @@ use strict;
 use warnings;
 use utf8;
 use base qw/Class::Accessor::Faster/;
-use Error qw/:try/;
 
+use Carp;
+use Try::Tiny;
 use Hoya::Util;
 
 

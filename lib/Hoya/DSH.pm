@@ -5,7 +5,8 @@ use utf8;
 use base qw/Class::Accessor::Faster/;
 
 use Cache::FileCache;
-use Error qw/:try/;
+use Carp;
+use Try::Tiny;
 
 use Hoya::Util;
 
@@ -48,10 +49,10 @@ ${dsh_class}->new({
 ...
         return $dsh;
     }
-    catch Error with {
-        warn shift->text;
+    catch {
+        carp shift;
         return undef;
-    }
+    };
 }
 
 

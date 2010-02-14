@@ -4,7 +4,8 @@ use warnings;
 use utf8;
 use base qw/Class::Accessor::Faster/;
 
-use Error qw/:try/;
+use Carp;
+use Try::Tiny;
 
 use Hoya::Util;
 use Hoya::Config;
@@ -24,8 +25,6 @@ my $_up; # Plack::Request::Uploadオブジェクトの集合
 my $_mm; # メタモデル（Hoya::MetaModelオブジェクト）
 my $_action;
 my $_view;
-
-
 
 #
 __PACKAGE__->mk_accessors(qw/req app_name/);

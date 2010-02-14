@@ -5,7 +5,8 @@ use utf8;
 use base qw/Class::Accessor::Faster/;
 
 use YAML::Syck;
-use Error qw/:try/;
+use Carp;
+use Try::Tiny;
 use Hoya::Util;
 
 our $UA_DEFAULT = 'default';
@@ -47,8 +48,8 @@ sub _load {
       $_map_var = $yaml->{__VAR__} || {};
       $_map_rule = $yaml->{rule} || [];
   }
-  catch Error with {
-      warn shift->text;
+  catch {
+      carp shift;
   };
 
   1;

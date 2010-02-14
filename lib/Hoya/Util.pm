@@ -9,7 +9,8 @@ use Data::Recursive::Encode;
 use Data::Dumper qw/Dumper/;
 use Hash::Merge qw/merge/;
 use Hash::MultiValue;
-use Error qw/:try/;
+use Carp;
+use Try::Tiny;
 
 our @EXPORT = qw/
                     self_param
@@ -22,35 +23,12 @@ our @EXPORT = qw/
                     de
                     is_def
                     merge_hash
+                    notify
                 /;
-our %EXPORT_TAGS = (
-    base  => [
-        qw/
-              self_param
-              name2path
-              random_key
-              en
-              de
-              is_def
-              merge_hash
-          /
-      ],
-    debug => [
-        qw/
-              printlog
-              d
-              D
-          /
-      ],
-);
-
 
 Hash::Merge::set_behavior('RIGHT_PRECEDENT');
 
 
-#
-#  コンストラクタ
-#
 sub new {
     my ($self, $classname) = ( {}, shift );
     my %param = @_;
@@ -61,9 +39,6 @@ sub new {
 }
 
 
-#
-#  初期化する
-#
 sub init {
   my ($self, $param) = self_param(@_);
   #warn __PACKAGE__, " -> ", ( caller )[0];
@@ -71,10 +46,6 @@ sub init {
 
 
 
-#
-#  exported
-#  自身への参照とパラメータハッシュリファレンスを取得する
-#
 sub self_param {
     #@_ = @$_[0]  if( ref $_[0] eq 'ARRAY' );
     return  (scalar @_) % 2
@@ -84,14 +55,6 @@ sub self_param {
 }
 
 
-#
-#  exported and OO
-#  自身もしくは指定したの名前にちなんだパス的文字列を取得する
-#  ex.  dir_hoge_index  -> dir/hoge/index
-#  ex.  _hoge_fuga_piyo -> _hoge/fuga/piyo
-#
-#  @return  scalar
-#
 sub name2path {
     # v 第1引数がスカラの場合，$self = {} → OO的メソッドと直接呼び出しのどちらにも対応（のつもり）
     my $self = ref $_[0]  ?  shift  :  {};
@@ -105,13 +68,10 @@ sub name2path {
 
 
 
-#  exported
-#  Data::Dumper::Dumper のラッパ的なもの
 sub d { Dumper @_; }
 sub D { Data::Dumper->Dump(@_); }
 
 
-#  exported
 sub printlog {
     my ($fmt, @vars) = @_;
     my @t = reverse((localtime time)[0..5]);
@@ -125,7 +85,7 @@ sub printlog {
 
 
 
-#  exported
+
 sub random_key {
     my $n = shift || 1;
     my $s = shift;
@@ -156,8 +116,6 @@ sub random_key {
 }
 
 
-# exported
-# en($data, $charset_to);
 sub en {
     my ($data, $charset_to) = @_;
     $data = ''  unless defined $data;
@@ -179,8 +137,7 @@ sub en {
     }
 }
 
-# exported
-# de($data, $charset_from);
+
 sub de {
     my ($data, $charset_from) = @_;
     $data = ''  unless defined $data;
@@ -191,7 +148,7 @@ sub de {
         try {
             return decode($charset_from, $data);
         }
-        catch Error with {
+        catch {
             return $data;
         };
     }
@@ -200,7 +157,7 @@ sub de {
         try {
             return Data::Recursive::Encode->decode($charset_from, $data);
         }
-        catch Error with {
+        catch {
             return $data;
         };
     }
@@ -211,15 +168,13 @@ sub de {
             $flatten = Data::Recursive::Encode->decode($charset_from, $flatten);
             return Hash::MultiValue->new(@$flatten);
         }
-        catch Error with {
+        catch {
             return $data;
         };
     }
 }
 
 
-# exported
-# is_def($var1, $var2, ...);
 sub is_def {
     my @vars = @_;
     return 0  unless @vars;
@@ -234,11 +189,35 @@ sub is_def {
 }
 
 
-# exported
-# merge_hash(\%hash1, \%hash2);
 sub merge_hash {
     my ($hash1, $hash2) = @_;
     return merge($hash1, $hash2);
+}
+
+
+sub notify {
+    my $message = shift;
+
+    try {
+        eval 'use Log::Dispatch::DesktopNotification;';
+        my $logger = Log::Dispatch::DesktopNotification->new(
+            name      => 'notify',
+            min_level => 'debug',
+            app_name  => en('Hoya notification'),
+            title     => en('Hoya::Util::notify'),
+            sticky    => 1,
+            priority  => 2,
+        );
+        #eval 'use Log::Dispatch::MacGrowl;';
+        #my $logger = Log::Dispatch::MacGrowl->new(
+        #);
+        $logger->log(
+            level   => 'debug',
+            message => en($message) ,
+        );
+    }
+    catch {
+    };
 }
 
 
@@ -305,6 +284,10 @@ Using Hash::Merge.
 Returns "random" string with length a multiple of 8 (8 * $n). Defaut, $n is set to 1.
 
 If $str is set, return "hashed" string based on $str.
+
+=item notify($message);
+
+Notify.
 
 =back
 

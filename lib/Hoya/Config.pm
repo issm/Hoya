@@ -7,7 +7,7 @@ use base qw/Class::Accessor::Faster/;
 use YAML::Syck;
 use File::Basename;
 use File::Spec;
-use Error qw/:try/;
+use Try::Tiny;
 
 use Hoya::Util;
 
@@ -106,7 +106,7 @@ sub _add_from_yaml {
         $added = de LoadFile($file);
         $_conf = merge_hash($_conf, $added)
     }
-    catch Error with {
+    catch {
     };
     return $_conf;
 }

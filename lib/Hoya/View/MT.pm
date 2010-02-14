@@ -8,7 +8,8 @@ use base qw/Class::Accessor::Faster/;
 use Text::MicroTemplate::Extended;
 use Encode;
 use HTML::Entities;
-use Error qw/:try/;
+use Carp;
+use Try::Tiny;
 
 use Hoya::Page;
 
@@ -97,7 +98,7 @@ sub go {
                 name2path($_name)
             )->as_string;
         }
-        catch Error with {
+        catch {
             $self->error(1);
             $content = shift->text;
             $content = << "...";
@@ -113,7 +114,7 @@ $content
         try {
             $content = $mt->render('_error')->as_string;
         }
-        catch Error with {
+        catch {
             $self->error(1);
             $content = shift->text;
             $content = << "...";

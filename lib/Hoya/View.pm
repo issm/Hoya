@@ -5,7 +5,8 @@ use utf8;
 use base qw/Class::Accessor::Faster/;
 
 
-use Error qw/:try/;
+use Carp;
+use Try::Tiny;
 
 use Hoya::Page;
 use Hoya::Util;
@@ -45,9 +46,11 @@ sub init {
     try {
         eval "use ${class};";
     }
-    catch Error with {
-    }
-    finally {
+    catch {
+        eval 'Hoya::View::MT;';
+    };
+
+    try {
         $ret = eval << "...";
 $class->new({
     name => \$_name,
@@ -59,6 +62,10 @@ $class->new({
     action_name => \$_action_name,
 })->init;
 ...
+    }
+    catch {
+        carp shift;
+        $ret = undef;
     };
 
     return $ret;

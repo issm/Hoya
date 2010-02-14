@@ -4,6 +4,7 @@ use warnings;
 use utf8;
 use base qw/Class::Accessor::Faster/;
 
+use Carp;
 use Error qw/:try/;
 use Hoya::Util;
 
@@ -39,7 +40,7 @@ Hoya::Model::${_name}->new({
 ...
     }
     catch Error with {
-        warn shift->text;
+        carp shift->text;
     };
 
     return $model;
@@ -64,12 +65,12 @@ sub _load {
         $buff =~ s/__(?:END|DATA)__.*$//s; # __END__ 以降を削除する
     }
     catch Error with {
-        #warn shift->text;
+        #carp shift->text;
         my $text = sprintf(
             '[notice] Model file not found: %s',
             $_name,
         );
-        warn $text;
+        carp $text;
         $buff = '';
     };
 
@@ -91,6 +92,7 @@ use warnings;
 use utf8;
 use base qw/Class::Accessor::Faster/;
 
+use Carp;
 use Error qw/:try/;
 use Hoya::Util;
 

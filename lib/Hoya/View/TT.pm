@@ -8,7 +8,9 @@ use base qw/Class::Accessor::Faster/;
 use Template;
 use Encode;
 use HTML::Entities;
-use Error qw/:try/;
+
+use Carp;
+use Try::Tiny;
 
 use Hoya::Page;
 

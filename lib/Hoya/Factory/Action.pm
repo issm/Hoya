@@ -4,8 +4,9 @@ use warnings;
 use utf8;
 use base qw/Class::Accessor::Faster/;
 
+use Carp;
+use Try::Tiny;
 use Hoya::Util;
-use Error qw/:try/;
 
 my @METHODS = qw/BEFORE GET POST AFTER/;
 
@@ -41,8 +42,8 @@ Hoya::Action::${_name}->new({
 })->init;
 ...
     }
-    catch Error with {
-        warn shift->text;
+    catch {
+        carp shift;
     };
 
     return $action;
@@ -68,13 +69,13 @@ sub _load {
         close $fh;
         $buff =~ s/__(?:END|DATA)__.*$//s; # __END__ 以降を削除する
     }
-    catch Error with {
-        #warn shift->text;
+    catch {
+        #carp shift;
         my $text = sprintf(
             '[notice] Action file not found: %s',
             $_name,
         );
-        warn $text;
+        carp $text;
         $buff = '';
     };
 
@@ -101,7 +102,7 @@ sub %s (&) {
 
     if (ref $code_or_self eq 'CODE') {
         $_code_xx->{%s} = $code_or_self;
-#warn d 'SET; ' . ((caller 0)[3]);
+#carp d 'SET; ' . ((caller 0)[3]);
     }
     elsif(ref $code_or_self eq '%s') {
         my $v = $code_or_self->get_param();
@@ -125,7 +126,7 @@ sub _xx_%s {
     my $ret;
     my $ret_ = {};
 
-#warn d 'GET: ' . ((caller 0)[3]);
+#carp d 'GET: ' . ((caller 0)[3]);
 
     try {
         if (defined $_super) {
@@ -142,8 +143,8 @@ sub _xx_%s {
         $ret = $self->get_param;
         $ret->{name} = $__name;
     }
-    catch Error with {
-        warn shift->text;
+    catch {
+        carp shift;
     };
 
     return $ret;
@@ -170,7 +171,8 @@ use utf8;
 use base qw/Class::Accessor::Faster/;
 
 use Hash::MultiValue;
-use Error qw/:try/;
+use Carp;
+use Try::Tiny;
 
 use Hoya::Util;
 #use Hoya::Action;

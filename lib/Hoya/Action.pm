@@ -5,7 +5,8 @@ use utf8;
 use base qw/Class::Accessor::Faster/;
 
 use Hoya::Util;
-use Error qw/:try/;
+use Carp;
+use Try::Tiny;
 
 our $FINISH = '__FINISH_ACTION__';
 
@@ -72,8 +73,8 @@ sub init {
 $pl
 ...
     }
-    catch Error with {
-        warn shift->text;
+    catch {
+        carp shift->text;
     };
 
     $self;
@@ -177,8 +178,8 @@ sub _load {
         $buff = de <$fh>;
         close $fh;
     }
-    catch Error with {
-        warn shift->text;
+    catch {
+        carp shift->text;
         $buff = '';
     };
 
@@ -219,11 +220,11 @@ sub _extend {
 sub BEFORE (&) {
     my $code_or_self = shift;
     if (ref $code_or_self eq 'CODE') {
-        warn d "SET: ${_name}::BEFORE";
+        carp d "SET: ${_name}::BEFORE";
         $_code_BEFORE = $code_or_self;
     }
     elsif (ref $code_or_self eq 'Hoya::Action') {
-        warn d "GET: ${_name}::BEFORE";
+        carp d "GET: ${_name}::BEFORE";
         return $code_or_self->_xx_BEFORE();
     }
 
@@ -234,11 +235,11 @@ sub BEFORE (&) {
 sub GET (&) {
     my $code_or_self = shift;
     if (ref $code_or_self eq 'CODE') {
-        warn d "SET: ${_name}::GET";
+        carp d "SET: ${_name}::GET";
         $_code_GET = $code_or_self;
     }
     elsif (ref $code_or_self eq 'Hoya::Action') {
-        warn d "GET: ${_name}::GET";
+        carp d "GET: ${_name}::GET";
         return $code_or_self->_xx_GET();
     }
 
@@ -249,11 +250,11 @@ sub GET (&) {
 sub POST (&) {
     my $code_or_self = shift;
     if (ref $code_or_self eq 'CODE') {
-        warn d "SET: ${_name}::POST";
+        carp d "SET: ${_name}::POST";
         $_code_POST = $code_or_self;
     }
     elsif (ref $code_or_self eq 'Hoya::Action') {
-        warn d "GET: ${_name}::POST";
+        carp d "GET: ${_name}::POST";
         return $code_or_self->_xx_POST();
     }
 }
@@ -262,11 +263,11 @@ sub POST (&) {
 sub AFTER (&) {
     my $code_or_self = shift;
     if (ref $code_or_self eq 'CODE') {
-        warn d "SET: ${_name}::AFTER";
+        carp d "SET: ${_name}::AFTER";
         $_code_AFTER = $code_or_self;
     }
     elsif (ref $code_or_self eq 'Hoya::Action') {
-        warn d "GET: ${_name}::AFTER";
+        carp d "GET: ${_name}::AFTER";
         #$_super->AFTER()  if defined $_super;
         #return $code_or_self->_xx_AFTER();
         try {
@@ -274,8 +275,8 @@ sub AFTER (&) {
             $_super->AFTER()  if defined $_super;
             return $code_or_self->_xx_AFTER();
         }
-        catch Error with {
-            warn "${_name}::AFTER: cannot call recursively!";
+        catch {
+            carp "${_name}::AFTER: cannot call recursively!";
         };
     }
 }
@@ -308,8 +309,8 @@ sub _xx_BEFORE {
         #$_super->BEFORE()  if defined $_super;
         $ret = $_code_BEFORE->($self);
     }
-    catch Error with {
-        warn "${_name}::BEFORE: cannot call recursively!";
+    catch {
+        carp "${_name}::BEFORE: cannot call recursively!";
     };
     return $ret;
 }
@@ -326,8 +327,8 @@ sub _xx_GET {
 
         $ret = $_code_GET->($self);
     }
-    catch Error with {
-        warn "${_name}::GET: cannot call recursively!";
+    catch {
+        carp "${_name}::GET: cannot call recursively!";
     };
     return $ret;
 }
@@ -339,8 +340,8 @@ sub _xx_POST {
         throw Error  if ++$_ct_call_POST > 1;
         $ret = $_code_POST->($self);
     }
-    catch Error with {
-        warn "${_name}::POST: cannot call recursively!";
+    catch {
+        carp "${_name}::POST: cannot call recursively!";
     };
     return $ret;
 }
@@ -352,15 +353,11 @@ sub _xx_AFTER {
         throw Error  if ++$_ct_call_AFTER > 1;
         $ret = $_code_AFTER->($self);
     }
-    catch Error with {
-        warn "${_name}::AFTER: cannot call recursively!";
+    catch {
+        carp "${_name}::AFTER: cannot call recursively!";
     };
     return $ret;
 }
-
-
-
-
 
 
 1;
