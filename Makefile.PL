@@ -11,6 +11,9 @@ requires 'Hash::Merge';
 requires 'Hash::MultiValue';
 requires 'Text::MicroTemplate::Extended';
 requires 'Digest::SHA1';
+requires 'Try::Tiny';
+requires 'Log::Dispatch';
+#requires 'Log::Dispatch::DesktopNotification'; # optional
 
 tests 't/*.t';
 author_tests 'xt';
