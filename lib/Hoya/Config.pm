@@ -22,7 +22,7 @@ my $_conf;
 sub init {
     my $self = shift;
     $_req  = $self->req;
-    $_env  = $_req->{env};
+    $_env  = $_req->{env} || \%ENV;
     $_conf = {};
 
     # PATH
@@ -36,6 +36,7 @@ sub init {
     $PATH->{DATA}      = "$ROOT/data";
     $PATH->{SKIN}      = "$ROOT/skin";
     $PATH->{STATIC}    = "$ROOT/static";
+    $PATH->{BIN}       = "$ROOT/bin";
     $PATH->{TMP}       = "$ROOT/tmp";
     $PATH->{LOG}       = "$ROOT/log";
 
@@ -54,14 +55,18 @@ sub init {
         $self->_add_from_yaml($file);
     }
 
-    # LOCATION
     my $LOCATION = {};
-    (my $_PROTOCOL = lc $_req->protocol) =~ s{/.*$}{};
-    $LOCATION->{PROTOCOL} = $_conf->{LOCATION}{PROTOCOL} || $_PROTOCOL;
-    $LOCATION->{URL} = $_req->uri;
+    my $URL_BASE = '';
 
-    # URL_BASE
-    my $URL_BASE = $_req->base;
+    if (defined $self->req) {
+        # LOCATION
+        (my $_PROTOCOL = lc $_req->protocol) =~ s{/.*$}{};
+        $LOCATION->{PROTOCOL} = $_conf->{LOCATION}{PROTOCOL} || $_PROTOCOL;
+        $LOCATION->{URL} = $_req->uri;
+
+        # URL_BASE
+        my $URL_BASE = $_req->base;
+    }
 
     # CACHE
     my $CACHE = {};
