@@ -187,6 +187,7 @@ my $_qq;
 my $_up;
 my $_m;
 my $_mm;
+my $_logger;
 
 my $_super;
 
@@ -227,6 +228,7 @@ sub init {
     $_up   = $self->up;
     $_mm   = $self->mm;
     $_m    = Hash::MultiValue->new;
+    $_logger = $_env->{'psgix.logger'};
 
     $_var = {};
 

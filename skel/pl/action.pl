@@ -83,11 +83,12 @@ POSTメソッドに特化した処理を行います．
 
 =head1 利用可能変数
 
-$_env  : 環境変数
-$_conf : 設定
-$_m    : モデルハッシュ       # Hash::MultiValueオブジェクト
-$_q    : HTTPクエリ          # Hash::Multivalueオブジェクト
-$_qq   : URLマップパラメータ   # Hash::Multivalueオブジェクト
-$_up   : アップロードファイル  # Hash::Multivalueオブジェクト
+$_env    : 環境変数
+$_conf   : 設定
+$_m      : モデルハッシュ       # Hash::MultiValueオブジェクト
+$_q      : HTTPクエリ          # Hash::Multivalueオブジェクト
+$_qq     : URLマップパラメータ   # Hash::Multivalueオブジェクト
+$_up     : アップロードファイル  # Hash::Multivalueオブジェクト
+$_logger : ロガー # Log::Dispatch->logメソッドへのリファレンスa
 
 =cut

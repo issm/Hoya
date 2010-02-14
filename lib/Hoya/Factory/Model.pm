@@ -98,6 +98,7 @@ use Hoya::Util;
 
 my $_env;
 my $_conf;
+my $_logger;
 my $_DSH;
 my $_dsh;
 my $_dsh_type;
@@ -110,6 +111,7 @@ sub init {
     $_env  = $self->env;
     $_conf = $self->conf;
     $_DSH  = $self->dsh;
+    $_logger = $_env->{'psgix.logger'};
 
     $_dsh_type = $self->dsh_type || 'YAML';
     $_dsh  = $_DSH->{$_dsh_type} || undef;

@@ -28,15 +28,17 @@ sub init {
     # PATH
     my $PATH = {};
     my $script_dir = dirname(File::Spec->rel2abs($_env->{SCRIPT_PATH_FULL}));
-    (my $project_root = $script_dir) =~ s{/www$}{};
+    (my $ROOT = $script_dir) =~ s{/www$}{};
 
-    $PATH->{ROOT}      = $project_root;
-    $PATH->{CONF}      = "$PATH->{ROOT}/conf";
-    $PATH->{PL}        = "$PATH->{ROOT}/pl";
-    $PATH->{DATA}      = "$PATH->{ROOT}/data";
-    $PATH->{SKIN}      = "$PATH->{ROOT}/skin";
-    $PATH->{STATIC}    = "$PATH->{ROOT}/static";
-    $PATH->{TMP}       = "$PATH->{ROOT}/tmp";
+    $PATH->{ROOT}      = $ROOT;
+    $PATH->{CONF}      = "$ROOT/conf";
+    $PATH->{PL}        = "$ROOT/pl";
+    $PATH->{DATA}      = "$ROOT/data";
+    $PATH->{SKIN}      = "$ROOT/skin";
+    $PATH->{STATIC}    = "$ROOT/static";
+    $PATH->{TMP}       = "$ROOT/tmp";
+    $PATH->{LOG}       = "$ROOT/log";
+
     $PATH->{ACTION}    = "$PATH->{PL}/action";
     $PATH->{MODEL}     = "$PATH->{PL}/model";
     $PATH->{FILECACHE} = "$PATH->{TMP}/FileCache";

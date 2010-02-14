@@ -34,16 +34,16 @@ DB:
   PASSWD: password
   TABLE_PREFIX: pre_
 
-CACHE:
-  ENABLED:   1
-  NAMESPACE: hoya
-  EXPIRES:   600
-
 COOKIE:
   EXPIRES: +14d
   DOMAIN:  
   PATH:    /
   SECURE:  0
+
+CACHE:
+  ENABLED:   1
+  NAMESPACE: hoya
+  EXPIRES:   600
 
 MAIL:
   SERVER_SMTP: localhost:587

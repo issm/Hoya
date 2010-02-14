@@ -22,6 +22,7 @@ my $_q;  # クエリパラメータ群
 my $_qq; # URLマッピングによって得られるパラメータ群
 my $_up; # Plack::Request::Uploadオブジェクトの集合
 
+my $_logger;
 my $_mm; # メタモデル（Hoya::MetaModelオブジェクト）
 my $_action;
 my $_view;
@@ -53,6 +54,11 @@ sub go {
 
     # Plack::Response
     my $res = $req->new_response(404);
+
+    #
+    # logger
+    #
+    $_logger = $_env->{'psgix.logger'};
 
     #
     # metamodel
@@ -160,6 +166,7 @@ sub go {
 
     return $psgi;
 }
+
 
 
 sub _decode_queries {
