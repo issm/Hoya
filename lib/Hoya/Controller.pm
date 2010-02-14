@@ -34,11 +34,10 @@ __PACKAGE__->mk_accessors(qw/req app_name/);
 sub init {
     my $self = shift;
 
-    $_env = $self->req->{env};
+    $_env = $self->req->env;
     $_conf = Hoya::Config->new({
         req => $self->req,
     })->init->get;
-
     $_q  = {}; # Hash::MultiValueオブジェクト
     $_qq = {}; # Hash::MultiValueオブジェクト
     $_up = {}; # Hash::MultiValueオブジェクト

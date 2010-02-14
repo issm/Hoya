@@ -65,7 +65,7 @@ sub init {
         $LOCATION->{URL} = $_req->uri;
 
         # URL_BASE
-        my $URL_BASE = $_req->base;
+        $URL_BASE = $_req->base;
     }
 
     # CACHE
