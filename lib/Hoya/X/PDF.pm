@@ -428,8 +428,8 @@ sub text {
     $x -= $fontsize;  # 最初の行のx座標
     $y -= $fontsize;
 
-    $text =~ s{$RE->{NL}}{\x0d}g;
-    for my $line ( split m{\x0d}, $text ) {  # 改行ごとに区切って処理
+    $text =~ s{$RE->{NL}}{\x0a}g;  # 改行をLFに統一
+    for my $line ( split m{\x0a}, $text ) {  # 改行ごとに区切って処理
       #my $x_ = $x - $fontsize * $l++;
       my $x_ = $x - $line_height * $l++;
       my $c = 0;
@@ -456,21 +456,28 @@ sub text {
   #  横書きモード
   #
   else {
-    # テキストボックスからはみ出る部分に \x0d を挿入する
+    # テキストボックスからはみ出る部分に \x0a を挿入する
     if( 1 ) {
       my @tmp;
-      $text =~ s{$RE->{NL}}{\x0d}g; # 改行をLFに統一
-      for my $line ( split m{\x0d}, $text ) {  # 改行ごとに区切って処理
+      $text =~ s{$RE->{NL}}{\x0a}g; # 改行をLFに統一
+      for my $line ( split m{\x0a}, $text ) {  # 改行ごとに区切って処理
         my $cursor = 0;
         my $n_char = length $line;  # 文字数
         my $n_char_per_row = int( $w / $fontsize );  # 行内文字数
 
         my $buff_tmp = '';
         my $n_hankaku = 0;  # 文字列の「半角」数（全角は2でカウントする）
+        # v 空行の場合，$n_char == 0
+        if ($n_char == 0) {
+            push @tmp, '';
+            $buff_tmp = '';
+            $n_hankaku = 0;
+        }
+        # v 空行でない場合（このブロックは，空行の場合自ずと無視されるべき）
         for( my $i = 0; $i < $n_char; $cursor++, $i++ ) {
           my $char = substr( $line, $cursor, 1 );  # 1文字抜き出す
           $n_hankaku += $char =~ $RE->{CHAR_HANKAKU}  ?  1  :  2;
-          
+
           $buff_tmp .= $char;
 
           # 行内文字数を超えた，もしくは次の文字がない
@@ -483,14 +490,14 @@ sub text {
           }
         }
       }
-      $text = join "\x0d", @tmp;
+      $text = join "\x0a", @tmp;
     }
 
     my $l = 0;
     $y -= $fontsize;  # 最初の行のy座標
 
-    $text =~ s{$RE->{NL}}{\x0d}g;
-    for my $line ( split m{\x0d}, $text ) {  # 改行ごとに区切って処理
+    $text =~ s{$RE->{NL}}{\x0a}g;  # 改行をLFに統一
+    for my $line ( split m{\x0a}, $text ) {  # 改行ごとに区切って処理
       #my $y_ = $y - $fontsize * $l++;
       my $y_ = $y - $line_height * $l++;
 
@@ -507,7 +514,7 @@ sub text {
       }
     }
   }
-  
+
   1;
 }
 
