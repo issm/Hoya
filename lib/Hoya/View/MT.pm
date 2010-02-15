@@ -52,8 +52,8 @@ sub init {
 
     $_path = sprintf(
         '%s/%s/mt',
-        $_conf->{PATH}{SKIN},
-        $_conf->{SKIN_NAME},
+        $_conf->{PATH}{SITE},
+        $_env->{HOYA_SKIN},
     );
 
     $self->content('');
@@ -122,7 +122,7 @@ $content
 ** error **
 $content
 template: ${_name}.mt
-skin:     $_conf->{SKIN_NAME}
+skin:     $_env->{HOYA_SKIN}
 </pre>
 ...
         };

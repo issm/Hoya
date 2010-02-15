@@ -8,6 +8,7 @@ use YAML::Syck;
 use File::Basename;
 use File::Spec;
 use Try::Tiny;
+use Carp;
 
 use Hoya::Util;
 
@@ -26,16 +27,19 @@ sub init {
     $_conf = {};
 
     # PATH
+    # 環境変数"SCRIPT_PATH_FULL"にpsgiスクリプトのパスが入っている必要がある
     my $PATH = {};
-    my $script_dir = dirname(File::Spec->rel2abs($_env->{SCRIPT_PATH_FULL}));
+    my $script_dir = dirname(
+        File::Spec->rel2abs($_env->{SCRIPT_PATH_FULL})
+    );
     (my $ROOT = $script_dir) =~ s{/www$}{};
 
     $PATH->{ROOT}      = $ROOT;
     $PATH->{CONF}      = "$ROOT/conf";
     $PATH->{PL}        = "$ROOT/pl";
     $PATH->{DATA}      = "$ROOT/data";
-    $PATH->{SKIN}      = "$ROOT/skin";
-    $PATH->{STATIC}    = "$ROOT/static";
+    $PATH->{SITE}      = "$ROOT/site/$_env->{HOYA_SITE}";
+    $PATH->{SKIN}      = "$ROOT/site/$_env->{HOYA_SITE}/$_env->{HOYA_SKIN}";
     $PATH->{BIN}       = "$ROOT/bin";
     $PATH->{TMP}       = "$ROOT/tmp";
     $PATH->{LOG}       = "$ROOT/log";
@@ -44,16 +48,20 @@ sub init {
     $PATH->{MODEL}     = "$PATH->{PL}/model";
     $PATH->{FILECACHE} = "$PATH->{TMP}/FileCache";
 
-    # base.yml, additional.yml
-    for my $f (qw/base additional/) {
-        my $file = "$PATH->{CONF}/$f.yml";
-        $self->_add_from_yaml($file);
+    # グローバル
+    # base.yml, additional.yml, _local.yml
+    {
+        for my $f (qw/base additional/) {
+            my $file = "$PATH->{CONF}/$f.yml";
+            $self->_add_from_yaml($file);
+        }
+        if ($_conf->{LOCAL}) {
+            my $file = "$PATH->{CONF}/_local.yml";
+            $self->_add_from_yaml($file);
+        }
     }
-    # _local.yml
-    if ($_conf->{LOCAL}) {
-        my $file = "$PATH->{CONF}/_local.yml";
-        $self->_add_from_yaml($file);
-    }
+    # スキン特化
+
 
     my $LOCATION = {};
     my $URL_BASE = '';
@@ -62,10 +70,10 @@ sub init {
         # LOCATION
         (my $_PROTOCOL = lc $_req->protocol) =~ s{/.*$}{};
         $LOCATION->{PROTOCOL} = $_conf->{LOCATION}{PROTOCOL} || $_PROTOCOL;
-        $LOCATION->{URL} = $_req->uri;
+        $LOCATION->{URL} = '' . $_req->uri;  # as string
 
         # URL_BASE
-        $URL_BASE = $_req->base;
+        $URL_BASE = '' . $_req->base;  # as string
     }
 
     # CACHE
@@ -109,11 +117,13 @@ sub _add {
 sub _add_from_yaml {
     my ($self, $file) = @_;
     my $added = {};
+    return $_conf  unless -f $file;
     try {
         $added = de LoadFile($file);
         $_conf = merge_hash($_conf, $added)
     }
     catch {
+        carp shift;
     };
     return $_conf;
 }

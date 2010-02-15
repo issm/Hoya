@@ -59,7 +59,7 @@ sub _load {
 sub get_info {
     my ($self) = @_;
     my $ua_info = {
-        name => 'defaultx',
+        name => 'default',
     };
 
     my $ua = $_req->user_agent;

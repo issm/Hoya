@@ -87,18 +87,18 @@ sub go {
     #
     # user agent mapping
     #
-    my ($ua_mapper, $ua_info);
-    $ua_mapper = Hoya::Mapper::UserAgent->new({
-        req  => $req,
-        conf => $_conf,
-    })->init;
-    $ua_info = $ua_mapper->get_info;
-    $_conf->{UA_INFO} = $ua_info;
+    #my ($ua_mapper, $ua_info);
+    #$ua_mapper = Hoya::Mapper::UserAgent->new({
+    #    req  => $req,
+    #    conf => $_conf,
+    #})->init;
+    #$ua_info = $ua_mapper->get_info;
+    #$_conf->{UA_INFO} = $ua_info;
 
     #
     # skin
     #
-    $_conf->{SKIN_NAME} = $_conf->{UA_INFO}{name} || 'default';
+    #$_conf->{SKIN_NAME} = $_conf->{UA_INFO}{name} || 'default';
 
     #
     # action
