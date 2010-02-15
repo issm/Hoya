@@ -15,6 +15,13 @@ requires 'Try::Tiny';
 requires 'Log::Dispatch';
 #requires 'Log::Dispatch::DesktopNotification'; # optional
 
+#requires 'MIME::Lite';
+#requires 'MIME::Types';
+#requires 'Image::Magick';
+#requires 'Image:Size';
+#requires 'PDF::API2';
+#requires 'PDF::API2::Lite';
+
 tests 't/*.t';
 author_tests 'xt';
 
