@@ -4,38 +4,75 @@ use utf8;
 use FindBin;
 use Plack::Request;
 use Plack::Builder;
+use Log::Dispatch;
 use Hoya;
+use Hoya::Re;
+
+my $logger = Log::Dispatch->new(
+    outputs => [
+        [
+            'File',
+            min_level => 'debug',
+            max_level => 'notice',
+            filename  => '/tmp/hoya-debug.log',
+            mode      => '>>',
+            newline   => 1,
+        ],
+
+        [
+            'File',
+            min_level => 'warning',
+            filename  => '/tmp/hoya-error.log',
+            mode      => '>>',
+            newline   => 1,
+        ],
+    ],
+);
+
 
 my ($app_admin, $app_main);
 
-my $RE_STATIC_COMMON = qr{(?: ^/ | \.(?:pdf)$ )}x;
-my $RE_STATIC_SKIN   = qr{(?: ^/(js|img|css) | \.(ico)$ )}x;
-
 $app_main = sub {
-    my $env = shift;
-    my $req = Plack::Request->new($env);
-    Hoya->run($req, 'main');
+    Hoya->run(
+        Plack::Request->new(shift),
+        'main',
+    );
 };
 
 $app_admin = sub {
-    my $env = shift;
-    my $req = Plack::Request->new($env);
-    Hoya->run($req, 'admin');
+    Hoya->run(
+        Plack::Request->new(shift),
+        'admin',
+    );
 };
 
+
 builder {
-    enable 'Static', path => $RE_STATIC_SKIN, root => 'skin/default';
+    enable '+Hoya::PlackMiddleware::UserAgentMapper',
+        site_name   => 'default',
+        script_name => __FILE__,
+    ;
+    enable '+Hoya::PlackMiddleware::Static';
+
+    #enable 'Static',
+    #    path => $Hoya::Re::PATH_STATIC_SKIN,
+    #    root => 'site/default',
+    #;
 
     mount '/admin' => builder {
-        enable 'Auth::Basic', authenticator => sub {
-            my ($username, $passwd) = @_;
-            #Hoya->auth($username, $passwd);
-            1;
-        };
+        enable 'LogDispatch', logger => $logger;
+        enable 'Auth::Basic',
+            authenticator => sub {
+                my ($username, $passwd) = @_;
+                #Hoya->auth($username, $passwd);
+                1;
+            },
+        ;
         $app_admin;
     };
 
     mount '/' => builder {
+        enable 'LogDispatch', logger => $logger;
         $app_main;
     };
 };
