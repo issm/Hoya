@@ -61,6 +61,14 @@ sub init {
         }
     }
     # スキン特化
+    # <site>/<skin>/conf.yml が存在する場合，
+    # これを読み込んで，グローバル設定に上書きする
+    {
+        for my $f (qw/conf/) {
+            my $file = "$PATH->{SITE}/$f.yml";
+            $self->_add_from_yaml($file);
+        }
+    }
 
 
     my $LOCATION = {};
@@ -117,13 +125,15 @@ sub _add {
 sub _add_from_yaml {
     my ($self, $file) = @_;
     my $added = {};
-    return $_conf  unless -f $file;
+    return $_conf  unless -f $file; # not exists
+    return $_conf  unless ((stat $file)[7]); # zero-sized
     try {
         $added = de LoadFile($file);
         $_conf = merge_hash($_conf, $added)
+            if ref $added eq 'HASH';
     }
     catch {
-        carp shift;
+        die shift;
     };
     return $_conf;
 }
