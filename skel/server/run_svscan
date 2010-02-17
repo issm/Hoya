@@ -1,22 +1,29 @@
 #!/bin/sh
 
-PROJECT_ROOT=/var/www/project
+PROJECT_ROOT=/path/to/project
 BINDIR=/usr/bin
 SBINDIR=/usr/sbin
 HOYADIR=/path/to/Hoya
 
-HOST=localhost
+SERVER_USER=apache
+SERVER_PORT=5000
+
+HOST=www.example.com
 
 exec 2>&1
 cd $PROJECT_ROOT || exit 1
 exec \
-  $BINDIR/plackup --port=5000 --host=$HOST \
-  -R www,lib,$HOYADIR \
-  -s Standalone::Prefork \
+  $SBINDIR/setuidgid $SERVER_USER \
+  $BINDIR/plackup \
+  -R www,pl,lib,conf,$HOYADIR \
+  --port=$SERVER_PORT \
+  --host=$HOST \
   -I $HOYADIR/lib \
+  -I $HOYADIR/extlib \
   -I lib \
-  -I extlib \
+  -s Starman \
   $PROJECT_ROOT/www/index.psgi
+#  -s HTTP::Server::PSGI \
+#  --max-workers 1 \
+#  -L Loader::Restarter\
 
-#exec $BINDIR/start_server --port=5000 -- $SBINDIR/setuidgid apache \
-#  $BINDIR/plackup -s Standalone::Prefork::Server::Starter hello.psgi
