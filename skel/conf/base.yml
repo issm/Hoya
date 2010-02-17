@@ -23,7 +23,7 @@ PAGE:
   JS_COMMON:  [_base, _additional]
 
 DSH:
-  DBI:  1
+  DBI:  0
   YAML: 1
 
 DB:
