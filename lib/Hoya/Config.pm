@@ -33,6 +33,7 @@ sub init {
         File::Spec->rel2abs($_env->{SCRIPT_PATH_FULL})
     );
     (my $ROOT = $script_dir) =~ s{/www$}{};
+    $ROOT = $_env->{PROJECT_ROOT}  if exists $_env->{PROJECT_ROOT};
 
     $PATH->{ROOT}      = $ROOT;
     $PATH->{CONF}      = "$ROOT/conf";
@@ -87,7 +88,7 @@ sub init {
     # CACHE
     my $CACHE = {};
     {
-        my $project_name = $_conf->{PROJECT_NAME};
+        my $project_name = $_conf->{PROJECT_NAME} || 'hoya';
         my $a = substr($project_name, 0, 1);
         my $z = substr($project_name, -1);
         $CACHE->{NAMESPACE} = sprintf(
