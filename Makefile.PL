@@ -13,6 +13,9 @@ requires 'Text::MicroTemplate::Extended';
 requires 'Digest::SHA1';
 requires 'Try::Tiny';
 requires 'Log::Dispatch';
+requires 'Data::Dumper';
+requires 'Data::Dump';
+
 #requires 'Log::Dispatch::DesktopNotification'; # optional
 
 #requires 'MIME::Lite';

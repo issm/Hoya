@@ -7,6 +7,7 @@ use UUID::Tiny;
 use Encode;
 use Data::Recursive::Encode;
 use Data::Dumper qw/Dumper/;
+use Data::Dump qw/dump ddx/;
 use Hash::Merge qw/merge/;
 use Hash::MultiValue;
 use Carp;
@@ -68,8 +69,8 @@ sub name2path {
 
 
 
-sub d { Dumper @_; }
-sub D { Data::Dumper->Dump(@_); }
+sub d { dump @_; }
+sub D { Dumper @_; }
 
 
 sub printlog {
