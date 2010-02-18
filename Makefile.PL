@@ -15,6 +15,7 @@ requires 'Try::Tiny';
 requires 'Log::Dispatch';
 requires 'Data::Dumper';
 requires 'Data::Dump';
+requires 'Params::Validate';
 
 #requires 'Log::Dispatch::DesktopNotification'; # optional
 
