@@ -29,8 +29,8 @@ sub init {
     try {
         my $pl   = $self->_load;
         my $code = $self->_generate_as_string($pl);
-        eval $code;
-        $action = eval << "...";
+        eval $code               or die $!;
+        $action = eval << "..."  or die $!;
 Hoya::Action::${_name}->new({
     name => \$_name,
     req  => \$self->req,
@@ -43,7 +43,7 @@ Hoya::Action::${_name}->new({
 ...
     }
     catch {
-        carp shift;
+        die shift;
     };
 
     return $action;

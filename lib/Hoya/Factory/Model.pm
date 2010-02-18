@@ -30,8 +30,8 @@ sub init {
     try {
         my $pl   = $self->_load;
         my $code = $self->_generate_as_string($pl);
-        eval $code;
-        $model = eval << "...";
+        eval $code              or die $!;
+        $model = eval << "..."  or die $!;
 Hoya::Model::${_name}->new({
     env  => \$_env,
     conf => \$_conf,
@@ -40,7 +40,7 @@ Hoya::Model::${_name}->new({
 ...
     }
     catch Error with {
-        carp shift->text;
+        die shift->text;
     };
 
     return $model;
@@ -67,8 +67,9 @@ sub _load {
     catch Error with {
         #carp shift->text;
         my $text = sprintf(
-            '[notice] Model file not found: %s',
+            '[notice] Model file not found: %s (%s)',
             $_name,
+            $pl,
         );
         carp $text;
         $buff = '';
