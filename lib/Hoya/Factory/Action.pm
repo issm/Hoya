@@ -170,6 +170,7 @@ no warnings 'closure';  #ad-hoc
 use utf8;
 use base qw/Class::Accessor::Faster/;
 
+use Params::Validate qw/:all/;
 use Hash::MultiValue;
 use Carp;
 use Try::Tiny;
