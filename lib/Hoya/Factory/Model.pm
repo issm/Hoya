@@ -17,7 +17,6 @@ my $_conf;
 my $_dsh;
 
 
-
 sub init {
     my ($self) = self_param @_;
     $_name = $self->name;
@@ -93,8 +92,11 @@ use warnings;
 use utf8;
 use base qw/Class::Accessor::Faster/;
 
+use Params::Validate qw/:all/;
+use Hash::MultiValue;
 use Carp;
-use Error qw/:try/;
+use Try::Tiny;
+use Hoya::Re;
 use Hoya::Util;
 
 my $_env;
@@ -104,8 +106,15 @@ my $_DSH;
 my $_dsh;
 my $_dsh_type;
 
+validation_options(
+    on_fail => sub {
+        croak @_;
+    },
+);
+
 
 __PACKAGE__->mk_accessors(qw/env conf dsh/);
+
 
 sub init {
     my ($self) = self_param @_;
@@ -116,6 +125,7 @@ sub init {
 
     $_dsh_type = $self->dsh_type || 'YAML';
     $_dsh  = $_DSH->{$_dsh_type} || undef;
+    $self->dsh($_dsh);
 
     $self;
 }
