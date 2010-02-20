@@ -73,6 +73,8 @@ sub _create_model {
         conf => $_conf,
         dsh  => $_dsh,
     })->init;
+
+    return $_model->{$name};
 }
 
 
