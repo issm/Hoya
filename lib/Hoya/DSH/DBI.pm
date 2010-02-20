@@ -54,12 +54,14 @@ sub connect {
 
     # MySQL
     if($db_type eq 'mysql') {
+        my $data_source = sprintf(
+            'dbi:mysql:%s:%s:%s',
+            $_conf->{DB}{NAME},
+            $_conf->{DB}{HOST},
+            ($_conf->{DB}{PORT} || 3306),
+        );
         $_dbh = DBI->connect(
-            sprintf(
-                'DBI:mysql:%s:%s',
-                $_conf->{DB}{NAME},
-                $_conf->{DB}{HOST},
-            ),
+            $data_source,
             $_conf->{DB}{USER},
             $_conf->{DB}{PASSWD},
             { AutoCommit => 1 },
@@ -214,8 +216,21 @@ sub _q_mysql {
             ?  $self->execute(@$bind)
             :  $self->execute()
         ;
+        use Hash::MultiValue;
         my $fetch = $ref_type eq 'hash'
-            ?  ($_sth->fetchall_hashref($key) || {})
+            ? sub {
+                my $_key = shift;
+                try {
+                    # see: http://blog.iwa-ya.net/2010/02/18/192601
+                    my $ret = $_sth->fetchall_hmv($_key);
+                    die  unless is_def $ret;
+                    return $ret;
+                }
+                catch {
+                    carp 'DBI::st::fetchall_hmv is not defined, call DBI::st::fetchall_hashref, instead';
+                    return ($_sth->fetchall_hashref($_key) || {});
+                };
+            }->($key)
             :  ($_sth->fetchall_arrayref() || [])
         ;
         $fetch = de $fetch;
