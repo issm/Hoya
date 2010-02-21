@@ -61,6 +61,13 @@ sub get_model {
     }
 }
 
+# get_dsh($type);
+sub get_dsh {
+    my ($self, $type) = @_;
+    return undef  unless defined $type;
+    return $_dsh->{$type};
+}
+
 
 # _create_model($name);
 sub _create_model {
@@ -104,7 +111,11 @@ initialize.
 
 =item get_model($name)
 
-returns Hoya::Model::*.
+returns Hoya::Model::* object.
+
+=item get_dsh($type)
+
+returns Hoya::DSH::$type object.
 
 =back
 
