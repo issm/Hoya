@@ -25,7 +25,7 @@ sub _handle_static {
 
     my $path = do {
         local $_ = $env->{PATH_INFO};
-        my $matched = $_ =~ $Hoya::Re::PATH_STATIC_SKIN;
+        my $matched = $_ =~ Hoya::Re::PATH_STATIC;
         return  unless $matched;
         $_;
     } or return;
