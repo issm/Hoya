@@ -20,6 +20,7 @@ our @EXPORT = qw/
                     D
                     printlog
                     random_key
+                    unique_key
                     en
                     de
                     is_def
@@ -87,6 +88,7 @@ sub printlog {
 
 
 
+sub unique_key { random_key(@_); }
 sub random_key {
     my $n = shift || 1;
     my $s = shift;
