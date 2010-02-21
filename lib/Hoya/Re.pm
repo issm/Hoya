@@ -136,6 +136,20 @@ sub EMAIL {
 
 
 
+
+sub DATETIME {
+    return qr/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
+}
+
+sub DATE {
+    return qr/^(\d{4})-(\d{2})-(\d{2})$/;
+}
+
+sub TIME {
+    return qr/^(\d{2}):(\d{2}):(\d{2})$/;
+}
+
+
 1;
 __END__
 
