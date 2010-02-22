@@ -285,9 +285,12 @@ sub load_sql {
             return undef;
         };
     }
-    my $sql;
-    ($sql = $_sql_cache->{$name}->{$key}  ||  '')
-        =~ s/%(?:PRE)?%/$_pre/g;
+    my $sql = $_sql_cache->{$name}->{$key};
+    unless (defined $sql) {
+        croak "SQL with specified key does not exist: ${name}::${key}";
+        $sql = 'SELECT 1';
+    }
+    $sql =~ s/%(?:PRE)?%/$_pre/g;
     # ^ %PRE% または %% を $_pre の値に置き換える
 
     my $LIMIT = '';
