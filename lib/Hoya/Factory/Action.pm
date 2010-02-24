@@ -188,6 +188,8 @@ my $_qq;
 my $_up;
 my $_m;
 my $_mm;
+my $_ss;
+my $_session;
 my $_logger;
 
 my $_super;
@@ -229,7 +231,8 @@ sub init {
     $_up   = $self->up;
     $_mm   = $self->mm;
     $_m    = Hash::MultiValue->new;
-    $_logger = $_env->{'psgix.logger'};
+    $_session = $_env->{'psgix.session'};
+    $_logger  = $_env->{'psgix.logger'};
 
     $_var = {};
 
@@ -241,6 +244,41 @@ sub init {
 
     $self->_main();
     return $self;
+}
+
+sub session {
+    my $self = shift;
+    # getter
+    if (!defined $_[0]) {
+        return $self->_get_session;
+    }
+    elsif (!defined $_[1]  &&  ref $_[0] eq '') {
+        return $self->_get_session(@_);
+    }
+    # setter
+    else {
+        return $self->_set_session(@_);
+    }
+}
+sub remove_session {
+    my ($self, $name) = @_;
+    delete $_session->{$name}  if exists $_session->{$name};
+}
+sub _get_session {
+    my $self = shift;
+    my ($name) = @_;
+
+    return defined $name ? $_session->{$name} : $_session;
+}
+sub _set_session {
+    my $self = shift;
+    my ($name, $value) = @_;
+
+    if (is_def $name, $value) {
+        $_session->{$name} = $value;
+    }
+
+    return $value;
 }
 
 sub cookie {
@@ -257,7 +295,6 @@ sub cookie {
         return $self->_set_cookie(@_);
     }
 }
-# remove_cookie($name);
 sub remove_cookie {
     my ($self, $name) = @_;
     return $self->cookie($name, '', undef, undef, -60*60);
@@ -556,6 +593,18 @@ initialize.
 =item go
 
 Go.
+
+=item session
+
+=item session($name)
+
+=item session($name, $value)
+
+Gets/Sets session value.
+
+=item remove_session($name)
+
+Removes session value which isi associated with $name.
 
 =item cookie
 
