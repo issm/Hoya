@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use utf8;
 use base qw/Exporter/;
-use UUID::Tiny;
+use UUID::Tiny qw/:std/;
 use Encode;
 use Data::Recursive::Encode;
 use Data::Dumper qw/Dumper/;
@@ -88,6 +88,12 @@ sub printlog {
 
 
 
+my @unique_key_charmap =
+    qw/ 0 1 2 3 4 5 6 7 8 9 _ -
+        a b c d e f g h i j k l m n o p q r s t u v w x y z
+        A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+      /;
+
 sub unique_key { random_key(@_); }
 sub random_key {
     my $n = shift || 1;
@@ -96,24 +102,19 @@ sub random_key {
     my $ret = '';
     my $uuid_n = join '', map {
         my $uuid = defined $s
-            ? create_UUID(UUID_V3, $s) : create_UUID();
-        UUID_to_string($uuid);
+            ? create_uuid(UUID_V5, $s) : create_uuid(UUID_V4);
+        uuid_to_string($uuid);
     } 1 .. $n;
     $uuid_n =~ s/-//g;
 
-    my @map = qw/ 0 1 2 3 4 5 6 7 8 9 _ -
-                  a b c d e f g h i j k l m n o p q r s t u v w x y z
-                  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-                /;
     my @c = split '', $uuid_n;
-
     while (@c) {
         my @a = (shift @c, shift @c, shift @c, shift @c);
         my $sum = 0;
         for my $a (@a) {
             $sum += eval(sprintf '0x%s', ($a||'00')) || 0;
         }
-        $ret .= $map[$sum];
+        $ret .= $unique_key_charmap[$sum];
     }
     return $ret;
 }
