@@ -72,10 +72,10 @@ sub _load {
     catch {
         #carp shift;
         my $text = sprintf(
-            '[notice] Action file not found: %s',
+            '[error] Action "%s" not found.',
             $_name,
         );
-        carp $text;
+        croak $text;
         $buff = '';
     };
 

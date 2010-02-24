@@ -111,6 +111,12 @@ $content
     }
     #
     else {
+        my $text = sprintf(
+            '[error] View "%s" not found.',
+            $_name,
+        );
+        croak $text;
+
         try {
             $content = $mt->render('_error')->as_string;
         }
