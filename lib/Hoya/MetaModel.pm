@@ -50,15 +50,19 @@ sub _init_dsh {
 
 # get_model($name);
 sub get_model {
-    my ($self, $name) = @_;
-    return undef  unless defined $name;
+    my ($self, @names) = @_;
+    return undef  unless @names;
 
-    if (exists $_model->{$name}) {
-        return $_model->{$name};
+    my @models;
+    for my $name (@names) {
+        if (exists $_model->{$name}) {
+            push @models, $_model->{$name};
+        }
+        else {
+            push @models, $self->_create_model($name);
+        }
     }
-    else {
-        return $self->_create_model($name);
-    }
+    return wantarray ? @models : $models[0];
 }
 
 # get_dsh($type);

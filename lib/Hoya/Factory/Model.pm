@@ -39,7 +39,7 @@ Hoya::Model::${_name}->new({
 ...
     }
     catch Error with {
-        die shift->text;
+        croak shift->text;
     };
 
     return $model;
