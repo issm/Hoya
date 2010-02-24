@@ -2,6 +2,7 @@ use inc::Module::Install;
 name 'Hoya';
 all_from 'lib/Hoya.pm';
 
+requires 'Plack::Middleware::Session';
 requires 'URI::Escape';
 requires 'YAML::Syck';
 requires 'JSON::Syck';
