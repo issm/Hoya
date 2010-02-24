@@ -17,6 +17,10 @@ requires 'Data::Dumper';
 requires 'Data::Dump';
 requires 'Params::Validate';
 
+# used in test
+requires 'Data::Random';
+requires 'Data::Random::WordList';
+
 #requires 'Log::Dispatch::DesktopNotification'; # optional
 
 #requires 'MIME::Lite';

@@ -7,9 +7,12 @@ use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../extlib";
 use Test::More qw/no_plan/;
 #plan tests => 1;
 
+use Data::Random qw/:all/;
+use Data::Random::WordList;
 use Hoya::Re;
 use Hoya::Util;
 
+my $DICDIR = "$FindBin::Bin/dic";
 my ($target, $cases) = (qr//, {});
 
 sub test_these {
@@ -567,5 +570,61 @@ $cases = {
         '02:3:45',
         '02:13:5',
     ],
+};
+test_these;
+
+#--------------------------------------------------------------------------------
+#
+p 'TEL';
+#
+#--------------------------------------------------------------------------------
+$target = Hoya::Re::TEL;
+$cases = {
+    pass => [
+        Data::Random::WordList->new(
+            wordlist => "$DICDIR/tel"
+        )->get_words(1000),
+
+        (grep {
+            $_ ne '';
+        } Data::Random::WordList->new(
+            wordlist => "$DICDIR/tel_m"
+        )->get_words(1000)),
+        
+        qw/
+              0312345678
+              09012345678
+              03-1234-5678
+              052-123-4567
+              0532-12-3456
+              05337-1-2345
+              090-1234-5678
+              090-123-45678
+          /
+    ],
+    
+    fail => [qw/
+        053377-12-345
+    /],
+};
+test_these;
+
+
+#--------------------------------------------------------------------------------
+#
+p 'ZIPCODE';
+#
+#--------------------------------------------------------------------------------
+$target = Hoya::Re::ZIPCODE;
+$cases = {
+    pass => [
+        Data::Random::WordList->new(
+            wordlist => "$DICDIR/zipcode"
+        )->get_words(2000),
+    ],
+
+    fail => [qw/
+        4666-001
+    /],
 };
 test_these;
