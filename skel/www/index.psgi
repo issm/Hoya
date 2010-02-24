@@ -4,9 +4,22 @@ use utf8;
 use FindBin;
 use Plack::Request;
 use Plack::Builder;
+use Plack::Session::State::Cookie;
+use Plack::Session::Store::Cache;
+use Cache::FileCache;
 use Log::Dispatch;
 use Hoya;
 use Hoya::Re;
+
+#================================ site settings ====================================
+#
+my $SITE_NAME       = 'default';
+my $SESSION_KEY     = "hoya_${SITE_NAME}_session";
+my $SESSION_EXPIRES = 60 * 60 * 24 * 28;  # 28 days
+my $CACHE_ROOT      = '/tmp/hoya_cache';
+#
+#===================================================================================
+
 
 my $logger = Log::Dispatch->new(
     outputs => [
@@ -48,17 +61,31 @@ $app_admin = sub {
 
 
 builder {
+    enable 'Session',
+        state => Plack::Session::State::Cookie->new(
+            session_key => $SESSION_KEY,
+            expires     => $SESSION_EXPIRES,
+        ),
+        store => Plack::Session::Store::Cache->new(
+            cache => Cache::FileCache->new({
+                cache_root         => $CACHE_ROOT,
+                namespace          => $SITE_NAME,
+                default_expires_in => $SESSION_EXPIRES,
+                cache_depth        => 5,
+            }),
+        ),
+    ;
+
     enable '+Hoya::PlackMiddleware::UserAgentMapper',
-        site_name   => 'default',
+        site_name   => $SITE_NAME,
         script_name => __FILE__,
     ;
+
     enable '+Hoya::PlackMiddleware::Static';
 
-    #enable 'Static',
-    #    path => $Hoya::Re::PATH_STATIC_SKIN,
-    #    root => 'site/default',
-    #;
-
+    #
+    # URLMap
+    #
     mount '/admin' => builder {
         enable 'LogDispatch', logger => $logger;
         enable 'Auth::Basic',
