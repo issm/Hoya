@@ -8,6 +8,7 @@ use YAML::Syck;
 use URI::Escape;
 use Hash::Merge qw/merge/;
 use Hash::MultiValue;
+use Carp;
 use Try::Tiny;
 
 use Hoya::Util;
@@ -85,6 +86,7 @@ sub get_action_info {
     #
     # 適用ルールを検索する
     #
+    my $re_path_matched = '';
     for my $pair (@$_map_rule) {
         my $re_path = (keys %$pair)[0];
         my $re_path_eval = $re_path; # 「変数」展開用
@@ -98,6 +100,7 @@ sub get_action_info {
         }
         # v マッチした，または，以前にマッチしている
         if ($matched) {
+            $re_path_matched = $re_path;
             my $rule = $pair->{$re_path};
             if (defined $rule) {
                 $rule_applied = $rule;
@@ -110,8 +113,21 @@ sub get_action_info {
     # ルールからアクションの情報を生成する
     #
     if (defined $rule_applied) {
-        $action_info->{name} = shift @$rule_applied;
-        my ($param, $const) = @$rule_applied;
+        my ($param, $const) = ([], {});
+        for my $i (@$rule_applied) {
+            if (ref $i eq '')      { $action_info->{name} = $i; }
+            if (ref $i eq 'ARRAY') { $param = $i; }
+            if (ref $i eq 'HASH')  { $const = $i; }
+        }
+        if ($action_info->{name} eq '') {
+            croak sprintf(
+                '[error] Name of action, to be mapped, is not defined'
+                    . ' at matched path-info-regexp "%s"'
+                    . ', check conf/urlmap.yml.',
+                $re_path_matched,
+            );
+        }
+
         #
         if (defined $param  &&  ref $param eq 'ARRAY') {
             for (my $i = 0; $i < scalar @$param; $i++) {
