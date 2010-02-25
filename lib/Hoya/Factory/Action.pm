@@ -490,13 +490,23 @@ sub get_var {
 
     if (wantarray) {
         return
-            map $_var->{$_}, @names;
+            map {
+                my $v = $_var->{$_};
+                $v = $_var->{__import__}{$_}
+                    if (!is_def($v)  &&  exists $_var->{__import__}{$_});
+                $v;
+            } @names;
     }
     else {
-        return defined $names[0]
-            ? $_var->{$names[0]}
-            : undef
-        ;
+        if (is_def($names[0])) {
+            my $v = $_var->{$names[0]};
+            $v = $_var->{__import__}{$names[0]}
+                if (!is_def($v)  &&  exists $_var->{__import__}{$names[0]});
+            return $v;
+        }
+        else {
+            return undef;
+        }
     }
 }
 
