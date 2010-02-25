@@ -75,7 +75,6 @@ sub _load {
         $buff =~ s/__(?:END|DATA)__.*$//s; # __END__ 以降を削除する
     }
     catch {
-        #carp shift;
         my $text = sprintf(
             '[error] Action "%s" not found.',
             $_name,
@@ -124,7 +123,7 @@ sub %s (&) {
         );
 
         $methods_xx .= sprintf(
-            << '...',
+            << '......',
 sub _xx_%s {
     my ($self, $v) = @_;
     $v = $self->set_param($v);
@@ -149,12 +148,16 @@ sub _xx_%s {
         $ret->{name} = $__name;
     }
     catch {
-        carp shift;
+        my $msg = shift;
+        my $text = << "...";
+[error @ action::$_name] $msg
+...
+        croak $text;
     };
 
     return $ret;
 }
-...
+......
             $meth,
             $meth,
             $meth,
@@ -554,6 +557,8 @@ sub super ($) {
         conf => $_conf,
         q    => $_q,
         qq   => $_qq,
+        up   => $_up,
+        mm   => $_mm,
     });
 
     $_super;
