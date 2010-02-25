@@ -23,10 +23,18 @@ my $_env;
 my $_conf;
 
 
-__PACKAGE__->mk_accessors(qw/name env conf/);
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
+
+    $class->mk_accessors qw/name env conf/;
+
+    return $self->_init;
+}
 
 
-sub init {
+sub _init {
     my ($self) = @_;
     $_name = $self->name;
     $_env  = $self->env;

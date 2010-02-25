@@ -24,10 +24,18 @@ my $_content; # ?
 
 my $_page;
 
-__PACKAGE__->mk_accessors(qw/name type env conf q qq var action_name content/);
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
+
+    $class->mk_accessors qw/name type env conf q qq var action_name content/;
+
+    return $self->_init;
+}
 
 
-sub init {
+sub _init {
     my $self = shift;
     my $ret;
 
@@ -60,7 +68,7 @@ $class->new({
     qq   => \$_qq,
     var  => \$_var,
     action_name => \$_action_name,
-})->init;
+});
 ...
     }
     catch {
@@ -79,7 +87,7 @@ sub _init_page {
         name => $_name,
         env  => $_env,
         conf => $_conf,
-    })->init;
+    });
 
     my @css_import = $_page->import_css;
     my @js_import  = $_page->import_js;

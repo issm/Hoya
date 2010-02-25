@@ -34,7 +34,7 @@ sub _handle {
         conf => {
             PATH => { CONF => $conf_dir },
         },
-    })->init;
+    });
     $ua_info = $ua_mapper->get_info;
 
     $env->{HOYA_SKIN} = $ua_info->{name};

@@ -2,7 +2,6 @@ package Hoya::View::TT;
 use strict;
 use warnings;
 use utf8;
-
 use base qw/Class::Accessor::Faster/;
 
 use Template;
@@ -13,8 +12,20 @@ use Carp;
 use Try::Tiny;
 
 use Hoya::Page;
-
 use Hoya::Util;
+
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
+
+    #$class->mk_accessors qw//;
+
+    return $self->_init;
+}
+
+sub _init {
+}
 
 
 

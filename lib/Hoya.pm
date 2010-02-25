@@ -4,7 +4,7 @@ use warnings;
 use utf8;
 our $VERSION = '0.01';
 
-use base qw/Class::Accessor::Fast/;
+use base qw/Class::Accessor::Faster/;
 use Hoya::Controller;
 use Hoya::Util;
 
@@ -21,7 +21,7 @@ sub run {
     my $c = Hoya::Controller->new({
         req      => $req,
         app_name => $app_name,
-    })->init;
+    });
 
     return $c->go;
 }

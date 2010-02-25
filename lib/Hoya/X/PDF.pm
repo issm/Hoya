@@ -80,18 +80,25 @@ my $LINE_WIDTH   = 1;          # 線の幅
 #  @param   ?fillcolor    scalar  背景色
 #  @param   ?linewidth    scalar  線の幅
 #
-__PACKAGE__->mk_accessors(
-qw/
-  _PDF _MEASURE _DPI _WIDTH _HEIGHT _FONT _FONT_SIZE _LINE_HEIGHT _ROTATE _COLOR_STROKE _COLOR_FILL _LINE_WIDTH
-  measure dpi width height ttfont fontsize line_height strokecolor fillcolor linewidth
-/);
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
 
+    $class->mk_accessors(
+        qw/
+              _PDF _MEASURE _DPI _WIDTH _HEIGHT _FONT _FONT_SIZE _LINE_HEIGHT _ROTATE _COLOR_STROKE _COLOR_FILL _LINE_WIDTH
+              measure dpi width height ttfont fontsize line_height strokecolor fillcolor linewidth
+          /
+    );
 
+    return $self->_init;
+}
 
 #
 #  初期化
 #
-sub init {
+sub _init {
     my ($self, $para ) = self_param(@_);
 
     $self->_DPI(

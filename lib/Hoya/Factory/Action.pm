@@ -13,13 +13,18 @@ my @METHODS = qw/BEFORE GET POST AFTER/;
 my $_name;
 
 
-#
-__PACKAGE__->mk_accessors(
-    qw/name req conf q qq up mm view_name var/
-);
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
+
+    $class->mk_accessors qw/name req conf q qq up mm view_name var/;
+
+    return $self->_init;
+}
 
 
-sub init {
+sub _init {
     my $self = shift;
 
     $_name = $self->name;
@@ -29,8 +34,8 @@ sub init {
     try {
         my $pl   = $self->_load;
         my $code = $self->_generate_as_string($pl);
-        eval $code               or die $!;
-        $action = eval << "..."  or die $!;
+        eval $code               or croak $!;
+        $action = eval << "..."  or croak $!;
 Hoya::Action::${_name}->new({
     name => \$_name,
     req  => \$self->req,
@@ -39,11 +44,11 @@ Hoya::Action::${_name}->new({
     qq   => \$self->qq,
     up   => \$self->up,
     mm   => \$self->mm,
-})->init;
+});
 ...
     }
     catch {
-        die shift;
+        croak shift;
     };
 
     return $action;
@@ -64,7 +69,7 @@ sub _load {
 
     try {
         local $/;
-        open my $fh, '<', $pl or die $!;
+        open my $fh, '<', $pl or croak $!;
         $buff = de <$fh>;
         close $fh;
         $buff =~ s/__(?:END|DATA)__.*$//s; # __END__ 以降を削除する
@@ -212,14 +217,21 @@ my $_code_xx = {
 };
 
 
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
 
-__PACKAGE__->mk_accessors(
-    qw/name req conf q qq up mm view_name var
-       status content_type cookies
-      /
-);
+    $class->mk_accessors(
+        qw/name req conf q qq up mm view_name var
+           status content_type cookies
+          /
+    );
 
-sub init {
+    return $self->_init;
+}
+
+sub _init {
     my $self = shift;
 
     $_name = $self->name;
@@ -542,7 +554,7 @@ sub super ($) {
         conf => $_conf,
         q    => $_q,
         qq   => $_qq,
-    })->init;
+    });
 
     $_super;
 }

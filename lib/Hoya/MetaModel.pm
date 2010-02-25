@@ -17,10 +17,17 @@ my $_dsh   = {};
 my $_model = {};
 
 
-__PACKAGE__->mk_accessors(qw/env conf/);
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
 
+    $class->mk_accessors qw/env conf/;
 
-sub init {
+    return $self->_init;
+}
+
+sub _init {
     my ($self) = self_param @_;
     $_env  = $self->env;
     $_conf = $self->conf;
@@ -42,7 +49,7 @@ sub _init_dsh {
                 type => $dsh,
                 env  => $_env,
                 conf => $_conf,
-            })->init;
+            });
         }
     }
 }
@@ -83,7 +90,7 @@ sub _create_model {
         env  => $_env,
         conf => $_conf,
         dsh  => $_dsh,
-    })->init;
+    });
 
     return $_model->{$name};
 }

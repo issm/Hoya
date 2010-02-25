@@ -12,15 +12,22 @@ use Carp;
 
 use Hoya::Util;
 
-__PACKAGE__->mk_accessors(qw/req/);
-
 my $_req;
 my $_env;
 my $_conf;
 
 
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
 
-sub init {
+    $class->mk_accessors qw/req/;
+
+    return $self->_init;
+}
+
+sub _init {
     my $self = shift;
     $_req  = $self->req;
     $_env  = $_req->{env} || \%ENV;

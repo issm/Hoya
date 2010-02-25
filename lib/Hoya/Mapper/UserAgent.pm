@@ -22,10 +22,17 @@ my $_map_rule;
 my $__map = [];
 
 
-__PACKAGE__->mk_accessors(qw/req env conf/);
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
 
+    $class->mk_accessors qw/req env conf/;
 
-sub init {
+    return $self->_init;
+}
+
+sub _init {
   my $self = shift;
   $_req  = $self->req;
   $_env  = $_req->env;

@@ -8,16 +8,23 @@ use Carp;
 use Error qw/:try/;
 use Hoya::Util;
 
-__PACKAGE__->mk_accessors(qw/name env conf dsh/);
-
-
 my $_name;
 my $_env;
 my $_conf;
 my $_dsh;
 
 
-sub init {
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
+
+    $class->mk_accessors qw/name env conf dsh/;
+
+    return $self->_init;
+}
+
+sub _init {
     my ($self) = self_param @_;
     $_name = $self->name;
     $_env  = $self->env;
@@ -35,7 +42,7 @@ Hoya::Model::${_name}->new({
     env  => \$_env,
     conf => \$_conf,
     dsh  => \$_dsh,
-})->init;
+});
 ...
     }
     catch Error with {
@@ -113,10 +120,17 @@ validation_options(
 );
 
 
-__PACKAGE__->mk_accessors(qw/env conf dsh/);
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
 
+    $class->mk_accessors qw/env conf dsh/;
 
-sub init {
+    return $self->_init;
+}
+
+sub _init {
     my ($self) = self_param @_;
     $_env  = $self->env;
     $_conf = $self->conf;

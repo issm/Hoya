@@ -29,18 +29,26 @@ my $_page;
 my $_no_escape = 0;
 
 
-__PACKAGE__->mk_accessors(
-    qw/name type env conf
-       q qq var action_name
-       content error
-       no_escape
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
 
-       status content_type
-      /
-);
+    $class->mk_accessors(
+        qw/name type env conf
+           q qq var action_name
+           content error
+           no_escape
+           
+           status content_type
+          /
+    );
+
+    return $self->_init;
+}
 
 
-sub init {
+sub _init {
     my ($self) = @_;
     $_name  = $self->name;
     $_env   = $self->env;

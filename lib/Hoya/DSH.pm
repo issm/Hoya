@@ -16,10 +16,18 @@ my $_type;
 my $_cache;
 
 
-__PACKAGE__->mk_accessors(qw/env conf type/);
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
+
+    $class->mk_accessors qw/env conf type/;
+
+    return $self->_init;
+}
 
 
-sub init {
+sub _init {
     my $self = shift;
     $_env = $self->env;
     $_conf = $self->conf;
@@ -45,7 +53,7 @@ ${dsh_class}->new({
     env   => \$_env,
     conf  => \$_conf,
     cache => \$_cache,
-})->init;
+});
 ...
         return $dsh;
     }

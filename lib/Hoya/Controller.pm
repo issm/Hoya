@@ -28,16 +28,24 @@ my $_action;
 my $_view;
 
 #
-__PACKAGE__->mk_accessors(qw/req app_name/);
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
+
+    $class->mk_accessors qw/req app_name/;
+
+    return $self->_init;
+}
 
 #
-sub init {
+sub _init {
     my $self = shift;
 
     $_env = $self->req->env;
     $_conf = Hoya::Config->new({
         req => $self->req,
-    })->init->get;
+    })->get;
     $_q  = {}; # Hash::MultiValueオブジェクト
     $_qq = {}; # Hash::MultiValueオブジェクト
     $_up = {}; # Hash::MultiValueオブジェクト
@@ -65,7 +73,7 @@ sub go {
     $_mm = Hoya::MetaModel->new({
         env  => $_env,
         conf => $_conf,
-    })->init;
+    });
 
     #
     # url mapping (dispatching)
@@ -75,7 +83,7 @@ sub go {
         req      => $req,
         conf     => $_conf,
         app_name => $self->app_name,
-    })->init;
+    });
     $action_info = $url_mapper->get_action_info;
 
     #
@@ -91,7 +99,7 @@ sub go {
     #$ua_mapper = Hoya::Mapper::UserAgent->new({
     #    req  => $req,
     #    conf => $_conf,
-    #})->init;
+    #});
     #$ua_info = $ua_mapper->get_info;
     #$_conf->{UA_INFO} = $ua_info;
 
@@ -112,7 +120,7 @@ sub go {
         qq   => $_qq,
         up   => $_up,
         mm   => $_mm,
-    })->init;
+    });
     $view_info = $_action->go;
 
     #
@@ -144,7 +152,7 @@ sub go {
             qq   => $view_info->{qq},
             var  => $view_info->{var},
             action_name => $_action->name,
-        })->init;
+        });
         #$_view->no_escape(1);
         $_view->go;
 

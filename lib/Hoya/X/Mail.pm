@@ -14,16 +14,24 @@ use Hoya::Util;
 
 my $_types;
 
-__PACKAGE__->mk_accessors(
-    qw/from to cc bcc subject
-       body signature _files
-       smtp_host
-       template_dir
-      /
-  );
 
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
 
-sub init {
+    $class->mk_accessors(
+        qw/from to cc bcc subject
+           body signature _files
+           smtp_host
+           template_dir
+          /
+    );
+
+    return $self->_init;
+}
+
+sub _init {
     my $self = shift;
     $self->_files([]);
 
