@@ -59,6 +59,14 @@ sub go {
     my $self = shift;
     my $req = $self->req;
 
+    # $_env->{HOYA_SITE}, $_env->{HOYA_SKIN} のいずれか/両方がセットされていない場合，終了
+    if (
+        (!exists $_env->{HOYA_SITE} || $_env->{HOYA_SITE} eq '')  ||
+        (!exists $_env->{HOYA_SKIN} || $_env->{HOYA_SKIN} eq '')
+    ) {
+        croak '"HOYA_SITE" and/or "HOYA_SKIN" are/is not set, check them/it!';
+    }
+
     # Plack::Response
     my $res = $req->new_response(404);
 
