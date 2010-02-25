@@ -11,6 +11,13 @@ use Hoya::Util;
 
 our $FINISH_ACTION = '__FINISH_ACTION__';
 
+# 変数インポートに使用できない名前
+our @NAMES_IMPORT_FORBIDDEN =
+    qw/env conf q qq var
+       URL
+       VIEW_NAME ACTION_NAME
+      /;
+
 
 sub run {
     my ($self, $req, $app_name) = @_;

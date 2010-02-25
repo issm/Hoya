@@ -82,6 +82,16 @@ sub go {
     );
     my $content = '';
 
+    # インポート用変数の準備
+    my %var_import = ();
+    for my $k (keys %{$_var->{__import__}}) {
+        $var_import{$k} = $_var->{__import__}{$k};
+        $_var->{__import__}{$k} = undef;
+        delete $_var->{__import__}{$k};
+    }
+    $_var->{__import__} = undef;
+    delete $_var->{__import__};
+
     my $mt =
         Text::MicroTemplate::Extended->new(
             include_path  => $_path,
@@ -91,11 +101,13 @@ sub go {
                 q    => $_q,
                 qq   => $_qq,
                 var  => $_var,
+                %var_import,
 
                 URL  => $_conf->{LOCATION}{URL},
 
                 VIEW_NAME   => $_name,
                 ACTION_NAME => $_action_name,
+
             },
             use_cache => 1,
         );

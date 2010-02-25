@@ -150,7 +150,7 @@ sub _xx_%s {
     catch {
         my $msg = shift;
         my $text = << "...";
-[error @ action::$_name] $msg
+[error\@action::$_name] $msg
 ...
         croak $text;
     };
@@ -207,7 +207,9 @@ my $_var;
 
 my $_view_info = {
     name => '',
-    var  => {},
+    var  => {
+        __import__ => {},
+    },
     q    => {},
     qq   => {},
 };
@@ -499,6 +501,37 @@ sub get_var {
 }
 
 
+sub import_var {
+    my ($self, @args) = @_;
+    return undef  unless @args;
+
+    my ($name, $value) = @args;
+
+    if (
+      (grep $name eq $_, @Hoya::NAMES_IMPORT_FORBIDDEN)
+    ) {
+        my $msg = sprintf(
+            'The variable "%%s" is forbidden to import!',
+            $name,
+        );
+        croak $msg;
+    }
+
+    #
+    if (is_def $name, $value) {
+        $_var->{__import__}->{$name} = $value;
+        return $value;
+    }
+    elsif (is_def $name, $_var->{$name}) {
+        $_var->{__import__}->{$name} = $_var->{$name};
+        $_var->{$name} = undef;
+        delete $_var->{$name};
+        return $value;
+    }
+
+    return undef;
+}
+
 
 #
 sub set_param {
@@ -673,6 +706,12 @@ Gets variables that are available on "view".
 Sets variables that are available on "view".
 
 When 1st argument is hashref, \%%var is merged to "variable hash".
+
+=item import_var($name)
+
+=item import_var($name, $value)
+
+Sets variable to be available directly at View, as $hoge, not $var->{hoge}.
 
 =item finish
 
