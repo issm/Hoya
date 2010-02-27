@@ -16,6 +16,7 @@ use Try::Tiny;
 our @EXPORT = qw/
                     self_param
                     name2path
+                    name2class
                     d
                     D
                     printlog
@@ -65,6 +66,17 @@ sub name2path {
     $path =~ s{^/}{_};
     $path =~ s{//}{/_}g;
     return $path;
+}
+
+
+sub name2class {
+    my $name = shift;
+    my $class = $name;
+    # foo_bar-baz => Foo::BarBaz, _hoge_fuga => _Hoge::Fuga
+    $class =~ s/_(.)/::\U$1/g;
+    $class =~ s/-(.)/\U$1/g;
+    $class =~ s/^::/_/;
+    return ucfirst $class;
 }
 
 
@@ -247,7 +259,11 @@ Hoya::Util is
 
 =item name2path($name)
 
-$path = name2path('foo_bar_baz');  # 'foo/bar/baz'
+$path = name2path('foo_bar_baz');  # 'foo_bar-baz' => 'foo/bar-baz'
+
+=item name2class($name)
+
+$classname = name2class($name);  # 'foo_bar-baz' => 'Foo::BarBaz'
 
 =item d($var)
 
