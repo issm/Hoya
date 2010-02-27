@@ -29,7 +29,7 @@ sub new {
     my $self = bless $class->SUPER::new($param), $class;
     $class->mk_accessors(
         qw/name req env conf q qq up mm
-           vars cookies
+           vars cookies logger
            status content_type 
            _super
           /
@@ -43,6 +43,7 @@ sub _init {
     my $self = shift;
 
     $self->env($self->req->env);
+    $self->logger($self->req->logger);
 
     $self->status(200);
     $self->content_type(
