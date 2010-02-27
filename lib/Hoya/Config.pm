@@ -12,42 +12,38 @@ use Carp;
 
 use Hoya::Util;
 
-my $_req;
-my $_env;
-my $_conf;
-
 
 sub new {
     my $class = shift;
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/req/;
+    $class->mk_accessors qw/req conf/;
 
     return $self->_init;
 }
 
 sub _init {
     my $self = shift;
-    $_req  = $self->req;
-    $_env  = $_req->{env} || \%ENV;
-    $_conf = {};
+    my $req  = $self->req;
+    my $env  = $req->env || \%ENV;
+    my $conf = {};
 
     # PATH
     # 環境変数"SCRIPT_PATH_FULL"にpsgiスクリプトのパスが入っている必要がある
     my $PATH = {};
     my $script_dir = dirname(
-        File::Spec->rel2abs($_env->{SCRIPT_PATH_FULL})
+        File::Spec->rel2abs($env->{SCRIPT_PATH_FULL})
     );
     (my $ROOT = $script_dir) =~ s{/www$}{};
-    $ROOT = $_env->{PROJECT_ROOT}  if exists $_env->{PROJECT_ROOT};
+    $ROOT = $env->{PROJECT_ROOT}  if exists $env->{PROJECT_ROOT};
 
     $PATH->{ROOT}      = $ROOT;
     $PATH->{CONF}      = "$ROOT/conf";
     $PATH->{PL}        = "$ROOT/pl";
     $PATH->{DATA}      = "$ROOT/data";
-    $PATH->{SITE}      = "$ROOT/site/$_env->{HOYA_SITE}";
-    $PATH->{SKIN}      = "$ROOT/site/$_env->{HOYA_SITE}/$_env->{HOYA_SKIN}";
+    $PATH->{SITE}      = "$ROOT/site/$env->{HOYA_SITE}";
+    $PATH->{SKIN}      = "$ROOT/site/$env->{HOYA_SITE}/$env->{HOYA_SKIN}";
     $PATH->{BIN}       = "$ROOT/bin";
     $PATH->{TMP}       = "$ROOT/tmp";
     $PATH->{LOG}       = "$ROOT/log";
@@ -63,10 +59,12 @@ sub _init {
             my $file = "$PATH->{CONF}/$f.yml";
             $self->_add_from_yaml($file);
         }
-        if ($_conf->{LOCAL}) {
+        if ($self->conf->{LOCAL}) {
             my $file = "$PATH->{CONF}/_local.yml";
             $self->_add_from_yaml($file);
         }
+
+        $conf = $self->conf;
     }
     # スキン特化
     # <site>/<skin>/conf.yml が存在する場合，
@@ -84,23 +82,26 @@ sub _init {
 
     if (defined $self->req) {
         # LOCATION
-        (my $_PROTOCOL = lc $_req->protocol) =~ s{/.*$}{};
-        $LOCATION->{PROTOCOL} = $_conf->{LOCATION}{PROTOCOL} || $_PROTOCOL;
-        $LOCATION->{URL} = '' . $_req->uri;  # as string
+        (my $_PROTOCOL = lc $req->protocol) =~ s{/.*$}{};
+        $LOCATION->{PROTOCOL} = $conf->{LOCATION}{PROTOCOL} || $_PROTOCOL;
+        $LOCATION->{URL}      = '' . $req->uri;  # as string
+        $LOCATION->{HOST}     = $req->env->{HTTP_HOST};
 
         # URL_BASE
-        $URL_BASE = '' . $_req->base;  # as string
+        $URL_BASE = '' . $req->base;  # as string
+
+        ($conf->{COOKIE}{DOMAIN} = $LOCATION->{HOST}) =~ s/:\d+//;
     }
 
     # CACHE
     my $CACHE = {};
     {
-        my $project_name = $_conf->{PROJECT_NAME} || 'hoya';
+        my $project_name = $self->conf->{PROJECT_NAME} || 'hoya';
         my $a = substr($project_name, 0, 1);
         my $z = substr($project_name, -1);
         $CACHE->{NAMESPACE} = sprintf(
             '%s%s',
-            random_key(1, $_conf->{PROJECT_NAME}),
+            random_key(1, $self->conf->{PROJECT_NAME}),
             random_key(1, "$a$z"),
         );
         # ^ PROJECT_NAME が 'project' の場合，
@@ -126,31 +127,36 @@ sub _add {
     my ($self, $added) = @_;
     $added = {}  unless defined $added;
     return 0  unless ref $added eq 'HASH';
-    $_conf = merge_hash($_conf, de $added);
+    return $self->conf(
+        merge_hash($self->conf, de $added)
+    );
 }
 
 # _add_from_yaml($file)
 sub _add_from_yaml {
     my ($self, $file) = @_;
     my $added = {};
-    return $_conf  unless -f $file; # not exists
-    return $_conf  unless ((stat $file)[7]); # zero-sized
+    return $self->conf  unless -f $file; # not exists
+    return $self->conf  unless ((stat $file)[7]); # zero-sized
     try {
         $added = de LoadFile($file);
-        $_conf = merge_hash($_conf, $added)
-            if ref $added eq 'HASH';
+        if (ref $added eq 'HASH') {
+            $self->conf(
+                merge_hash($self->conf, $added),
+            );
+        }
     }
     catch {
         die shift;
     };
-    return $_conf;
+    return $self->conf;
 }
 
 
 # get();
 sub get {
     my $self = shift;
-    return $_conf;
+    return $self->conf;
 }
 
 
