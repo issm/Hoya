@@ -121,18 +121,21 @@ sub go {
     #
     my ($view_info);
     $_action = Hoya::Factory::Action->new({
-        name => $action_info->{name},
-        req  => $self->req,
-        conf => $_conf,
-        q    => $_q,
-        qq   => $_qq,
-        up   => $_up,
-        mm   => $_mm,
+        name    => $action_info->{name},
+        req     => $self->req,
+        conf    => $_conf,
+        q       => $_q,
+        qq      => $_qq,
+        up      => $_up,
+        mm      => $_mm,
+        cookies => {},
+        vars    => {
+            __import__ => {},
+        },
     });
     $view_info = $_action->go;
-
     #
-    # cookieを発行する
+    # cookie発行の準備をする
     #
     $res->cookies(en $_action->cookies);
 
