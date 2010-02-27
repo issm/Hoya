@@ -1,16 +1,12 @@
-# 指定のアクションを継承する
-#super 'common';
+# アクションを継承する
+#a->super qw/common/;
 
 # モデルを読み込む
-#model 'sample', 'foo', 'bar';
+#my @models = a->model qw/sample foo bar/;
 
 # 事前処理（各種メソッド共通）
 BEFORE {
-    my $self = shift;
-
-    $self->set_var(
-        hello => 'Hello, world!',
-    );
+    a->var('hello', 'Hello, world!');
 
     '';
 };
@@ -18,7 +14,6 @@ BEFORE {
 
 # GETメソッド処理
 GET {
-    my $self = shift;
 
     '';
 };
@@ -26,7 +21,6 @@ GET {
 
 # POSTメソッド処理
 POST {
-    my $self = shift;
 
     '';
 };
@@ -34,7 +28,6 @@ POST {
 
 # 事後処理（各種メソッド共通）
 AFTER {
-    my $self = shift;
 
     '';
 };
@@ -46,21 +39,6 @@ __END__
 =head1 DSL記述方法
 
 =over 4
-
-=item super $name;
-
-アクション $name を継承します．
-
-=item model $model1, $model2, ...;
-
-モデル $model1，$model2，．．．を読み込みます．
-
-例えば，
-    model 'foo', 'bar';  # model qw/foo bar/; でもOK
-とした場合，これらのモデルは，モデルハッシュ（Hash::MultiValueオブジェクト）$_mに対して
-    $_m->{foo};
-    $_m->get('foo');
-のように参照することができます．
 
 =item BEFORE {...};
 
@@ -78,17 +56,58 @@ POSTメソッドに特化した処理を行います．
 
 リクエストメソッド特化処理の事後に処理を行います．メソッド共通です．
 
+
+=item a
+
+ アクションオブジェクトへの参照です．
+
+=item a->super($name);
+
+アクション $name を継承します．
+
+=item a->model($model1, $model2, ...);
+
+モデル $model1，$model2，．．．を読み込みます．
+
+=item a->var($name, $value);
+
+=item a->var($name);
+
+ビューで参照可能な変数をセットします．また，セットした変数を取得します．
+
+=item a->cookie($name)
+
+指定した名前に対応するCookieの値を取得します．リクエストに含まれているCookieが対象です．
+
+=item a->cookie($name, $value);
+
+指定した名前と値でCookieを設定します．レスポンスオブジェクトが対象となります．
+
+=item a->remove_cookie($name);
+
+指定した名前のCookieを削除します．
+
+=item a->session($name);
+
+=item a->session($name, $value);
+
+セッション情報を取得・設定します．
+
+=item a->remove_session($name);
+
+セッション情報のうち，指定した名前のものを削除します．
+
 =back
 
 
-=head1 利用可能変数
+=head1 その他利用可能なメソッド
 
-$_env    : 環境変数
-$_conf   : 設定
-$_m      : モデルハッシュ       # Hash::MultiValueオブジェクト
-$_q      : HTTPクエリ          # Hash::Multivalueオブジェクト
-$_qq     : URLマップパラメータ   # Hash::Multivalueオブジェクト
-$_up     : アップロードファイル  # Hash::Multivalueオブジェクト
-$_logger : ロガー # Log::Dispatch->logメソッドへのリファレンス
+a->req    : リクエストオブジェクト（Plack::Request/HTTPx::Webletオブジェクト）
+a->env    : 環境変数
+a->conf   : 設定
+a->q      : HTTPクエリ          # Hash::Multivalueオブジェクト
+a->qq     : URLマップパラメータ   # Hash::Multivalueオブジェクト
+a->up     : アップロードファイル  # Hash::Multivalueオブジェクト
+a->logger : ロガー # Log::Dispatch->logメソッドへのリファレンス
 
 =cut
