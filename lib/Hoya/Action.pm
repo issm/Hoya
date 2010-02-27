@@ -2,363 +2,652 @@ package Hoya::Action;
 use strict;
 use warnings;
 use utf8;
-use base qw/Class::Accessor::Faster/;
+use parent qw/Class::Accessor::Faster Exporter/;
+no warnings 'redefine';
 
-use Hoya::Util;
+use Params::Validate qw/:all/;
+use Hash::MultiValue;
 use Carp;
 use Try::Tiny;
+use Hoya::Util;
+use Hoya::Factory::Action;
+
+our @EXPORT = qw/
+                    BEFORE GET POST AFTER
+                    finish
+                /;
+
 
 our $FINISH = '__FINISH_ACTION__';
 
+my @METHODS = qw/BEFORE GET POST AFTER/;
 
-my $_name;
-my $_req;
-my $_env;
-my $_conf;
 
-my $_q;
-my $_qq;
+sub new {
+    my $class = shift;
+    my $param = shift || {};
+    my $self = bless $class->SUPER::new($param), $class;
+    $class->mk_accessors(
+        qw/name req env conf q qq up mm
+           vars cookies
+           status content_type 
+           _super
+          /
+    );
 
-my $_super;
+    return $self->_init;
+}
 
-my $_view_name;
-my $_var;
 
-my $_view_info = {
-    name => '',
-    var  => {},
-    q    => {},
-    qq   => {},
-};
+sub _init {
+    my $self = shift;
 
-my $_code_BEFORE = sub { '' };
-my $_code_GET    = sub { '' };
-my $_code_POST   = sub { '' };
-my $_code_AFTER  = sub { '' };
+    $self->env($self->req->env);
 
-my $_ct_call_BEFORE = 0;
-my $_ct_call_GET    = 0;
-my $_ct_call_POST   = 0;
-my $_ct_call_AFTER  = 0;
+    $self->status(200);
+    $self->content_type(
+        $self->conf->{CONTENT_TYPE_DEFAULT} || 'text/plain'
+    );
+
+    $self->_main();
+    return $self;
+}
+
+
+sub _to_time {
+    my ($self, $t) = @_;
+    return undef  unless defined $t;
+
+    my ($n, $u_sec, $u_min, $u_hour, $u_day, $u_week)
+        = $t =~ /^\s*
+                 ([\+\-]?\d+)
+                 (?:(s|sec) | (m|min) | (h|hour) | (d|day) | (w|week))?
+                 \s*$
+                /x;
+    my $rate = 1;
+    if ($u_min)  { $rate = 60; }
+    if ($u_hour) { $rate = 60 * 60; }
+    if ($u_day)  { $rate = 60 * 60 * 24; }
+    if ($u_week) { $rate = 60 * 60 * 24 * 7; }
+
+    return time + int($n) * $rate;
+}
+
+
+sub go {
+    my $self = shift;
+    my $pass = $self->get_param;
+    $pass->{name} = $self->name;
+
+    my $req_meth = $self->req->method;
+
+    # BEFORE
+    $pass = $self->__BEFORE__($pass);
+
+    # GET
+    if (
+        (!defined $pass->{name}  ||  $pass->{name} eq '')  &&
+        $pass->{name} ne $FINISH  &&
+        $req_meth eq 'GET'
+    ) {
+        $pass = $self->__GET__($pass);
+    }
+
+    # POST
+    if (
+        (!defined $pass->{name}  ||  $pass->{name} eq '')  &&
+        $pass->{name} ne $FINISH  &&
+        $req_meth eq 'POST'
+    ) {
+        $pass = $self->__POST__($pass);
+    }
+
+    # AFTER
+    if (
+        (!defined $pass->{name} || $pass->{name} eq '') &&
+        $pass->{name} ne $Hoya::Action::FINISH
+    ) {
+        $pass = $self->__AFTER__($pass);
+    }
+    $pass->{name} = ''  unless defined $pass->{name};
+
+    # 最終処理
+    if ($pass->{name} eq ''  ||  $pass->{name} eq $FINISH) {
+        $pass->{name} = $self->name;
+    }
+
+    $self->update_param($pass);
+    return $pass;
+}
 
 
 #
-__PACKAGE__->mk_accessors(qw/name req conf q qq view_name var/);
+sub __BEFORE { '' }
+sub __GET    { '' }
+sub __POST   { '' }
+sub __AFTER  { '' }
 
 
-sub init {
-    my $self = shift;
+# 次の各メソッドを生成する
+#   __BEFORE__
+#   __GET__
+#   __POST__
+#   __AFTER__
+for my $METH (@METHODS) {
+    no strict 'refs';
+    
+    my $class = __PACKAGE__;
+    my $method = "__${METH}__";
 
-    $_name = $self->name;
-    $_req  = $self->req;
-    $_env  = $_req->{env};
-    $_conf = $self->conf;
+    *{"${class}::${method}"} = sub {
+        my ($self, $pass) = @_;
+        my $ret;  # pass
+        $self->update_param($pass);
 
-    $_q  = $self->q;
-    $_qq = $self->qq;
+        try {
+            if (defined $self->_super) {
+                $ret = $self->_super->${method}($pass);
+                #$ret = eval "\$self->_super->${method}(\$pass)";
+                $self->update_param($ret);
+                if (
+                    (defined $ret->{name}  &&  $ret->{name} ne '')  ||
+                        $ret->{name} eq $FINISH
+                    ) {
+                    return $ret;
+                }
+            }
 
-    $_var = {};
+            # ユーザ定義ロジックを実行する
+            #my $name_pass = $self->__BEFORE;
+            my $name_pass = eval "\$self->__${METH}";
 
-    try {
-        my $pl = $self->_load;
-        # eval
-        eval $_env;
-        eval $_conf;
-        eval $_q;
-        eval $_qq;
-        eval $_var;
-        eval $_super  if defined $_super;
-        my $self;
-        eval << "...";
-$pl
+            $ret = $self->get_param;
+            $ret->{name} = $name_pass;
+            return $ret;
+        }
+        catch {
+            my $msg = shift;
+            my $name = $self->name;
+            my $text = << "...";
+[error\@action::$name/${METH}] $msg
 ...
+            croak $text;
+        };
     }
-    catch {
-        carp shift->text;
-    };
+}
+#sub __BEFORE__ {
+#    my ($self, $pass) = @_;
+#    my $ret;  # pass
+#    $self->update_param($pass);
+#
+#    try {
+#        if (defined $self->_super) {
+#            $ret = $self->_super->__BEFORE__($pass);
+#            $self->update_param($ret);
+#            if (
+#                (defined $ret->{name}  &&  $ret->{name} ne '')  ||
+#                $ret->{name} eq $FINISH
+#            ) {
+#                 return $ret;
+#            }
+#        }
+#
+#        # ユーザ定義ロジックを実行する
+#        my $name_pass = $self->__BEFORE;
+#
+#        $ret = $self->get_param;
+#        $ret->{name} = $name_pass;
+#    }
+#    catch {
+#        my $msg = shift;
+#        my $name = $self->name;
+#        my $text = << "...";
+#[error\@action::$name/BEFORE] $msg
+#...
+#        croak $text;
+#    };
+#
+#    return $ret;
+#}
 
-    $self;
+
+sub update_param {
+    my ($self, $param) = @_;
+    # vars
+    $self->vars($param->{var})
+        if exists $param->{var}  &&  ref $param->{var} eq 'HASH';
+    # q
+    $self->q($param->{q})
+        if exists $param->{q}  &&  ref $param->{q} eq 'HASH';
+    # qq
+    $self->qq($param->{qq})
+        if exists $param->{qq}  &&  ref $param->{qq} eq 'HASH';
+    # cookies
+    $self->cookies($param->{cookies})
+        if exists $param->{cookies}  &&  ref $param->{cookies} eq 'HASH';
+
+    my $ret = $self->get_param;
+    $ret->{name} = $param->{name}  if exists $param->{name};
+
+    return $ret;
 }
 
-
-# go();
-sub go {
+sub get_param {
     my $self = shift;
-    $_view_info = {
-        name => $self->name,
-        var  => {},
-        q    => $_q,
-        qq   => $_qq,
+    return {
+        var     => $self->vars,
+        q       => $self->q,
+        qq      => $self->qq,
+        cookies => $self->cookies,
     };
-    my $req_meth = $self->req->method;
-
-    my $view_name;
-    # BEFORE
-    #$view_name = $self->_xx_BEFORE();
-    $view_name = $self->BEFORE();
-    # GET
-    if (
-        (!defined $view_name  ||  $view_name eq '')  &&
-        $view_name ne $FINISH  &&
-        $req_meth eq 'GET'
-    ) {
-        #$view_name = $self->_xx_GET();
-        $view_name = $self->GET();
-    }
-    # POST
-    if (
-        (!defined $view_name  ||  $view_name eq '')  &&
-        $view_name ne $FINISH  &&
-        $req_meth eq 'POST'
-    ) {
-        #$view_name = $self->_xx_POST();
-        $view_name = $self->POST();
-    }
-    # AFTER
-    if (
-        (!defined $view_name || $view_name eq '') &&
-        $view_name ne $FINISH
-    ) {
-        #$view_name = $self->_xx_AFTER();
-        $view_name = $self->AFTER();
-    }
-    $view_name = ''  unless defined $view_name;
-
-    $self->_reset_call_count();
-
-    $_view_info->{name} = $view_name;
-    $_view_info->{var} = $_var;
-
-    return $_view_info;
 }
 
 
-# set_var($name, $value);
+sub _main {
+}
+
+
+
+sub var {
+    my ($self, $name, $value) = @_;
+    return undef  unless is_def $name;
+
+    # setter
+    if (is_def $name, $value) {
+        return $self->set_var($name, $value);
+    }
+    # getter
+    elsif (is_def $name) {
+        return $self->get_var($name);
+    }
+}
 sub set_var {
     my ($self, @args) = @_;
     my $size = scalar @args;
 
-    if ($size % 2 == 0) {
+    if ($size %% 2 == 0) {
         while (@args) {
             my $k = shift @args;
             my $v = shift @args;
             next  unless ref $k eq '';  # $kはスカラであるべき
-            $_var->{$k} = $v;
+            $self->vars->{$k} = $v;
+
         }
     }
     elsif ($size == 1  &&  ref $args[0] eq 'HASH') {
-        $_var = merge_hash($_var, $args[0]);
+        $self->vars(
+            merge_hash($self->vars, $args[0])
+        );
     }
 
-    return $_var;
+    return $self->vars
+}
+sub get_var {
+    my ($self, @names) = @_;
+    return undef  unless @names;
+
+    if (wantarray) {
+        return
+            map {
+                my $v = $self->vars->{$_};
+                $v = $self->vars->{__import__}{$_}
+                    if (!is_def($v)  &&  exists $self->vars->{__import__}{$_});
+                $v;
+            } @names;
+    }
+    else {
+        if (is_def($names[0])) {
+            my $v = $self->vars->{$names[0]};
+            $v = $self->vars->{__import__}{$names[0]}
+                if (!is_def($v)  &&  exists $self->vars->{__import__}{$names[0]});
+            return $v;
+        }
+        else {
+            return undef;
+        }
+    }
+}
+
+sub import_var {
+    my ($self, @args) = @_;
+    return undef  unless @args;
+
+    my ($name, $value) = @args;
+
+    if (
+      (grep $name eq $_, @Hoya::NAMES_IMPORT_FORBIDDEN)
+    ) {
+        my $msg = sprintf(
+            'The variable "%%s" is forbidden to import!',
+            $name,
+        );
+        croak $msg;
+    }
+
+    #
+    if (is_def $name, $value) {
+        $self->vars->{__import__}->{$name} = $value;
+        return $value;
+    }
+    elsif (is_def $name, $self->vars->{$name}) {
+        $self->vars->{__import__}->{$name} = $self->vars->{$name};
+        $self->vars->{$name} = undef;
+        delete $self->vars->{$name};
+        return $value;
+    }
+
+    return undef;
 }
 
 
-# finish();
+sub session {
+    my $self = shift;
+    # getter
+    if (!defined $_[0]) {
+        return $self->_get_session;
+    }
+    elsif (!defined $_[1]  &&  ref $_[0] eq '') {
+        return $self->_get_session(@_);
+    }
+    # setter
+    else {
+        return $self->_set_session(@_);
+    }
+}
+sub remove_session {
+    my ($self, $name) = @_;
+    delete $self->req->session->{$name}
+        if exists $self->req->session->{$name};
+}
+sub _get_session {
+    my $self = shift;
+    my ($name) = @_;
+
+    return defined $name
+        ? $self->req->session->{$name}
+        : $self->req->session
+    ;
+}
+sub _set_session {
+    my $self = shift;
+    my ($name, $value) = @_;
+
+    if (is_def $name, $value) {
+        $self->req->session->{$name} = $value;
+    }
+
+    return $value;
+}
+
+
+sub cookie {
+    my $self = shift;
+    # getter
+    if (!defined $_[0]) {
+        return $self->_get_cookie;
+    }
+    elsif (!defined $_[1]  &&  ref $_[0] eq '') {
+        return $self->_get_cookie(@_);
+    }
+    # setter
+    else {
+        return $self->_set_cookie(@_);
+    }
+}
+sub remove_cookie {
+    my ($self, $name) = @_;
+    return $self->cookie($name, '', undef, undef, -60*60);
+}
+sub _get_cookie {
+    my $self = shift;
+    my ($name) = @_;
+    #
+    if (!defined $name) {
+        return de $self->req->cookies;
+    }
+    #
+    else {
+        return de $self->req->cookies->{$name};
+    }
+}
+sub _set_cookie {
+    my $self = shift;
+    my ($name, $value, $path, $domain, $expires);
+
+    # hashref type or Hash::MultiValue
+    if (ref $_[0] eq 'HASH'  or  ref $_[0] eq 'Hash::MultiValue') {
+        my $c = shift;
+        $name    = $c->{name};
+        $value   = $c->{value};
+        $path    = $c->{path};
+        $domain  = $c->{domain};
+        $expires = $c->{expires};
+    }
+    # array type
+    elsif (defined $_[0]  &&  defined $_[1]) {
+        ($name, $value, $path, $domain, $expires) = @_;
+    }
+    # others
+    else {
+        return {};
+    }
+
+    $self->cookies->{$name} = {
+        value  => $value,
+        path   => $path    || $self->conf->{COOKIE}{PATH},
+        domain => $domain  || $self->conf->{COOKIE}{DOMAIN},
+    };
+    if (defined $expires  or  defined $self->conf->{COOKIE}{EXPIRES}) {
+        $self->cookies->{$name}{expires}
+            = $self->_to_time($expires || $self->conf->{COOKIE}{EXPIRES});
+    }
+
+    return $self->cookies->{$name};
+}
+
+
+
+sub super {
+    my ($self, $name) = @_;
+    my $super = Hoya::Factory::Action->new({
+        name    => $name,
+        req     => $self->req,
+        conf    => $self->conf,
+        q       => $self->q,
+        qq      => $self->qq,
+        up      => $self->up,
+        mm      => $self->mm,
+        vars    => $self->vars,
+        cookies => $self->cookies,
+    });
+
+    $self->_super($super);
+    return $super;
+}
+
+sub model {
+    my ($self, @names) = @_;
+    return undef  unless @names;
+    return $self->mm->get_model(@names);
+}
+
+
+
+#### exported ####
 sub finish {
     return $FINISH;
 }
 
 
 
-# _load();
-sub _load {
-    my $self = shift;
-    my $pl = sprintf(
-        '%s/%s.pl',
-        $_conf->{PATH}{ACTION},
-        name2path($self->name),
-    );
-
-    my $buff;
-
-    try {
-        local $/;
-        open my $fh, '<', $pl or die $!;
-        $buff = de <$fh>;
-        close $fh;
-    }
-    catch {
-        carp shift->text;
-        $buff = '';
-    };
-
-    return $buff;
-}
-
-
-# _reset_call_count();
-sub _reset_call_count {
-    my $self = shift;
-    $_ct_call_BEFORE = 0;
-    $_ct_call_GET    = 0;
-    $_ct_call_POST   = 0;
-    $_ct_call_AFTER  = 0;
-}
-
-
-# extend($name);
-sub _extend {
-    my ($self, $name) = @_;
-
-    my $action_ex = __PACKAGE__->new({
-        name => $name,
-        req  => $self->req,
-        conf => $_conf,
-        q    => $_q,
-        qq   => $_qq,
-    })->init;
-    my $view_info_ex = $action_ex->go;
-
-    return $view_info_ex;
-}
-
-
-
-# BEFORE $code;
-# BEFORE();
+#### exported ####
 sub BEFORE (&) {
-    my $code_or_self = shift;
-    if (ref $code_or_self eq 'CODE') {
-        carp d "SET: ${_name}::BEFORE";
-        $_code_BEFORE = $code_or_self;
-    }
-    elsif (ref $code_or_self eq 'Hoya::Action') {
-        carp d "GET: ${_name}::BEFORE";
-        return $code_or_self->_xx_BEFORE();
-    }
-
+    # (caller 0)[0] でクラス名を取得している
+    _bind_method((caller 0)[0], '__BEFORE', shift || sub {''});
 }
-
-# GET $code;
-# GET();
 sub GET (&) {
-    my $code_or_self = shift;
-    if (ref $code_or_self eq 'CODE') {
-        carp d "SET: ${_name}::GET";
-        $_code_GET = $code_or_self;
-    }
-    elsif (ref $code_or_self eq 'Hoya::Action') {
-        carp d "GET: ${_name}::GET";
-        return $code_or_self->_xx_GET();
-    }
-
+    _bind_method((caller 0)[0], '__GET', shift || sub {''});
 }
-
-# POST $code;
-# POST();
 sub POST (&) {
-    my $code_or_self = shift;
-    if (ref $code_or_self eq 'CODE') {
-        carp d "SET: ${_name}::POST";
-        $_code_POST = $code_or_self;
-    }
-    elsif (ref $code_or_self eq 'Hoya::Action') {
-        carp d "GET: ${_name}::POST";
-        return $code_or_self->_xx_POST();
-    }
+    _bind_method((caller 0)[0], '__POST', shift || sub {''});
 }
-# アクションファイル内から呼び出す
-# AFTER $code;
 sub AFTER (&) {
-    my $code_or_self = shift;
-    if (ref $code_or_self eq 'CODE') {
-        carp d "SET: ${_name}::AFTER";
-        $_code_AFTER = $code_or_self;
-    }
-    elsif (ref $code_or_self eq 'Hoya::Action') {
-        carp d "GET: ${_name}::AFTER";
-        #$_super->AFTER()  if defined $_super;
-        #return $code_or_self->_xx_AFTER();
-        try {
-            throw Error  if ++$_ct_call_AFTER > 1;
-            $_super->AFTER()  if defined $_super;
-            return $code_or_self->_xx_AFTER();
-        }
-        catch {
-            carp "${_name}::AFTER: cannot call recursively!";
-        };
-    }
+    _bind_method((caller 0)[0], '__AFTER', shift || sub {''});
 }
 
-# ファクションファイル内から呼び出す
-# super $name
-sub super ($) {
-    my $name = shift;
-    return undef  if $name eq $_name; # 再帰防止？
-
-    $_super = __PACKAGE__->new({
-        name => $name,
-        req  => $_req,
-        conf => $_conf,
-        q    => $_q,
-        qq   => $_qq,
-    })->init;
-
-    $_super;
+sub _bind_method {
+    shift  if scalar(@_) == 4;
+    my ($class, $method, $code) = @_;
+    no strict 'refs';
+    no warnings 'redefine';
+    *{$class . '::' . $method} = sub { $code->(); };
 }
 
-
-
-#
-sub _xx_BEFORE {
-    my $self = shift;
-    my $ret;
-    try {
-        throw Error  if ++$_ct_call_BEFORE > 1;
-        #$_super->BEFORE()  if defined $_super;
-        $ret = $_code_BEFORE->($self);
-    }
-    catch {
-        carp "${_name}::BEFORE: cannot call recursively!";
-    };
-    return $ret;
-}
-#
-sub _xx_GET {
-    my $self = shift;
-    my $ret;
-    try {
-        throw Error  if ++$_ct_call_GET > 1;
-
-        if (defined $_super) {
-            #$_super->GET();
-        }
-
-        $ret = $_code_GET->($self);
-    }
-    catch {
-        carp "${_name}::GET: cannot call recursively!";
-    };
-    return $ret;
-}
-#
-sub _xx_POST {
-    my $self = shift;
-    my $ret;
-    try {
-        throw Error  if ++$_ct_call_POST > 1;
-        $ret = $_code_POST->($self);
-    }
-    catch {
-        carp "${_name}::POST: cannot call recursively!";
-    };
-    return $ret;
-}
-#
-sub _xx_AFTER {
-    my $self = shift;
-    my $ret;
-    try {
-        throw Error  if ++$_ct_call_AFTER > 1;
-        $ret = $_code_AFTER->($self);
-    }
-    catch {
-        carp "${_name}::AFTER: cannot call recursively!";
-    };
-    return $ret;
-}
 
 
 1;
 __END__
+
+=head1 NAME
+
+Hoya::Action - "Action" class.
+
+=head1 SYNOPSIS
+
+  use Hoya::Action;
+
+=head1 DESCRIPTION
+
+Hoya::Action, Hoya::Ation::* are
+
+=head1 METHODS
+
+=over 4
+
+=item init
+
+initialize.
+
+=item go
+
+Go.
+
+=item session
+
+=item session($name)
+
+=item session($name, $value)
+
+Gets/Sets session value.
+
+=item remove_session($name)
+
+Removes session value which isi associated with $name.
+
+=item cookie
+
+=item cookie($name)
+
+=item cookie($name, $value, $path, $domain, $expires)
+
+=item cookie(\%%opts)
+
+Gets/Sets cookie.
+
+\%%opts
+
+- name
+- value
+- path
+- domain
+- expires
+time to be expired.
+
+Format of "expires"
+
+can be set with "units" like '+3min', '-1d'.
+available "units" are:
+s / sec: second(s)
+m / min: minute(s)
+h / hour: hour(s)
+d / day: day(s)
+w / week: week(s)
+
+=item remove_cookie($name)
+
+Removes cookie which is associated with name $name.
+
+=item var($name)
+
+=item var($name, $var)
+
+Gets/Sets variable associated with name $name. These variables are available on "view".
+
+=item get_var($name1, $name2, ...)
+
+Gets variables that are available on "view".
+
+=item set_var($name1 => $var1, $name2 => $var2, ...)
+
+=item set_var(\%%var)
+
+Sets variables that are available on "view".
+
+When 1st argument is hashref, \%%var is merged to "variable hash".
+
+=item import_var($name)
+
+=item import_var($name, $value)
+
+Sets variable to be available directly at View, as $hoge, not $var->{hoge}.
+
+=item finish
+
+Finish "action propagation".
+
+=back
+
+=head1 FUNCTIONS IN "ACTION FILE"
+
+=over 4
+
+=item super $name
+
+Extends action named $name.
+
+=item model $model1, $model2, ...
+
+Include "model" named $model1, $model2, ...
+
+=item BEFORE \&callback
+
+Proceeds \&callback BEFORE GET/POST function. Common for GET and POST request methods.
+
+In \&callback, first argument($_[0]) refers Hoya::Action;;* object.
+
+=item GET \&callback
+
+Proceeds \&callback on GET request method.
+
+=item POST \&callback
+
+Proceeds \&callback on POST request method.
+
+=item AFTER \&callback
+
+Proceeds \&callback AFTER GET/POST function. Common for GET and POST request methods.
+
+=back
+
+=head1 AUTHOR
+
+issm E<lt>issmxx@gmail.comE<gt>
+
+=head1 SEE ALSO
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
