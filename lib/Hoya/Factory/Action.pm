@@ -99,7 +99,7 @@ use strict;
 use warnings;
 no warnings 'closure';  #ad-hoc
 use utf8;
-use base qw/Hoya::Action/;
+use parent qw/Hoya::Action/;
 use Hoya::Action;
 
 use Hash::MultiValue;
@@ -109,12 +109,25 @@ use Try::Tiny;
 use Hoya::Util;
 use Hoya::Factory::Action;
 
-sub _main {
-    my $self = shift;
-    sub a { return $self; }
-    sub A { a; }
 
-%s
+{
+    no warnings;
+    eval {
+        sub _main {
+            use warnings;
+        
+            my $self = shift;
+            #$self->SUPER::_main(@_);
+        
+            {
+                no warnings;
+                sub a { return $self; }
+                sub A { a; }
+            }
+
+            %s
+        }
+    };
 }
 
 1;

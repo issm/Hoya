@@ -29,7 +29,7 @@ sub new {
     my $self = bless $class->SUPER::new($param), $class;
     $class->mk_accessors(
         qw/name req env conf q qq up mm
-           vars cookies logger
+           vars cookies logger pass_name
            status content_type 
            _super
           /
@@ -43,6 +43,7 @@ sub _init {
     my $self = shift;
 
     $self->env($self->req->env);
+    $self->pass_name($self->name);
     $self->logger($self->req->logger);
 
     $self->status(200);
@@ -78,13 +79,11 @@ sub _to_time {
 sub go {
     my $self = shift;
     my $pass = $self->get_param;
-    $pass->{name} = $self->name;
 
     my $req_meth = $self->req->method;
 
     # BEFORE
     $pass = $self->__BEFORE__($pass);
-
     # GET
     if (
         (!defined $pass->{name}  ||  $pass->{name} eq '')  &&
@@ -145,6 +144,7 @@ for my $METH (@METHODS) {
         my $ret;  # pass
         $self->update_param($pass);
 
+
         try {
             if (defined $self->_super) {
                 $ret = $self->_super->${method}($pass);
@@ -157,13 +157,13 @@ for my $METH (@METHODS) {
                     return $ret;
                 }
             }
+            #warn D sprintf('%s @ %s', $self->name, $METH);
 
             # ユーザ定義ロジックを実行する
-            #my $name_pass = $self->__BEFORE;
             my $name_pass = eval "\$self->__${METH}";
+            $self->pass_name($name_pass);
 
             $ret = $self->get_param;
-            $ret->{name} = $name_pass;
             return $ret;
         }
         catch {
@@ -214,6 +214,9 @@ for my $METH (@METHODS) {
 
 sub update_param {
     my ($self, $param) = @_;
+    # name
+    $self->pass_name($param->{name})
+        if defined $param->{name};
     # vars
     $self->vars($param->{var})
         if exists $param->{var}  &&  ref $param->{var} eq 'HASH';
@@ -236,6 +239,7 @@ sub update_param {
 sub get_param {
     my $self = shift;
     return {
+        name    => defined $self->pass_name ? $self->pass_name : '',
         var     => $self->vars,
         q       => $self->q,
         qq      => $self->qq,
@@ -244,15 +248,14 @@ sub get_param {
 }
 
 
-sub _main {
-}
+sub _main {}
+
 
 
 
 sub var {
     my ($self, $name, $value) = @_;
     return undef  unless is_def $name;
-
     # setter
     if (is_def $name, $value) {
         return $self->set_var($name, $value);
@@ -266,7 +269,7 @@ sub set_var {
     my ($self, @args) = @_;
     my $size = scalar @args;
 
-    if ($size %% 2 == 0) {
+    if ($size % 2 == 0) {
         while (@args) {
             my $k = shift @args;
             my $v = shift @args;
@@ -319,7 +322,7 @@ sub import_var {
       (grep $name eq $_, @Hoya::NAMES_IMPORT_FORBIDDEN)
     ) {
         my $msg = sprintf(
-            'The variable "%%s" is forbidden to import!',
+            'The variable "%s" is forbidden to import!',
             $name,
         );
         croak $msg;
@@ -327,7 +330,7 @@ sub import_var {
 
     #
     if (is_def $name, $value) {
-        $self->vars->{__import__}->{$name} = $value;
+        $self->vars->{__import__}{$name} = $value;
         return $value;
     }
     elsif (is_def $name, $self->vars->{$name}) {
@@ -551,11 +554,11 @@ Removes session value which isi associated with $name.
 
 =item cookie($name, $value, $path, $domain, $expires)
 
-=item cookie(\%%opts)
+=item cookie(\%opts)
 
 Gets/Sets cookie.
 
-\%%opts
+\%opts
 
 - name
 - value
@@ -590,11 +593,11 @@ Gets variables that are available on "view".
 
 =item set_var($name1 => $var1, $name2 => $var2, ...)
 
-=item set_var(\%%var)
+=item set_var(\%var)
 
 Sets variables that are available on "view".
 
-When 1st argument is hashref, \%%var is merged to "variable hash".
+When 1st argument is hashref, \%var is merged to "variable hash".
 
 =item import_var($name)
 
