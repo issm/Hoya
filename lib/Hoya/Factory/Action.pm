@@ -33,7 +33,7 @@ sub _init {
     try {
         my $pl   = $self->_load;
         my $code = $self->_generate_as_string($pl);
-        eval $code;
+        eval $code or die $@;
 
         $action = "$action_class"->new({
             name    => $self->name,
@@ -48,7 +48,12 @@ sub _init {
         });
     }
     catch {
-        croak shift;
+        my $msg = shift;
+        my $name = $self->name;
+        my $text = << "...";
+[error\@Hoya::Factory::Action] $msg
+...
+        croak $text;
     };
 
     return $action;
