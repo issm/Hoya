@@ -41,7 +41,13 @@ sub _re_by_arg {
 
 
 
-sub PATH_STATIC {
+sub PATH_STATIC_UPLOAD {
+    return qr{(?:^/
+                  (img/photo)
+              )}x;
+}
+
+sub PATH_STATIC_SKIN {
     return qr{(?:
                   ^/(static|js|img|css)
                   |

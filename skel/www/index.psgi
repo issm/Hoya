@@ -81,7 +81,9 @@ builder {
         script_name => __FILE__,
     ;
 
-    enable '+Hoya::PlackMiddleware::Static';
+    enable '+Hoya::PlackMiddleware::Static::Upload';
+    enable '+Hoya::PlackMiddleware::Static::Skin';
+    #enable '+Hoya::PlackMiddleware::Static';
 
     #
     # URLMap
