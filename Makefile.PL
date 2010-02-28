@@ -17,6 +17,7 @@ requires 'Log::Dispatch';
 requires 'Data::Dumper';
 requires 'Data::Dump';
 requires 'Params::Validate';
+requires 'List::MoreUtils';
 
 # used in test
 requires 'Data::Random';
