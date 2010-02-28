@@ -44,6 +44,7 @@ sub _init {
     $PATH->{DATA}      = "$ROOT/data";
     $PATH->{SITE}      = "$ROOT/site/$env->{HOYA_SITE}";
     $PATH->{SKIN}      = "$ROOT/site/$env->{HOYA_SITE}/$env->{HOYA_SKIN}";
+    $PATH->{UPLOAD}    = "$ROOT/upload/$env->{HOYA_SITE}";
     $PATH->{BIN}       = "$ROOT/bin";
     $PATH->{TMP}       = "$ROOT/tmp";
     $PATH->{LOG}       = "$ROOT/log";
