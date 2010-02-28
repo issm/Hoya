@@ -11,6 +11,7 @@ use Carp;
 use Try::Tiny;
 use Hoya::Util;
 use Hoya::Factory::Action;
+use Hoya::Form::Validator;
 
 our @EXPORT = qw/
                     BEFORE GET POST AFTER
@@ -476,6 +477,24 @@ sub model {
 }
 
 
+sub new_validator {
+    my ($self, $name) = @_;
+    $name = $self->name  unless defined $name;
+
+    return Hoya::Form::Validator->new({
+        name => $name,
+        req  => $self->req,
+        conf => $self->conf,
+    });
+}
+
+
+
+
+
+
+
+
 
 #### exported ####
 sub finish {
@@ -607,6 +626,8 @@ Sets variable to be available directly at View, as $hoge, not $var->{hoge}.
 
 =item finish
 
+[exported]
+
 Finish "action propagation".
 
 =back
@@ -615,15 +636,21 @@ Finish "action propagation".
 
 =over 4
 
-=item super $name
+=item super($name)
 
 Extends action named $name.
 
-=item model $model1, $model2, ...
+=item model($model1, $model2, ...)
 
-Include "model" named $model1, $model2, ...
+Get "model" named $model1, $model2, ...
+
+=item new_validator($name)
+
+Returns new Hoya::Form::Validator object.
 
 =item BEFORE \&callback
+
+[exported]
 
 Proceeds \&callback BEFORE GET/POST function. Common for GET and POST request methods.
 
@@ -631,13 +658,19 @@ In \&callback, first argument($_[0]) refers Hoya::Action;;* object.
 
 =item GET \&callback
 
+[exported]
+
 Proceeds \&callback on GET request method.
 
 =item POST \&callback
 
+[exported]
+
 Proceeds \&callback on POST request method.
 
 =item AFTER \&callback
+
+[exported]
 
 Proceeds \&callback AFTER GET/POST function. Common for GET and POST request methods.
 
