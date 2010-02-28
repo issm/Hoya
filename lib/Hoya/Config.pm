@@ -26,7 +26,7 @@ sub new {
 sub _init {
     my $self = shift;
     my $req  = $self->req;
-    my $env  = $req->env || \%ENV;
+    my $env  = $req ? $req->env : \%ENV;
     my $conf = {};
 
     # PATH
