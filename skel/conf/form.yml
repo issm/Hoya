@@ -1,0 +1,27 @@
+---
+auth_login:
+  username:
+    num:     1
+    re:      +ALPHANUM
+    min:     4
+    max:     16
+    default: 'user'
+    trim: 1
+
+  passwd:
+    num:     1
+    re:      +ALPHANUM
+    depends: [username]
+
+  submit:
+    re: +NON_SPACE
+
+  csrf_key:
+    re: +UNIQUE_KEY(16)
+
+  hoge:
+    optional: 1
+
+  fuga:
+    default: 'fugafuga'
+
