@@ -5,7 +5,7 @@ use warnings;
 use parent qw/Plack::Middleware/;
 use Plack::App::File;
 
-use Plack::Util::Accessor qw/encoding/;
+use Plack::Util::Accessor qw/path encoding/;
 
 use Hoya::Util;
 use Hoya::Re;
@@ -23,9 +23,10 @@ sub call {
 sub _handle_static {
     my($self, $env) = @_;
 
+    my $path_re = $self->path || Hoya::Re::PATH_STATIC_UPLOAD;
     my $path = do {
         local $_ = $env->{PATH_INFO};
-        my $matched = $_ =~ Hoya::Re::PATH_STATIC_UPLOAD;
+        my $matched = $_ =~ $path_re;
         return  unless $matched;
         $_;
     } or return;

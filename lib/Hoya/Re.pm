@@ -43,7 +43,7 @@ sub _re_by_arg {
 
 sub PATH_STATIC_UPLOAD {
     return qr{(?:^/
-                  (img/photo)
+                  (upload)
               )}x;
 }
 
