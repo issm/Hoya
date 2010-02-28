@@ -31,6 +31,7 @@ sub _re_by_arg {
     }
 
     if (!defined $n)     { return qr/^     ${re_pre} ${re}+ ${re_post}        $/x; }
+    elsif ($n eq '*')    { return qr/^     ${re_pre} ${re}* ${re_post}        $/x; }
     elsif ($n eq '^')    { return qr/^     ${re_pre} ${re}+ ${re_post}         /x; }
     elsif ($n eq '$')    { return qr/      ${re_pre} ${re}+ ${re_post}        $/x; }
     elsif ($n eq ' ')    { return qr/^ \s* ${re_pre} ${re}+ ${re_post}    \s* $/x; }
