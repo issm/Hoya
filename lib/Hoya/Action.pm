@@ -145,7 +145,6 @@ for my $METH (@METHODS) {
         my $ret;  # pass
         $self->update_param($pass);
 
-
         try {
             if (defined $self->_super) {
                 $ret = $self->_super->${method}($pass);
@@ -161,7 +160,8 @@ for my $METH (@METHODS) {
             #warn D sprintf('%s @ %s', $self->name, $METH);
 
             # ユーザ定義ロジックを実行する
-            my $name_pass = eval "\$self->__${METH}";
+            my $__meth = "__${METH}";
+            my $name_pass = $self->${__meth};
             $self->pass_name($name_pass);
 
             $ret = $self->get_param;
@@ -317,7 +317,7 @@ sub import_var {
     my ($self, @args) = @_;
     return undef  unless @args;
 
-    my ($name, $value) = @args;
+    my ($name, $value, $more) = @args;
 
     if (
       (grep $name eq $_, @Hoya::NAMES_IMPORT_FORBIDDEN)
@@ -330,7 +330,14 @@ sub import_var {
     }
 
     #
-    if (is_def $name, $value) {
+    if (is_def($more)  &&  scalar(@args) % 2 == 0) {
+        local @_ = @args;
+        while(@_) {
+            my ($n, $v) = (shift, shift);
+            $self->vars->{__import__}{$n} = $v;
+        }
+    }
+    elsif (is_def $name, $value) {
         $self->vars->{__import__}{$name} = $value;
         return $value;
     }
@@ -506,16 +513,16 @@ sub finish {
 #### exported ####
 sub BEFORE (&) {
     # (caller 0)[0] でクラス名を取得している
-    _bind_method((caller 0)[0], '__BEFORE', shift || sub {''});
+    _bind_method((caller 0)[0], 'BEFORE', shift || sub {''});
 }
 sub GET (&) {
-    _bind_method((caller 0)[0], '__GET', shift || sub {''});
+    _bind_method((caller 0)[0], 'GET', shift || sub {''});
 }
 sub POST (&) {
-    _bind_method((caller 0)[0], '__POST', shift || sub {''});
+    _bind_method((caller 0)[0], 'POST', shift || sub {''});
 }
 sub AFTER (&) {
-    _bind_method((caller 0)[0], '__AFTER', shift || sub {''});
+    _bind_method((caller 0)[0], 'AFTER', shift || sub {''});
 }
 
 sub _bind_method {
@@ -523,7 +530,7 @@ sub _bind_method {
     my ($class, $method, $code) = @_;
     no strict 'refs';
     no warnings 'redefine';
-    *{$class . '::' . $method} = sub { $code->(); };
+    *{"${class}::__${method}"} = sub { $code->(); };
 }
 
 
