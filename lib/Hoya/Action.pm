@@ -461,6 +461,15 @@ sub _set_cookie {
 
 sub super {
     my ($self, $name) = @_;
+
+    if ($name eq $self->name) {
+        my $name = $self->name;
+        my $text = << "...";
+[error\@action::$name] Cannot call itself as "super action".
+...
+        croak $text;
+    }
+
     my $super = Hoya::Factory::Action->new({
         name    => $name,
         req     => $self->req,
