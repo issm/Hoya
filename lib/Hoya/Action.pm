@@ -12,6 +12,9 @@ use Try::Tiny;
 use Hoya::Util;
 use Hoya::Factory::Action;
 use Hoya::Form::Validator;
+use Hoya::Re;
+
+use Data::Page;
 
 our @EXPORT = qw/
                     BEFORE GET POST AFTER
@@ -29,8 +32,9 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
     $class->mk_accessors(
-        qw/name req env conf q qq up mm
+        qw/name req env conf q qq up mm page
            vars cookies logger pass_name
+           sub_name
            status content_type 
            _super
           /
@@ -471,15 +475,16 @@ sub super {
     }
 
     my $super = Hoya::Factory::Action->new({
-        name    => $name,
-        req     => $self->req,
-        conf    => $self->conf,
-        q       => $self->q,
-        qq      => $self->qq,
-        up      => $self->up,
-        mm      => $self->mm,
-        vars    => $self->vars,
-        cookies => $self->cookies,
+        name     => $name,
+        req      => $self->req,
+        conf     => $self->conf,
+        q        => $self->q,
+        qq       => $self->qq,
+        up       => $self->up,
+        mm       => $self->mm,
+        vars     => $self->vars,
+        cookies  => $self->cookies,
+        sub_name => $self->name,
     });
 
     $self->_super($super);
@@ -505,7 +510,35 @@ sub new_validator {
 }
 
 
+sub get_pagination {
+    my $self = shift;
+    my ($total, $page) = @_;
+    my $dp = Data::Page->new(
+        $total,
+        $self->conf->{PHOTO}{NUM_PER_PAGE},
+        $page || 1,
+    );
 
+    my $pg = +{
+        page => +{
+            first    => $dp->first_page,
+            last     => $dp->last_page,
+            next     => $dp->next_page,
+            prev     => $dp->previous_page, #synonym of 'previous'
+            previous => $dp->previous_page,
+        },
+        entries => +{
+            from      => $dp->first,
+            to        => $dp->last,
+            total     => $total,
+            this_page => $dp->entries_on_this_page,
+        },
+    };
+    $pg->{p} = $pg->{page};
+    $pg->{e} = $pg->{entries};
+
+    return $pg;
+}
 
 
 

@@ -101,6 +101,7 @@ use base qw/Class::Accessor::Faster/;
 
 use Params::Validate qw/:all/;
 use Hash::MultiValue;
+use Data::Page;
 use Carp;
 use Try::Tiny;
 use Hoya::Re;

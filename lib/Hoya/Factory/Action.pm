@@ -18,6 +18,7 @@ sub new {
 
     $class->mk_accessors qw/name req conf q qq up mm view_name
                             cookies vars
+                            sub_name
                            /;
 
     return $self->_init;
@@ -36,15 +37,16 @@ sub _init {
         eval $code or die $@;
 
         $action = "$action_class"->new({
-            name    => $self->name,
-            req     => $self->req,
-            conf    => $self->conf,
-            q       => $self->q,
-            qq      => $self->qq,
-            up      => $self->up,
-            mm      => $self->mm,
-            cookies => $self->cookies,
-            vars    => $self->vars,
+            name     => $self->name,
+            req      => $self->req,
+            conf     => $self->conf,
+            q        => $self->q,
+            qq       => $self->qq,
+            up       => $self->up,
+            mm       => $self->mm,
+            cookies  => $self->cookies,
+            vars     => $self->vars,
+            sub_name => $self->sub_name,
         });
     }
     catch {
