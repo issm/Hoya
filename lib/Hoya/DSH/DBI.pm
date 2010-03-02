@@ -220,6 +220,7 @@ sub _q_mysql {
         }
 
 
+
         defined $bind
             ?  $self->execute(@$bind)
             :  $self->execute()
@@ -319,7 +320,7 @@ sub load_sql {
     }
     else {
     }
-    $sql =~ s{%LIMIT%}{$LIMIT};
+    $sql =~ s/%(?:LIMIT|L|LIM)%/$LIMIT/;
     $sql;
 }
 
