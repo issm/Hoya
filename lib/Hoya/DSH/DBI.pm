@@ -172,11 +172,11 @@ sub _q_mysql {
     #
     # INSERT, REPLACE, UPDATE, DELETE, CREATE TABLE, DROP TABLE
     #
-    if ($sql =~ qr/
-                      ^\s*(?:
-                          INSERT|REPLACE|UPDATE|DELETE|
-                          CREATE\s+TABLE|DROP\s+TABLE
-                      )\s
+    if ($sql =~ qr/^\s*
+                   (?:
+                       INSERT|REPLACE|UPDATE|DELETE|
+                       CREATE\s+TABLE|DROP\s+TABLE
+                   )\s
                   /ix) {
         my $rows_affected = 0;
         # $bindが指定されている
@@ -205,10 +205,10 @@ sub _q_mysql {
     # SELECT, SHOW, DESCRIBE
     # 今のところscalarを要素に持つarrayrefのみbindを許可
     #
-    elsif ($sql =~ qr/
-                         ^\s*(?:
-                             SELECT|SHOW|DESCRIBE
-                         )\s
+    elsif ($sql =~ qr/^\s*
+                      (?:
+                          SELECT|SHOW|DESCRIBE
+                      )\s
                      /ix) {
         # キャッシュ
         my $cache_key = sha1_hex($sql . Dump($bind || []));
@@ -255,11 +255,11 @@ sub _q_mysql {
     #
     # CREATE TABLE, DROP TABLE, CREATE DATABASE
     #
-    elsif ($sql =~ qr/
-                         ^\s*(?:
-                             CREATE\s+TABLE|DROP\s+TABLE|
-                             CREATE\s+DATABASE
-                         )\s
+    elsif ($sql =~ qr/^\s*
+                      (?:
+                          CREATE\s+TABLE|DROP\s+TABLE|
+                          CREATE\s+DATABASE
+                      )\s
                      /ix) {
         return $_sth->execute();
     }
