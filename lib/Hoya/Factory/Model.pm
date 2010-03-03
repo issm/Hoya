@@ -34,16 +34,23 @@ sub _init {
     my $model;
 
     try {
+        my $model_class = 'Hoya::Model::' . $self->name;
         my $pl   = $self->_load;
         my $code = $self->_generate_as_string($pl);
-        eval $code              or die $!;
-        $model = eval << "..."  or die $!;
-Hoya::Model::${_name}->new({
-    env  => \$_env,
-    conf => \$_conf,
-    dsh  => \$_dsh,
-});
-...
+        eval $code or die $!;
+        $model = "$model_class"->new({
+            name => $self->name,
+            env  => $_env,
+            conf => $_conf,
+            dsh  => $_dsh,
+        });
+#        $model = eval << "..."  or die $!;
+#Hoya::Model::${_name}->new({
+#    env  => \$_env,
+#    conf => \$_conf,
+#    dsh  => \$_dsh,
+#});
+#...
     }
     catch {
         croak shift;
@@ -126,7 +133,7 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/env conf dsh/;
+    $class->mk_accessors qw/name env conf dsh/;
 
     return $self->_init;
 }
