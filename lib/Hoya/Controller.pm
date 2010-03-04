@@ -139,6 +139,7 @@ sub go {
     #
     $res->cookies(en $_action->cookies);
 
+
     #
     # ビュー名がURL書式の場合：そのURLへのリダイレクト処理を行う
     #
@@ -147,32 +148,66 @@ sub go {
         $res->redirect($url_to);
     }
     #
-    # ビュー名がURL書式でない場合：通常の処理を行う
+    # レスポンスをセットアップする
     #
     else {
+        $_action->content_type(
+            $self->conf->{CONTENT_TYPE_DEFAULT} || 'text/plain'
+        )  unless $_action->content_type;
+        $_action->charset('utf-8')  unless $_action->charset;
+
         $res->status($_action->status);
-        $res->content_type($_action->content_type);
+        $res->content_type(
+            sprintf(
+                '%s; charset=%s',
+                $_action->content_type,
+                $_action->charset,
+            )
+        );
 
-        # view
-        $_view = Hoya::View->new({
-            name => $view_info->{name},
-            type => 'MT',
-            env  => $req->{env},
-            conf => $_conf,
-            q    => $view_info->{q},
-            qq   => $view_info->{qq},
-            var  => $view_info->{var},
-            action_name => $_action->name,
-        });
-        #$_view->no_escape(1);
-        $_view->go;
+        #
+        # Content-Typeが次のいずれかの場合，戻り値をレスポンスボディとする
+        #   application/json, text/javascript
+        #
+        if ($_action->content_type =~
+                m{^(?:
+                      application/json |
+                      text/javascript
+                  );?}x
+              ) {
+            eval { use JSON; };
+            my $json = de JSON::encode_json($_action->data || {});
+            if (my $_callback = $_q->get('callback')) {
+                $json = "${_callback}(${json})";
+            }
 
-        $res->status($_view->status)
-            if defined $_view->status;
-        $res->content_type($_view->content_type)
-            if defined $_view->content_type;
+            $res->content(en $json);
+        }
+        #
+        # ビュー名がURL書式でない場合：通常の処理を行う
+        #
+        else {
+            # view
+            $_view = Hoya::View->new({
+                name => $view_info->{name},
+                type => 'MT',
+                env  => $req->{env},
+                conf => $_conf,
+                q    => $view_info->{q},
+                qq   => $view_info->{qq},
+                var  => $view_info->{var},
+                action_name => $_action->name,
+            });
+            #$_view->no_escape(1);
+            $_view->go;
 
-        $res->content($_view->content);
+            $res->status($_view->status)
+                if defined $_view->status;
+            $res->content_type($_view->content_type)
+                if defined $_view->content_type;
+
+            $res->content($_view->content);
+        }
     }
 
     #

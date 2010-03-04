@@ -35,7 +35,8 @@ sub new {
         qw/name req env conf q qq up mm page
            vars cookies logger pass_name
            sub_name
-           status content_type 
+           status content_type charset
+           data
            _super
           /
     );
@@ -51,10 +52,11 @@ sub _init {
     $self->pass_name($self->name);
     $self->logger($self->req->logger);
 
-    $self->status(200);
+    $self->status(200)  unless $self->status;
     $self->content_type(
         $self->conf->{CONTENT_TYPE_DEFAULT} || 'text/plain'
-    );
+    )  unless $self->content_type;
+    $self->charset('utf-8')  unless $self->charset;
 
     $self->_main();
     return $self;
@@ -234,6 +236,18 @@ sub update_param {
     # cookies
     $self->cookies($param->{cookies})
         if exists $param->{cookies}  &&  ref $param->{cookies} eq 'HASH';
+    # status
+    $self->status($param->{status})
+        if exists $param->{status}  &&  ref $param->{status} eq '';
+    # content_type
+    $self->content_type($param->{content_type})
+        if exists $param->{content_type}  &&  ref $param->{content_type} eq '';
+    # charset
+    $self->charset($param->{charset})
+        if exists $param->{charset}  &&  ref $param->{charset} eq '';
+    # data
+    $self->data($param->{data})
+        if exists $param->{data}  &&  (ref $param->{data}) =~ /ARRAY|HASH/;
 
     my $ret = $self->get_param;
     $ret->{name} = $param->{name}  if exists $param->{name};
@@ -244,11 +258,15 @@ sub update_param {
 sub get_param {
     my $self = shift;
     return {
-        name    => defined $self->pass_name ? $self->pass_name : '',
-        var     => $self->vars,
-        q       => $self->q,
-        qq      => $self->qq,
-        cookies => $self->cookies,
+        name         => defined $self->pass_name ? $self->pass_name : '',
+        var          => $self->vars,
+        q            => $self->q,
+        qq           => $self->qq,
+        cookies      => $self->cookies,
+        status       => $self->status,
+        content_type => $self->content_type,
+        charset      => $self->charset,
+        data         => $self->data,
     };
 }
 
@@ -510,6 +528,13 @@ sub new_validator {
 }
 
 
+sub as_json {
+    my ($self, $param) = @_;
+    $self->content_type('application/json');
+    return;
+}
+
+
 sub get_pagination {
     my $self = shift;
     my ($total, $page) = @_;
@@ -696,6 +721,10 @@ Get "model" named $model1, $model2, ...
 =item new_validator($name)
 
 Returns new Hoya::Form::Validator object.
+
+=item as_json
+
+...
 
 =item BEFORE \&callback
 
