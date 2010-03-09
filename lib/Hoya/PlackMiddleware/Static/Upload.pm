@@ -31,8 +31,10 @@ sub _handle_static {
         $_;
     } or return;
 
+    my $static_root = "upload/$env->{HOYA_SITE}";
     $self->{file} = Plack::App::File->new({
-        root     => "upload/$env->{HOYA_SITE}",
+        root => $env->{PROJECT_ROOT}
+            ? "$env->{PROJECT_ROOT}/$static_root" : $static_root,
         encoding => $self->encoding,
     });
     local $env->{PATH_INFO} = $path; # rewrite PATH
