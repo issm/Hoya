@@ -85,8 +85,32 @@ sub check {
         my $v_fixed = $v;
         my $rule = $rules->get($f);
 
+        #
+        # LFize
+        #
+        { $v_fixed =~ s/(?:\x0d\x0a?|\x0a)//g; }
+
         # ルールが存在しない場合
         unless (defined $rule) {
+            $q_fixed->add($f, $v_fixed);
+            return;
+        }
+
+        #
+        # trim
+        #
+        if ($rule->{trim}) {
+            $v_fixed =~ s/(?:^\s*|\s*$)//g;
+        }
+
+        #
+        # optional
+        #
+        if ($rule->{optional}  &&  $v_fixed eq '') {
+            $results->add(
+                $f,
+                $self->_result(OK),
+            );
             $q_fixed->add($f, $v_fixed);
             return;
         }
@@ -95,17 +119,6 @@ sub check {
         # type?
         #
 
-        #
-        # LFisze
-        #
-        { $v_fixed =~ s/(?:\x0d\x0a?|\x0a)//g; }
-
-        #
-        # trim
-        #
-        if ($rule->{trim}) {
-            $v_fixed =~ s/(?:^\s*|\s*$)//g;
-        }
 
         #
         # num
