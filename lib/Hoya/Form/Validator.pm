@@ -35,7 +35,7 @@ sub check {
     my $q_fixed = Hash::MultiValue->new;
     my $results = Hash::MultiValue->new;
 
-    my $rules = Hash::MultiValue->new(%{$self->_rules});
+    my $rules = Hash::MultiValue->new(%{$self->_rules || {}});
     my $okng = 0;
 
     #
@@ -211,7 +211,7 @@ sub check {
             my @exists = grep {
                 defined($q_fixed->get($_)) || defined($q->get($_));
             } @$depends;
-            warn D [scalar(@exists), scalar(@$depends)];
+            #warn D [scalar(@exists), scalar(@$depends)];
 
             if (scalar(@exists) != scalar(@$depends)) {
                 $results->add(
