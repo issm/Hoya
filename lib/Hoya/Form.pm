@@ -52,10 +52,15 @@ sub _load {
         unless -f $rulefile;
 
     try {
-        my $rule = LoadFile($rulefile);
+        my $rule = de LoadFile($rulefile);
+        my $TEXT = $rule->{TEXT} || {};
+
         if (exists $rule->{$self->name}) {
-            $rule = $rule->{$self->name};
+            my $rule_ = $rule->{$self->name};
+            $rule_->{TEXT} = $TEXT;
+            return $rule_;
         }
+        
         return $rule;
     }
     catch {

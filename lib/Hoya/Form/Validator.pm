@@ -11,21 +11,49 @@ use Carp;
 use Try::Tiny;
 use Hoya::Util;
 
-sub OK                 {  0; }
-sub REQUIRED           { 10; }
-sub NUM_MISMATCHED     { 20; }
-sub RE_MISMATCHED      { 30; }
-sub SIZE_TOO_SHORT     { 40; }
-sub SIZE_TOO_LONG      { 50; }
-sub DEPENDENCY_INVALID { 60; }
+sub OK                 {   0; }
+sub REQUIRED           { 101; }
+sub NUM_MISMATCHED     { 201; }
+sub RE_MISMATCHED      { 301; }
+sub SIZE_TOO_SHORT     { 401; }
+sub SIZE_TOO_LONG      { 402; }
+sub VALUE_TOO_SMALL    { 501; }
+sub VALUE_TOO_LARGE    { 502; }
+sub DEPENDENCY_INVALID { 601; }
 
 
+our $KEYNAME_TEXT = 'TEXT';
+
+
+# _result($code);
 sub _result {
     my ($self, $code) = @_;
     return {
         code => $code,
-        text => '',
+        text => $self->_rules->{$KEYNAME_TEXT}{$code} || '',
     };
+}
+
+# $value_fixed = _fix_value($value, $rule);
+sub _fix_value {
+    my ($self, $value, $rule) = @_;
+    $rule ||= {};
+    my $value_fixed = $value;
+
+    # LFize
+    $value_fixed =~ s/(?:\x0d\x0a?|\x0a)/\x0a/g;
+
+    # trim
+    if ($rule->{trim}) {
+        $value_fixed =~ s/(?:^\s*|\s*$)//g;
+    }
+
+    # z2h (zenkaku to hankaku)
+    if ($rule->{z2h}) {
+        $value_fixed =~ tr/０-９ａ-ｚＡ-Ｚ　/0-9a-zA-Z /;
+    }
+
+    return $value_fixed;
 }
 
 
@@ -38,12 +66,35 @@ sub check {
     my $rules = Hash::MultiValue->new(%{$self->_rules || {}});
     my $okng = 0;
 
+    if ( $KEYNAME_TEXT ne 'TEXT') {
+    }
+
+
+    #
+    # 「case」ルールの存在をチェックする
+    #
+    $rules->each(sub
+    {
+        my ($field, $rule) = @_;
+        return  if $field eq $KEYNAME_TEXT;
+
+        if (exists $rule->{case}) {
+            my $v = $self->_fix_value($q->get($field), $rule);
+            my $rules_sub = $rule->{case}{$v} || {};
+            $rules->add($_, $rules_sub->{$_})  for keys %$rules_sub;
+        }
+    });
+
+
     #
     # ルールの記述はあるが，クエリに存在しないフィールドについてチェックする
     #
     $rules->each(sub
     {
         my ($field, $rule) = @_;
+        return  if $field eq $KEYNAME_TEXT;
+
+        warn D $field;
 
         #
         # required
@@ -82,33 +133,16 @@ sub check {
     $q->each(sub
     {
         my ($f, $v) = @_;
-        my $v_fixed = $v;
         my $rule = $rules->get($f);
-
-        #
-        # LFize
-        #
-        { $v_fixed =~ s/(?:\x0d\x0a?|\x0a)/\x0a/g; }
 
         # ルールが存在しない場合
         unless (defined $rule) {
-            $q_fixed->add($f, $v_fixed);
+            $q_fixed->add($f, $v);
             return;
         }
 
         #
-        # trim
-        #
-        if ($rule->{trim}) {
-            $v_fixed =~ s/(?:^\s*|\s*$)//g;
-        }
-
-        #
-        # z2h (zenkaku to hankaku)
-        #
-        if ($rule->{z2h}) {
-            $v_fixed =~ tr/０-９ａ-ｚＡ-Ｚ　/0-9a-zA-Z /;
-        }
+        my $v_fixed = $self->_fix_value($v, $rule);
 
         #
         # optional
@@ -144,6 +178,23 @@ sub check {
         }
 
         #
+        # blank
+        #
+        if ($v_fixed eq '') {
+            my $blank_allowed = $rule->{blank} || 0;
+            my $OK_OR_REQUIRED = $blank_allowed ? OK : REQUIRED;
+            $results->add(
+                $f,
+                $self->_result($OK_OR_REQUIRED),
+            );
+            $q_fixed->add($f, $v_fixed);
+            $okng |= $OK_OR_REQUIRED;
+            return;
+        }
+
+
+
+        #
         # re
         #
         if (exists $rule->{re}) {
@@ -175,14 +226,14 @@ sub check {
         }
 
         #
-        # min
+        # size_min
         #
-        if (exists $rule->{min}) {
-            my $min = $rule->{min};
+        if (exists $rule->{size_min}) {
+            my $min = $rule->{size_min};
 
             if ($min !~ /^\d+$/) {
                 croak << "...";
-[Hoya::Form::Validator] Invalid format: $f -> min
+[Hoya::Form::Validator] Invalid format: $f -> size_min
 ...
             }
 
@@ -198,14 +249,14 @@ sub check {
         }
 
         #
-        # max
+        # size_max
         #
-        if (exists $rule->{max}) {
-            my $max = $rule->{max};
+        if (exists $rule->{size_max}) {
+            my $max = $rule->{size_max};
 
             if ($max !~ /^\d+$/) {
                 croak << "...";
-[Hoya::Form::Validator] Invalid format: $f -> max
+[Hoya::Form::Validator] Invalid format: $f -> size_max
 ...
             }
 
@@ -219,6 +270,52 @@ sub check {
                 return;
             }
 
+        }
+
+        #
+        # val_min
+        #
+        if (exists $rule->{val_min}) {
+            my $min = $rule->{val_min};
+
+            if ($min !~ /^\d+$/) {
+                croak << "...";
+[Hoya::Form::Validator] Invalid format: $f -> val_min
+...
+            }
+
+            if (int($v_fixed) < int($min)) {
+                $results->add(
+                    $f,
+                    $self->_result(VALUE_TOO_SMALL),
+                );
+                $q_fixed->add($f, $v_fixed);
+                $okng |= VALUE_TOO_SMALL;
+                return;
+            }
+        }
+
+        #
+        # val_max
+        #
+        if (exists $rule->{val_max}) {
+            my $max = $rule->{val_max};
+
+            if ($max !~ /^\d+$/) {
+                croak << "...";
+[Hoya::Form::Validator] Invalid format: $f -> val_max
+...
+            }
+
+            if (int($v_fixed) > int($max)) {
+                $results->add(
+                    $f,
+                    $self->_result(VALUE_TOO_LARGE),
+                );
+                $q_fixed->add($f, $v_fixed);
+                $okng |= VALUE_TOO_LARGE;
+                return;
+            }
         }
 
         #
