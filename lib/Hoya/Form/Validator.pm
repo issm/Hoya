@@ -88,7 +88,7 @@ sub check {
         #
         # LFize
         #
-        { $v_fixed =~ s/(?:\x0d\x0a?|\x0a)//g; }
+        { $v_fixed =~ s/(?:\x0d\x0a?|\x0a)/\x0a/g; }
 
         # ルールが存在しない場合
         unless (defined $rule) {
