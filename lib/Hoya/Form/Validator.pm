@@ -94,8 +94,6 @@ sub check {
         my ($field, $rule) = @_;
         return  if $field eq $KEYNAME_TEXT;
 
-        warn D $field;
-
         #
         # required
         #
