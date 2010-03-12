@@ -48,7 +48,7 @@ sub check {
         #
         # required
         #
-        unless ($q->get_all($field) || $rule->{optional}) {
+        unless (defined (($q->get_all($field))[0]) || $rule->{optional}) {
             #
             # default
             #
