@@ -56,6 +56,11 @@ sub PATH_STATIC_SKIN {
 }
 
 
+
+sub ANY {
+    return qr/.*/;
+}
+
 sub NON_SPACE {
     return qr/^\s* \S(.*\S)* \s*$/x;
     #return _re_by_arg(qr/\S/, @_);
@@ -123,10 +128,12 @@ sub KATAKANA {
 
 
 sub DOMAIN {
-    return qr/(${_1_ALPHANUM}+\.)+
+    return qr/([0-9a-zA-Z-_]+\.)+
               (?:
                   (?:co|ne|or)\.jp|jp|
-                  com|net|org
+                  com|net|org|
+                  local|
+                  [a-zA-Z]{2,4}
               )
              /x;
 }
