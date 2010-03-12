@@ -104,6 +104,13 @@ sub check {
         }
 
         #
+        # z2h (zenkaku to hankaku)
+        #
+        if ($rule->{z2h}) {
+            $v_fixed =~ tr/０-９ａ-ｚＡ-Ｚ　/0-9a-zA-Z /;
+        }
+
+        #
         # optional
         #
         if ($rule->{optional}  &&  $v_fixed eq '') {
