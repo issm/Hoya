@@ -25,6 +25,7 @@ our @EXPORT = qw/
                     en
                     de
                     is_def
+                    is_def_or
                     merge_hash
                     notify
                 /;
@@ -203,6 +204,19 @@ sub is_def {
     }
     $defined;
 }
+
+sub is_def_or {
+    my @vars = @_;
+    return 0  unless @vars;
+
+    my $defined = 0;
+    while (@vars) {
+        my $v = shift @vars;
+        defined $v  &&  ($defined = 1)  &&  last;
+    }
+    $defined;
+}
+
 
 
 sub merge_hash {
