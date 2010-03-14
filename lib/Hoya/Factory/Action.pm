@@ -122,6 +122,7 @@ use Hoya::Factory::Action;
     eval {
         sub _main {
             use warnings;
+            no warnings 'redefine';
         
             my $self = shift;
             #$self->SUPER::_main(@_);
