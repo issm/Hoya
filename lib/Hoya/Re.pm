@@ -149,6 +149,14 @@ sub EMAIL {
 }
 
 
+sub URL {
+    return qr{^
+              https?://
+              .*
+              $}x;
+}
+
+
 sub DATETIME {
     return qr/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
 }
