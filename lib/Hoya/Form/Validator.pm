@@ -108,9 +108,9 @@ sub check {
         #
         unless (defined (($q->get_all($field))[0]) || $rule->{optional}) {
             #
-            # type: check or checkbox
+            # type: check, checkbox, or radio
             #
-            if ($rule->{type} =~ /^check(?:box)?$/) {
+            if ($rule->{type} =~ /^(?:check(?:box)?|radio)$/) {
                 #$q_fixed->add($field, undef);
                 $q->add($field, undef);
                 return;
