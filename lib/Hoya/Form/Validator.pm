@@ -29,10 +29,12 @@ our $KEYNAME_TEXT = 'TEXT';
 
 # _result($code);
 sub _result {
-    my ($self, $code) = @_;
+    my ($self, $code, $field) = @_;
     return {
         code => $code,
-        text => $self->_rules->{$KEYNAME_TEXT}{$code} || '',
+        text => $self->_rules->{$field || ''}{$KEYNAME_TEXT}{$code}
+                || $self->_rules->{$KEYNAME_TEXT}{$code}
+                || '',
     };
 }
 
@@ -116,7 +118,7 @@ sub check {
             elsif (exists $rule->{default}) {
                 $results->add(
                     $field,
-                    $self->_result(OK),
+                    $self->_result(OK, $field),
                 );
                 $q_fixed->add($field, $rule->{default});
                 return;
@@ -127,7 +129,7 @@ sub check {
             else {
                 $results->add(
                     $field,
-                    $self->_result(REQUIRED),
+                    $self->_result(REQUIRED, $field),
                 );
 
                 $q_fixed->add($field, undef);
@@ -163,7 +165,7 @@ sub check {
         if ($rule->{optional}  &&  $v_fixed eq '') {
             $results->add(
                 $f,
-                $self->_result(OK),
+                $self->_result(OK, $f),
             );
             $q_fixed->add($f, $v_fixed);
             return;
@@ -180,7 +182,7 @@ sub check {
         if ($rule->{num_min}  &&  $n_values < $rule->{num_min}) {
             $results->add(
                 $f,
-                $self->_result(NUM_TOO_FEW),
+                $self->_result(NUM_TOO_FEW, $f),
             );
             $q_fixed->add($f, $v_fixed);
             $okng |= NUM_TOO_FEW;
@@ -192,7 +194,7 @@ sub check {
         if ($rule->{num_max}  &&  $n_values > $rule->{num_max}) {
             $results->add(
                 $f,
-                $self->_result(NUM_TOO_MANY),
+                $self->_result(NUM_TOO_MANY, $f),
             );
             $q_fixed->add($f, $v_fixed);
             $okng |= NUM_TOO_MANY;
@@ -206,7 +208,7 @@ sub check {
             if ($n_values != ($rule->{num} || 1)) {
                 $results->add(
                     $f,
-                    $self->_result(NUM_MISMATCHED),
+                    $self->_result(NUM_MISMATCHED, $f),
                 );
                 $q_fixed->add($f, $v_fixed);
                 $okng |= NUM_MISMATCHED;
@@ -222,7 +224,7 @@ sub check {
             my $OK_OR_REQUIRED = $blank_allowed ? OK : REQUIRED;
             $results->add(
                 $f,
-                $self->_result($OK_OR_REQUIRED),
+                $self->_result($OK_OR_REQUIRED, $f),
             );
             $q_fixed->add($f, $v_fixed);
             $okng |= $OK_OR_REQUIRED;
@@ -254,7 +256,7 @@ sub check {
             if ($v_fixed !~ /$re/) {
                 $results->add(
                     $f,
-                    $self->_result(RE_MISMATCHED),
+                    $self->_result(RE_MISMATCHED, $f),
                 );
                 $q_fixed->add($f, $v_fixed);
                 $okng |= RE_MISMATCHED;
@@ -277,7 +279,7 @@ sub check {
             if (length($v_fixed) < int($min)) {
                 $results->add(
                     $f,
-                    $self->_result(SIZE_TOO_SHORT),
+                    $self->_result(SIZE_TOO_SHORT, $f),
                 );
                 $q_fixed->add($f, $v_fixed);
                 $okng |= SIZE_TOO_SHORT;
@@ -300,7 +302,7 @@ sub check {
             if (length($v_fixed) > int($max)) {
                 $results->add(
                     $f,
-                    $self->_result(SIZE_TOO_LONG),
+                    $self->_result(SIZE_TOO_LONG, $f),
                 );
                 $q_fixed->add($f, $v_fixed);
                 $okng |= SIZE_TOO_LONG;
@@ -324,7 +326,7 @@ sub check {
             if (int($v_fixed) < int($min)) {
                 $results->add(
                     $f,
-                    $self->_result(VALUE_TOO_SMALL),
+                    $self->_result(VALUE_TOO_SMALL, $f),
                 );
                 $q_fixed->add($f, $v_fixed);
                 $okng |= VALUE_TOO_SMALL;
@@ -347,7 +349,7 @@ sub check {
             if (int($v_fixed) > int($max)) {
                 $results->add(
                     $f,
-                    $self->_result(VALUE_TOO_LARGE),
+                    $self->_result(VALUE_TOO_LARGE, $f),
                 );
                 $q_fixed->add($f, $v_fixed);
                 $okng |= VALUE_TOO_LARGE;
@@ -370,7 +372,7 @@ sub check {
             if (scalar(@exists) != scalar(@$depends)) {
                 $results->add(
                     $f,
-                    $self->_result(DEPENDENCY_INVALID),
+                    $self->_result(DEPENDENCY_INVALID, $f),
                 );
                 $q_fixed->add($f, $v_fixed);
                 $okng |= DEPENDENCY_INVALID;
@@ -383,13 +385,22 @@ sub check {
         {
             $results->add(
                 $f,
-                $self->_result(OK),
+                $self->_result(OK, $f),
             );
             $q_fixed->add($f, $v_fixed);
         }
     });
 
-    return wantarray ? ($okng, $results, $q_fixed) : $okng;
+    # 値がundefな項目を取り除く
+    my $q_fixed_exclude_undef = Hash::MultiValue->new;
+    $q_fixed->each(sub
+    {
+        my ($f, $v) = @_;
+        $q_fixed_exclude_undef->add($f, $v)  if defined $v;
+        return;
+    });
+
+    return wantarray ? ($okng, $results, $q_fixed_exclude_undef) : $okng;
 }
 
 
