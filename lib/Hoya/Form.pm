@@ -88,6 +88,7 @@ sub _scope {
 # update($name, $rule_up);
 sub update {
     my ($self, $name, $rule_up) = @_;
+    $name = $self->name  unless defined $name;
     $rule_up ||= {};
 
     my $rules = $self->_rules;
