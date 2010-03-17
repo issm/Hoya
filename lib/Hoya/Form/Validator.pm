@@ -14,6 +14,8 @@ use Hoya::Util;
 sub OK                 {   0; }
 sub REQUIRED           { 101; }
 sub NUM_MISMATCHED     { 201; }
+sub NUM_TOO_FEW        { 202; }
+sub NUM_TOO_MANY       { 203; }
 sub RE_MISMATCHED      { 301; }
 sub SIZE_TOO_SHORT     { 401; }
 sub SIZE_TOO_LONG      { 402; }
@@ -37,6 +39,8 @@ sub _result {
 # $value_fixed = _fix_value($value, $rule);
 sub _fix_value {
     my ($self, $value, $rule) = @_;
+    return undef  unless defined $value;
+
     $rule ||= {};
     my $value_fixed = $value;
 
@@ -99,9 +103,17 @@ sub check {
         #
         unless (defined (($q->get_all($field))[0]) || $rule->{optional}) {
             #
+            # type: check or checkbox
+            #
+            if ($rule->{type} =~ /^check(?:box)?$/) {
+                #$q_fixed->add($field, undef);
+                $q->add($field, undef);
+                return;
+            }
+            #
             # default
             #
-            if (exists $rule->{default}) {
+            elsif (exists $rule->{default}) {
                 $results->add(
                     $field,
                     $self->_result(OK),
@@ -133,6 +145,9 @@ sub check {
         my ($f, $v) = @_;
         my $rule = $rules->get($f);
 
+        my @values = grep defined $_, $q->get_all($f);
+        my $n_values = scalar @values;
+
         # ルールが存在しない場合
         unless (defined $rule) {
             $q_fixed->add($f, $v);
@@ -160,11 +175,35 @@ sub check {
 
 
         #
+        # num_min
+        #
+        if ($rule->{num_min}  &&  $n_values < $rule->{num_min}) {
+            $results->add(
+                $f,
+                $self->_result(NUM_TOO_FEW),
+            );
+            $q_fixed->add($f, $v_fixed);
+            $okng |= NUM_TOO_FEW;
+            return;
+        }
+        #
+        # mun_max
+        #
+        if ($rule->{num_max}  &&  $n_values > $rule->{num_max}) {
+            $results->add(
+                $f,
+                $self->_result(NUM_TOO_MANY),
+            );
+            $q_fixed->add($f, $v_fixed);
+            $okng |= NUM_TOO_MANY;
+            return;
+        }
+        #
         # num
         #
-        {
-            my @v = $q->get_all($f);
-            if (scalar(@v) != ($rule->{num} || 1)) {
+        # num_min, num_max いずれとも未定義の場合に適用される
+        unless ($rule->{num_min} || $rule->{num_max}){
+            if ($n_values != ($rule->{num} || 1)) {
                 $results->add(
                     $f,
                     $self->_result(NUM_MISMATCHED),
