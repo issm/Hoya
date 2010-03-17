@@ -64,7 +64,10 @@ sub _fix_value {
 
 
 sub check {
-    my ($self, $q) = @_; # ref $q eq 'Hash::MultiValue';
+    my ($self, $q) = @_; # $q is-a Hash::MultiValue;
+    $q ||= $self->q;
+
+    $self->_scope;
 
     my $q_fixed = Hash::MultiValue->new;
     my $results = Hash::MultiValue->new;

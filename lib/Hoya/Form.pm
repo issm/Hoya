@@ -16,7 +16,7 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/req conf name
+    $class->mk_accessors qw/name conf q
                             _rules
                            /;
 
@@ -52,22 +52,58 @@ sub _load {
         unless -f $rulefile;
 
     try {
-        my $rule = de LoadFile($rulefile);
-        my $TEXT = $rule->{TEXT} || {};
-
-        if (exists $rule->{$self->name}) {
-            my $rule_ = $rule->{$self->name};
-            $rule_->{TEXT} = $TEXT;
-            return $rule_;
-        }
-        
-        return $rule;
+        return de LoadFile($rulefile);
     }
     catch {
         croak 'The format of form-rule file is invalid: ' . shift;
     };
 }
 
+
+sub _scope {
+    my $self = shift;
+    my $rules = $self->_rules;
+
+    try {
+        my $TEXT = $rules->{TEXT} || {};
+
+        if (exists $rules->{$self->name}) {
+            my $rule_scoped = $rules->{$self->name};
+            $rule_scoped->{TEXT} = $TEXT;
+            $self->_rules($rule_scoped);
+
+            return $rule_scoped;
+        }
+        else {
+            return $rules;
+        }
+
+    }
+    catch {
+        croak '[error] Hoya::Form: ' . shift;
+    };
+}
+
+
+# update($name, $rule_up);
+sub update {
+    my ($self, $name, $rule_up) = @_;
+    $rule_up ||= {};
+
+    my $rules = $self->_rules;
+
+    if (exists $rules->{$name}) {
+        for my $k (%$rule_up) {
+            $rules->{$name}{$k} = $rule_up->{$k};
+        }
+    }
+    else {
+        $rules->{$name} = $rule_up;
+    }
+
+    $self->_rules($rules);
+    return $rules;
+}
 
 
 
