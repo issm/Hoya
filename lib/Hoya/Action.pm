@@ -2,7 +2,7 @@ package Hoya::Action;
 use strict;
 use warnings;
 use utf8;
-use parent qw/Class::Accessor::Faster Exporter/;
+use parent qw/Exporter Class::Accessor::Faster/;
 no warnings 'redefine';
 
 use Params::Validate qw/:all/;
