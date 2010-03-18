@@ -103,6 +103,7 @@ sub _generate_as_string {
 package %s;
 use strict;
 use warnings;
+no warnings 'redefine';
 use utf8;
 use base qw/Class::Accessor::Faster/;
 

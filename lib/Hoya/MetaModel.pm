@@ -11,26 +11,24 @@ use Hoya::DSH;
 use Hoya::Factory::Model;
 use Hoya::Util;
 
-my $_env;
-my $_conf;
-my $_dsh   = {};
-my $_model = {};
-
 
 sub new {
     my $class = shift;
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/env conf/;
+    $class->mk_accessors qw/env conf
+                            _dsh _model
+                           /;
 
     return $self->_init;
 }
 
 sub _init {
     my ($self) = self_param @_;
-    $_env  = $self->env;
-    $_conf = $self->conf;
+    $self->_dsh({});
+    $self->_model({});
+
     $self->_init_dsh;
     $self;
 }
@@ -38,17 +36,18 @@ sub _init {
 
 sub _init_dsh {
     my $self = shift;
+    $self->_dsh({});
 
     my @dsh = grep {
-        $_conf->{DSH}{$_};  # 値が1のもののみ抜き出す
-    } keys %{$_conf->{DSH} || {}};
+        $self->conf->{DSH}{$_};  # 値が1のもののみ抜き出す
+    } keys %{$self->conf->{DSH} || {}};
 
     for my $dsh (@dsh) {
-        unless (exists $_dsh->{$dsh}) {
-            $_dsh->{$dsh} = Hoya::DSH->new({
+        unless (exists $self->_dsh->{$dsh}) {
+            $self->_dsh->{$dsh} = Hoya::DSH->new({
                 type => $dsh,
-                env  => $_env,
-                conf => $_conf,
+                env  => $self->env,
+                conf => $self->conf,
             });
         }
     }
@@ -62,8 +61,8 @@ sub get_model {
 
     my @models;
     for my $name (@names) {
-        if (exists $_model->{$name}) {
-            push @models, $_model->{$name};
+        if (exists $self->_model->{$name}) {
+            push @models, $self->_model->{$name};
         }
         else {
             push @models, $self->_create_model($name);
@@ -76,7 +75,7 @@ sub get_model {
 sub get_dsh {
     my ($self, $type) = @_;
     return undef  unless defined $type;
-    return $_dsh->{$type};
+    return $self->_dsh->{$type};
 }
 
 
@@ -85,14 +84,14 @@ sub _create_model {
     my ($self, $name) = @_;
     return undef  unless defined $name;
 
-    $_model->{$name} = Hoya::Factory::Model->new({
+    $self->_model->{$name} = Hoya::Factory::Model->new({
         name => $name,
-        env  => $_env,
-        conf => $_conf,
-        dsh  => $_dsh,
+        env  => $self->env,
+        conf => $self->conf,
+        dsh  => $self->_dsh,
     });
 
-    return $_model->{$name};
+    return $self->_model->{$name};
 }
 
 
