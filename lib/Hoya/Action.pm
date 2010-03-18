@@ -517,20 +517,21 @@ sub model {
 
 
 sub new_validator {
-    my ($self, $name) = @_;
+    my ($self, $name, $rule) = @_;
     $name = $self->name  unless defined $name;
 
     return Hoya::Form::Validator->new({
         name => $name,
-        req  => $self->req,
         conf => $self->conf,
+        q    => $self->q,
     });
 }
 
 
 sub as_json {
     my ($self, $param) = @_;
-    $self->content_type('application/json');
+    #$self->content_type('application/json');
+    $self->content_type('text/javascript');
     return;
 }
 
