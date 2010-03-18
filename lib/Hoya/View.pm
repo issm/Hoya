@@ -12,18 +12,6 @@ use Hoya::Page;
 use Hoya::Util;
 
 
-my $_name;
-my $_type;
-my $_env;
-my $_conf;
-my $_q;
-my $_qq;
-my $_var;
-my $_action_name;
-my $_content; # ?
-
-my $_page;
-
 sub new {
     my $class = shift;
     my $param = shift || {};
@@ -39,18 +27,11 @@ sub _init {
     my $self = shift;
     my $ret;
 
-    $_name = $self->name;
-    $_type = $self->type;
-    $_env  = $self->env;
-    $_conf = $self->conf;
-    $_q    = $self->q;
-    $_qq   = $self->qq;
-    $_var  = $self->var;
-    $_action_name = $self->action_name;
+    my $type = $self->type;
 
     $self->_init_page;
 
-    my $class = "Hoya::View::${_type}";
+    my $class = "Hoya::View::${type}";
     try {
         eval "use ${class};";
     }
@@ -61,13 +42,13 @@ sub _init {
     try {
         $ret = eval << "...";
 $class->new({
-    name => \$_name,
-    env  => \$_env,
-    conf => \$_conf,
-    q    => \$_q,
-    qq   => \$_qq,
-    var  => \$_var,
-    action_name => \$_action_name,
+    name => \$self->name,
+    env  => \$self->env,
+    conf => \$self->conf,
+    q    => \$self->q,
+    qq   => \$self->qq,
+    var  => \$self->var,
+    action_name => \$self->action_name,
 });
 ...
     }
@@ -83,16 +64,18 @@ $class->new({
 sub _init_page {
     my ($self) = @_;
 
-    $_page = Hoya::Page->new({
-        name => $_name,
-        env  => $_env,
-        conf => $_conf,
+    my $page = Hoya::Page->new({
+        name => $self->name,
+        env  => $self->env,
+        conf => $self->conf,
     });
 
-    my @css_import = $_page->import_css;
-    my @js_import  = $_page->import_js;
-    ($_var->{CSS_IMPORT}, $_var->{CSS_IMPORT_IE}) = @css_import;
-    ($_var->{JS_IMPORT}, $_var->{JS_IMPORT_IE})   = @js_import;
+    my $var = $self->var;
+
+    my @css_import = $page->import_css;
+    my @js_import  = $page->import_js;
+    ($var->{CSS_IMPORT}, $var->{CSS_IMPORT_IE}) = @css_import;
+    ($var->{JS_IMPORT}, $var->{JS_IMPORT_IE})   = @js_import;
 
     return 1;
 }
