@@ -15,19 +15,6 @@ use Hoya::Page;
 
 use Hoya::Util;
 
-my $_path;
-my $_name;
-my $_env;
-my $_conf;
-my $_q;
-my $_qq;
-my $_var;
-my $_action_name;
-
-my $_page;
-
-my $_no_escape = 0;
-
 
 sub new {
     my $class = shift;
@@ -39,8 +26,10 @@ sub new {
            q qq var action_name
            content error
            no_escape
-           
+
            status content_type
+
+           _path
           /
     );
 
@@ -50,18 +39,14 @@ sub new {
 
 sub _init {
     my ($self) = @_;
-    $_name  = $self->name;
-    $_env   = $self->env;
-    $_conf  = $self->conf;
-    $_q     = $self->q;
-    $_qq    = $self->qq;
-    $_var   = $self->var;
-    $_action_name = $self->action_name;
 
-    $_path = sprintf(
-        '%s/%s/mt',
-        $_conf->{PATH}{SITE},
-        $_env->{HOYA_SKIN},
+
+    $self->_path(
+        sprintf(
+            '%s/%s/mt',
+            $self->conf->{PATH}{SITE},
+            $self->env->{HOYA_SKIN},
+        )
     );
 
     $self->content('');
@@ -75,38 +60,43 @@ sub _init {
 sub go {
     my ($self) = @_;
 
+    my $name = $self->name;
+    my $env  = $self->env;
+    my $conf = $self->conf;
+    my $var  = $self->var;
+
     my $viewfile = sprintf(
         '%s/%s.mt',
-        $_path,
-        name2path($_name),
+        $self->_path,
+        name2path($self->name),
     );
     my $content = '';
 
     # インポート用変数の準備
     my %var_import = ();
-    for my $k (keys %{$_var->{__import__}}) {
-        $var_import{$k} = $_var->{__import__}{$k};
-        $_var->{__import__}{$k} = undef;
-        delete $_var->{__import__}{$k};
+    for my $k (keys %{$var->{__import__}}) {
+        $var_import{$k} = $var->{__import__}{$k};
+        $var->{__import__}{$k} = undef;
+        delete $var->{__import__}{$k};
     }
-    $_var->{__import__} = undef;
-    delete $_var->{__import__};
+    $var->{__import__} = undef;
+    delete $var->{__import__};
 
     my $mt =
         Text::MicroTemplate::Extended->new(
-            include_path  => $_path,
+            include_path  => $self->_path,
             template_args => {
-                env  => $_env,
-                conf => $_conf,
-                q    => $_q,
-                qq   => $_qq,
-                var  => $_var,
+                env  => $env,
+                conf => $conf,
+                q    => $self->q,
+                qq   => $self->qq,
+                var  => $var,
                 %var_import,
 
-                URL  => $_conf->{LOCATION}{URL},
+                URL  => $conf->{LOCATION}{URL},
 
-                VIEW_NAME   => $_name,
-                ACTION_NAME => $_action_name,
+                VIEW_NAME   => $self->name,
+                ACTION_NAME => $self->action_name,
 
             },
             use_cache => 1,
@@ -115,7 +105,7 @@ sub go {
     if (-f $viewfile) {
         try {
             $content = $mt->render(
-                name2path($_name)
+                name2path($self->name)
             )->as_string;
         }
         catch {
@@ -133,7 +123,7 @@ $content
     else {
         my $text = sprintf(
             '[error] View "%s" not found.',
-            $_name,
+            $self->name,
         );
         croak $text;
 
@@ -147,8 +137,8 @@ $content
 <pre>
 ** error **
 $content
-template: ${_name}.mt
-skin:     $_env->{HOYA_SKIN}
+template: ${name}.mt
+skin:     $env->{HOYA_SKIN}
 </pre>
 ...
         };
