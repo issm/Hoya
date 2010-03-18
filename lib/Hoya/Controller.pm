@@ -15,17 +15,6 @@ use Hoya::MetaModel;
 use Hoya::Factory::Action;
 use Hoya::View;
 
-my $_env;
-my $_conf;
-
-my $_q;  # クエリパラメータ群
-my $_qq; # URLマッピングによって得られるパラメータ群
-my $_up; # Plack::Request::Uploadオブジェクトの集合
-
-my $_logger;
-my $_mm; # メタモデル（Hoya::MetaModelオブジェクト）
-my $_action;
-my $_view;
 
 #
 sub new {
@@ -33,7 +22,11 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/req app_name/;
+    $class->mk_accessors qw/req app_name
+                            _conf
+                            _logger
+                            _mm
+                           /;
 
     return $self->_init;
 }
@@ -42,13 +35,11 @@ sub new {
 sub _init {
     my $self = shift;
 
-    $_env = $self->req->env;
-    $_conf = Hoya::Config->new({
-        req => $self->req,
-    })->get;
-    $_q  = {}; # Hash::MultiValueオブジェクト
-    $_qq = {}; # Hash::MultiValueオブジェクト
-    $_up = {}; # Hash::MultiValueオブジェクト
+    $self->_conf(
+        Hoya::Config->new({
+            req => $self->req,
+        })->get
+    );
 
     return $self;
 }
@@ -57,12 +48,14 @@ sub _init {
 
 sub go {
     my $self = shift;
-    my $req = $self->req;
+    my $req  = $self->req;
+    my $env  = $req->env;
+    my $conf = $self->_conf;
 
-    # $_env->{HOYA_SITE}, $_env->{HOYA_SKIN} のいずれか/両方がセットされていない場合，終了
+    # $env->{HOYA_SITE}, $env->{HOYA_SKIN} のいずれか/両方がセットされていない場合，終了
     if (
-        (!exists $_env->{HOYA_SITE} || $_env->{HOYA_SITE} eq '')  ||
-        (!exists $_env->{HOYA_SKIN} || $_env->{HOYA_SKIN} eq '')
+        (!exists $env->{HOYA_SITE} || $env->{HOYA_SITE} eq '')  ||
+        (!exists $env->{HOYA_SKIN} || $env->{HOYA_SKIN} eq '')
     ) {
         croak '"HOYA_SITE" and/or "HOYA_SKIN" are/is not set, check them/it!';
     }
@@ -73,14 +66,14 @@ sub go {
     #
     # logger
     #
-    $_logger = $_env->{'psgix.logger'};
+    $self->_logger($env->{'psgix.logger'});
 
     #
     # metamodel
     #
-    $_mm = Hoya::MetaModel->new({
-        env  => $_env,
-        conf => $_conf,
+    my $mm = Hoya::MetaModel->new({
+        env  => $env,
+        conf => $conf,
     });
 
     #
@@ -89,7 +82,7 @@ sub go {
     my ($url_mapper, $action_info);
     $url_mapper = Hoya::Mapper::URL->new({
         req      => $req,
-        conf     => $_conf,
+        conf     => $conf,
         app_name => $self->app_name,
     });
     $action_info = $url_mapper->get_action_info;
@@ -97,8 +90,8 @@ sub go {
     #
     # q, qq, up
     #
-    ($_q, $_up) = $self->_decode_queries;
-    $_qq = $action_info->{qq};  # Hash::MultiValueオブジェクト
+    my ($q, $up) = $self->_decode_queries;
+    my $qq = $action_info->{qq};  # Hash::MultiValueオブジェクト
 
     #
     # user agent mapping
@@ -106,38 +99,38 @@ sub go {
     #my ($ua_mapper, $ua_info);
     #$ua_mapper = Hoya::Mapper::UserAgent->new({
     #    req  => $req,
-    #    conf => $_conf,
+    #    conf => $conf,
     #});
     #$ua_info = $ua_mapper->get_info;
-    #$_conf->{UA_INFO} = $ua_info;
+    #$conf->{UA_INFO} = $ua_info;
 
     #
     # skin
     #
-    #$_conf->{SKIN_NAME} = $_conf->{UA_INFO}{name} || 'default';
+    #$conf->{SKIN_NAME} = $conf->{UA_INFO}{name} || 'default';
 
     #
     # action
     #
     my ($view_info);
-    $_action = Hoya::Factory::Action->new({
+    my $action = Hoya::Factory::Action->new({
         name    => $action_info->{name},
         req     => $self->req,
-        conf    => $_conf,
-        q       => $_q,
-        qq      => $_qq,
-        up      => $_up,
-        mm      => $_mm,
+        conf    => $conf,
+        q       => $q,
+        qq      => $qq,
+        up      => $up,
+        mm      => $mm,
         cookies => {},
         vars    => {
             __import__ => {},
         },
     });
-    $view_info = $_action->go;
+    $view_info = $action->go;
     #
     # cookie発行の準備をする
     #
-    $res->cookies(en $_action->cookies);
+    $res->cookies(en $action->cookies);
 
 
     #
@@ -151,17 +144,17 @@ sub go {
     # レスポンスをセットアップする
     #
     else {
-        $_action->content_type(
+        $action->content_type(
             $self->conf->{CONTENT_TYPE_DEFAULT} || 'text/plain'
-        )  unless $_action->content_type;
-        $_action->charset('utf-8')  unless $_action->charset;
+        )  unless $action->content_type;
+        $action->charset('utf-8')  unless $action->charset;
 
-        $res->status($_action->status);
+        $res->status($action->status);
         $res->content_type(
             sprintf(
                 '%s; charset=%s',
-                $_action->content_type,
-                $_action->charset,
+                $action->content_type,
+                $action->charset,
             )
         );
 
@@ -169,15 +162,15 @@ sub go {
         # Content-Typeが次のいずれかの場合，戻り値をレスポンスボディとする
         #   application/json, text/javascript
         #
-        if ($_action->content_type =~
+        if ($action->content_type =~
                 m{^(?:
                       application/json |
                       text/javascript
                   );?}x
               ) {
             eval { use JSON; };
-            my $json = de JSON::encode_json($_action->data || {});
-            if (my $_callback = $_q->get('callback')) {
+            my $json = de JSON::encode_json($action->data || {});
+            if (my $_callback = $q->get('callback')) {
                 $json = "${_callback}(${json})";
             }
 
@@ -188,25 +181,25 @@ sub go {
         #
         else {
             # view
-            $_view = Hoya::View->new({
+            my $view = Hoya::View->new({
                 name => $view_info->{name},
                 type => 'MT',
                 env  => $req->{env},
-                conf => $_conf,
+                conf => $conf,
                 q    => $view_info->{q},
                 qq   => $view_info->{qq},
                 var  => $view_info->{var},
-                action_name => $_action->name,
+                action_name => $action->name,
             });
-            #$_view->no_escape(1);
-            $_view->go;
+            #$view->no_escape(1);
+            $view->go;
 
-            $res->status($_view->status)
-                if defined $_view->status;
-            $res->content_type($_view->content_type)
-                if defined $_view->content_type;
+            $res->status($view->status)
+                if defined $view->status;
+            $res->content_type($view->content_type)
+                if defined $view->content_type;
 
-            $res->content($_view->content);
+            $res->content($view->content);
         }
     }
 
@@ -214,7 +207,7 @@ sub go {
     # PSGI formatting
     #
     my $psgi = $res->finalize;
-    push @$psgi, [$_conf->{SKIN_NAME}];
+    push @$psgi, [$conf->{SKIN_NAME}];
     # ^ PSGIフォーマットに「スキン」情報を追加
 
     return $psgi;
