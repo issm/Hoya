@@ -184,7 +184,7 @@ sub go {
             my $view = Hoya::View->new({
                 name => $view_info->{name},
                 type => 'MT',
-                env  => $req->{env},
+                env  => $req->env,
                 conf => $conf,
                 q    => $view_info->{q},
                 qq   => $view_info->{qq},
