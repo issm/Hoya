@@ -48,7 +48,7 @@ sub connect {
     my $db_type = lc ($conf->{DB}{TYPE} || 'mysql');
 
     if($self->_dbh  &&  $self->_sth) {
-        carp sprintf '[%s] Already connected to %s', __PACKAGE__, $db_type;
+        #carp sprintf '[%s] Already connected to %s', __PACKAGE__, $db_type;
         return;
     }
 
