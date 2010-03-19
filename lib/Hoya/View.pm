@@ -11,6 +11,8 @@ use Try::Tiny;
 use Hoya::Page;
 use Hoya::Util;
 
+use Hoya::View::MT; # 動的にすると5.8.8系でエラーが出る(?)のでここで読み込む
+
 
 sub new {
     my $class = shift;
@@ -34,7 +36,7 @@ sub _init {
         eval "use ${view_class};";
     }
     catch {
-        eval 'Hoya::View::MT;';
+        eval 'use Hoya::View::MT;';
     };
 
     try {
@@ -47,17 +49,6 @@ sub _init {
             var  => $self->var,
             action_name => $self->action_name,
         });
-#        $view = eval << "...";
-#$class->new({
-#    name => \$self->name,
-#    env  => \$self->env,
-#    conf => \$self->conf,
-#    q    => \$self->q,
-#    qq   => \$self->qq,
-#    var  => \$self->var,
-#    action_name => \$self->action_name,
-#});
-#...
     }
     catch {
         carp shift;
