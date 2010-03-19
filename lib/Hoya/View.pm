@@ -11,7 +11,8 @@ use Try::Tiny;
 use Hoya::Page;
 use Hoya::Util;
 
-use Hoya::View::MT; # 動的にすると5.8.8系でエラーが出る(?)のでここで読み込む
+# 動的ロードにすると5.8.8系でエラーが出る(?)ので，ひとまずここで読み込む
+use Hoya::View::MT; 
 
 
 sub new {
