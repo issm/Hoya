@@ -10,6 +10,10 @@ use Try::Tiny;
 
 use Hoya::Util;
 
+# 動的ロードにすると5.8.8系でエラーが出る(?)ので，ひとまずここで読み込む
+use Hoya::DSH::DBI; 
+#use Hoya::DSH::YAML;
+
 my $_env;
 my $_conf;
 my $_type;
