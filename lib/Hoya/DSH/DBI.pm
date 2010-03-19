@@ -14,22 +14,16 @@ use Hoya::Util;
 
 our $CACHE_EXPIRES = 10;
 
-my $_env;
-my $_conf;
-
-my $_cache;
-my $_sql_cache;
-my $_pre;
-my $_sth;
-my $_dbh;
-
 
 sub new {
     my $class = shift;
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/env conf cache/;
+    $class->mk_accessors qw/env conf cache
+                            _sql_cache
+                            _sth _dbh
+                           /;
 
     return $self->_init;
 }
@@ -37,12 +31,8 @@ sub new {
 
 sub _init {
     my $self = shift;
-    $_env   = $self->env;
-    $_conf  = $self->conf;
-    $_cache = $self->cache;
 
-    $_sql_cache = {};
-    $_pre   = $_conf->{DB}{TABLE_PREFIX}  ||  '';
+    $self->_sql_cache({});
     $self->connect;
     $self;
 }
@@ -53,10 +43,12 @@ sub _init {
 #
 sub connect {
     my $self = shift;
-    my $db_type = lc ($_conf->{DB}{TYPE} || 'mysql');
+    my $conf = $self->conf;
 
-    if($_dbh  &&  $_sth) {
-        carp sprintf 'Already connected to %s', $db_type;
+    my $db_type = lc ($conf->{DB}{TYPE} || 'mysql');
+
+    if($self->_dbh  &&  $self->_sth) {
+        carp sprintf '[%s] Already connected to %s', __PACKAGE__, $db_type;
         return;
     }
 
@@ -64,18 +56,25 @@ sub connect {
     if($db_type eq 'mysql') {
         my $data_source = sprintf(
             'dbi:mysql:%s:%s:%s',
-            $_conf->{DB}{NAME},
-            $_conf->{DB}{HOST},
-            ($_conf->{DB}{PORT} || 3306),
+            $conf->{DB}{NAME},
+            $conf->{DB}{HOST},
+            ($conf->{DB}{PORT} || 3306),
         );
-        $_dbh = DBI->connect(
-            $data_source,
-            $_conf->{DB}{USER},
-            $_conf->{DB}{PASSWD},
-            { AutoCommit => 1 },
-        ) or
-            (carp("Could not connect to database: " . DBI->errstr)
-             && return);
+        $self->_dbh(
+            DBI->connect(
+                $data_source,
+                $conf->{DB}{USER},
+                $conf->{DB}{PASSWD},
+                { AutoCommit => 1 },
+            ) or (
+                carp(
+                    sprintf(
+                        '[%s] Could not connect to database: %s',
+                        __PACKAGE__, DBI->errstr,
+                    )
+                ) && return
+            )
+        );
         $self->prepare;
     }
     # PostgreSQL
@@ -91,14 +90,17 @@ sub connect {
 #
 sub disconnect {
     my $self = shift;
-    $_sth->finish;
-    $_dbh->disconnect;
+    $self->_sth->finish;
+    $self->_dbh->disconnect;
 }
 
 #  ステートメントハンドルを準備する
 sub prepare {
-    shift;
-    $_sth = $_dbh->prepare( shift || '' );
+    my $self = shift;
+    $self->_sth(
+        $self->_dbh->prepare(shift || '')
+    );
+    return $self->_sth;
 }
 
 
@@ -108,7 +110,7 @@ sub prepare {
 #
 sub execute {
     my $self = shift;
-    $_sth->execute( defined @_ ? @_ : undef );
+    $self->_sth->execute(defined @_ ? @_ : undef);
 }
 
 
@@ -120,8 +122,9 @@ sub q { shift->query(@_); }
 sub query {
     my $self = shift;
     my ($sql, $bind, $ref_type, $key) = @_;
+    my $conf = $self->conf;
     my $cache = 0;
-    my $db_type = $_conf->{DB}{TYPE};
+    my $db_type = $conf->{DB}{TYPE};
 
     if (!defined $ref_type || $ref_type eq '') { $ref_type = 'array'; }
     elsif (ref $ref_type eq 'ARRAY')           { $ref_type = 'array'; }
@@ -167,7 +170,7 @@ sub _q_mysql {
     my $self = shift;
     my ($sql, $bind, $ref_type, $key, $cache) = @_;
 
-    $self->prepare($sql);
+    my $sth = $self->prepare($sql);
 
     #
     # INSERT, REPLACE, UPDATE, DELETE, CREATE TABLE, DROP TABLE
@@ -184,19 +187,19 @@ sub _q_mysql {
             for my $b (@$bind) {
                 # $bind == [\@arr1, \@arr2, ...]
                 if (ref $b eq 'ARRAY') {
-                    $rows_affected += $_sth->execute(@$b) || 0;
+                    $rows_affected += $sth->execute(@$b) || 0;
                     next;
                 }
                 # $bind == \@arr
                 else {
-                    $rows_affected += $_sth->execute(@$bind) || 0;
+                    $rows_affected += $sth->execute(@$bind) || 0;
                     last;
                 }
             }
         }
         # $bindが指定されていない
         else {
-            $rows_affected = $_sth->execute();
+            $rows_affected = $sth->execute();
         }
 
         return $rows_affected;
@@ -214,7 +217,7 @@ sub _q_mysql {
         my $cache_key = sha1_hex($sql . Dump($bind || []));
 
         if ($cache) {
-            my $data_cached = $_cache->get($cache_key);
+            my $data_cached = $self->cache->get($cache_key);
             #carp d 'get cache.'  if defined $data_cached;
             return $data_cached  if defined $data_cached;
         }
@@ -231,22 +234,22 @@ sub _q_mysql {
                 my $_key = shift;
                 try {
                     # see: http://blog.iwa-ya.net/2010/02/18/192601
-                    my $ret = $_sth->fetchall_hmv($_key);
+                    my $ret = $sth->fetchall_hmv($_key);
                     die  unless is_def $ret;
                     return $ret;
                 }
                 catch {
                     carp 'DBI::st::fetchall_hmv is not defined, call DBI::st::fetchall_hashref, instead';
-                    return ($_sth->fetchall_hashref($_key) || {});
+                    return ($sth->fetchall_hashref($_key) || {});
                 };
             }->($key)
-            :  ($_sth->fetchall_arrayref() || [])
+            :  ($sth->fetchall_arrayref() || [])
         ;
         $fetch = de $fetch;
 
         # データをキャッシュする
         if ($cache) {
-            $_cache->set($cache_key, $fetch, $CACHE_EXPIRES);
+            $self->cache->set($cache_key, $fetch, $CACHE_EXPIRES);
             #carp d 'set cache.';
         }
 
@@ -261,7 +264,7 @@ sub _q_mysql {
                           CREATE\s+DATABASE
                       )\s
                      /ix) {
-        return $_sth->execute();
+        return $sth->execute();
     }
 }
 
@@ -276,17 +279,19 @@ sub load_sql {
     my $key   = $param->{key};
     my $limit = $param->{limit};
 
-    unless (exists $_sql_cache->{$name}) {
+    my $conf = $self->conf;
+
+    unless (exists $self->_sql_cache->{$name}) {
         my $data = {};
         my $yamlfile = sprintf(
             '%s/sql/%s.yml',
-            $_conf->{PATH}{DATA},
+            $conf->{PATH}{DATA},
             name2path($name),
         );
 
         try {
             $data = LoadFile($yamlfile);
-            $_sql_cache->{$name} = $data;
+            $self->_sql_cache->{$name} = $data;
         }
         catch {
             carp shift;
@@ -294,12 +299,14 @@ sub load_sql {
             return undef;
         };
     }
-    my $sql = $_sql_cache->{$name}->{$key};
+    my $sql = $self->_sql_cache->{$name}{$key};
     unless (defined $sql) {
         croak "SQL with specified key does not exist: ${name}::${key}";
         $sql = 'SELECT 1';
     }
-    $sql =~ s/%(?:PRE)?%/$_pre/g;
+
+    my $table_prefix = $self->conf->{DB}{TABLE_PREFIX}  ||  '';
+    $sql =~ s/%(?:PRE)?%/$table_prefix/g;
     # ^ %PRE% または %% を $_pre の値に置き換える
 
     my $LIMIT = '';
