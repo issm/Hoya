@@ -25,39 +25,46 @@ sub new {
 
 sub _init {
     my $self = shift;
-    my $ret;
-
-    my $type = $self->type;
+    my $view;
 
     $self->_init_page;
 
-    my $class = "Hoya::View::${type}";
+    my $view_class = 'Hoya::View::' . $self->type;
     try {
-        eval "use ${class};";
+        eval "use ${view_class};";
     }
     catch {
         eval 'Hoya::View::MT;';
     };
 
     try {
-        $ret = eval << "...";
-$class->new({
-    name => \$self->name,
-    env  => \$self->env,
-    conf => \$self->conf,
-    q    => \$self->q,
-    qq   => \$self->qq,
-    var  => \$self->var,
-    action_name => \$self->action_name,
-});
-...
+        $view = "$view_class"->new({
+            name => $self->name,
+            env  => $self->env,
+            conf => $self->conf,
+            q    => $self->q,
+            qq   => $self->qq,
+            var  => $self->var,
+            action_name => $self->action_name,
+        });
+#        $view = eval << "...";
+#$class->new({
+#    name => \$self->name,
+#    env  => \$self->env,
+#    conf => \$self->conf,
+#    q    => \$self->q,
+#    qq   => \$self->qq,
+#    var  => \$self->var,
+#    action_name => \$self->action_name,
+#});
+#...
     }
     catch {
         carp shift;
-        $ret = undef;
+        $view = undef;
     };
 
-    return $ret;
+    return $view;
 }
 
 
