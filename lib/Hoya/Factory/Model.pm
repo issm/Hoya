@@ -8,11 +8,6 @@ use Carp;
 use Try::Tiny;
 use Hoya::Util;
 
-my $_name;
-my $_env;
-my $_conf;
-my $_dsh;
-
 
 sub new {
     my $class = shift;
@@ -26,10 +21,6 @@ sub new {
 
 sub _init {
     my ($self) = self_param @_;
-    $_name = $self->name;
-    $_env  = $self->env;
-    $_conf = $self->conf;
-    $_dsh  = $self->dsh;
 
     my $model;
 
@@ -40,17 +31,10 @@ sub _init {
         eval $code or die $!;
         $model = "$model_class"->new({
             name => $self->name,
-            env  => $_env,
-            conf => $_conf,
-            dsh  => $_dsh,
+            env  => $self->env,
+            conf => $self->conf,
+            dsh  => $self->dsh,
         });
-#        $model = eval << "..."  or die $!;
-#Hoya::Model::${_name}->new({
-#    env  => \$_env,
-#    conf => \$_conf,
-#    dsh  => \$_dsh,
-#});
-#...
     }
     catch {
         croak shift;
@@ -65,8 +49,8 @@ sub _load {
     my $self = shift;
     my $pl = sprintf(
         '%s/%s.pl',
-        $_conf->{PATH}{MODEL},
-        name2path($_name),
+        $self->conf->{PATH}{MODEL},
+        name2path($self->name),
     );
 
     my $buff;
@@ -81,7 +65,7 @@ sub _load {
         my $msg = shift;
         my $text = sprintf(
             '[error] Model file not found: %s (%s)',
-            $_name,
+            $self->name,
             $pl,
         );
         croak $text;
@@ -96,7 +80,7 @@ sub _generate_as_string {
     my ($self, $pl) = @_;
     $pl ||= '';
 
-    my $model_class = "Hoya::Model::${_name}";
+    my $model_class = 'Hoya::Model::' . $self->name;
 
     return sprintf(
         << '...',
