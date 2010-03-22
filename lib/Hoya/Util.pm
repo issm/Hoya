@@ -105,10 +105,39 @@ my @unique_key_charmap =
     qw/ 0 1 2 3 4 5 6 7 8 9 _ -
         a b c d e f g h i j k l m n o p q r s t u v w x y z
         A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-      /;
+      /; # 64-chars
 
 sub unique_key { random_key(@_); }
+# この方法だと 1UUID128bitから48bitしか取り出せない
+# とりあえず，100万件程度なら問題ないかと．．．
+# 今後再考の必要あり
 sub random_key {
+    my $n = shift || 1;
+    my $s = shift;
+    my $ret = '';
+
+    my $uuid_n_bitstr = join '', map {
+        my $uuid = defined $s
+            ? create_uuid(UUID_V5, $s) : create_uuid(UUID_V4);
+        my $bitstr_uuid = unpack('B*', $uuid);
+        # 先頭の6ビットは固定っぽいので取り除く
+        # ref: http://d.hatena.ne.jp/dayflower/20090306/1236314881
+        $bitstr_uuid = substr($bitstr_uuid, 6);
+        $bitstr_uuid;
+    } 1 .. $n;
+
+    # UUID*$n のbit文字列から，6bitずつ順に取り出して
+    # @unique_key_charmap の1文字にマップする
+    for my $i (0 .. $n*8-1) {
+        my $b_sub = substr($uuid_n_bitstr, $i*6, 6);
+        my $b_sub_int = eval "0b${b_sub}";
+        $ret .= $unique_key_charmap[$b_sub_int];
+    }
+
+    return $ret;
+}
+
+sub __random_key {
     my $n = shift || 1;
     my $s = shift;
 
