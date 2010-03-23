@@ -67,12 +67,21 @@ sub _init {
 
         $conf = $self->conf;
     }
+    # サイト特化
+    # <site>/conf.yml が存在する場合，
+    # これを読み込んで，グローバル設定に上書きする
+    {
+        for my $f (qw/conf/) {
+            my $file = "$PATH->{SITE}/$f.yml";
+            $self->_add_from_yaml($file);
+        }
+    }
     # スキン特化
     # <site>/<skin>/conf.yml が存在する場合，
     # これを読み込んで，グローバル設定に上書きする
     {
         for my $f (qw/conf/) {
-            my $file = "$PATH->{SITE}/$f.yml";
+            my $file = "$PATH->{SKIN}/$f.yml";
             $self->_add_from_yaml($file);
         }
     }
@@ -89,7 +98,8 @@ sub _init {
         $LOCATION->{HOST}     = $req->env->{HTTP_HOST};
 
         # URL_BASE
-        $URL_BASE = '' . $req->base;  # as string
+        $URL_BASE = $req->base . '/';  # as string
+        $URL_BASE =~ s{/+$}{/};
 
         ($conf->{COOKIE}{DOMAIN} = $LOCATION->{HOST}) =~ s/:\d+//;
     }
