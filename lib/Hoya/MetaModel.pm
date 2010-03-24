@@ -54,6 +54,19 @@ sub _init_dsh {
 }
 
 
+sub finish_dsh {
+    my $self = shift;
+    if (defined $self->_dsh->{DBI}) {
+        try {
+            $self->_dsh->{DBI}->disconnect;
+        }
+        catch {
+            carp shift;
+        };
+    }
+}
+
+
 # get_model($name);
 sub get_model {
     my ($self, @names) = @_;

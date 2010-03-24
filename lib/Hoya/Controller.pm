@@ -210,6 +210,9 @@ sub go {
     push @$psgi, [$conf->{SKIN_NAME}];
     # ^ PSGIフォーマットに「スキン」情報を追加
 
+
+    $mm->finish_dsh;
+
     return $psgi;
 }
 
