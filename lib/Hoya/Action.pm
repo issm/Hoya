@@ -34,7 +34,7 @@ sub new {
     $class->mk_accessors(
         qw/name req env conf q qq up mm page
            vars cookies logger pass_name
-           sub_name
+           sub_name base_name
            status content_type charset
            data
            _super
@@ -493,16 +493,17 @@ sub super {
     }
 
     my $super = Hoya::Factory::Action->new({
-        name     => $name,
-        req      => $self->req,
-        conf     => $self->conf,
-        q        => $self->q,
-        qq       => $self->qq,
-        up       => $self->up,
-        mm       => $self->mm,
-        vars     => $self->vars,
-        cookies  => $self->cookies,
-        sub_name => $self->name,
+        name      => $name,
+        req       => $self->req,
+        conf      => $self->conf,
+        q         => $self->q,
+        qq        => $self->qq,
+        up        => $self->up,
+        mm        => $self->mm,
+        vars      => $self->vars,
+        cookies   => $self->cookies,
+        sub_name  => $self->name,
+        base_name => $self->base_name,
     });
 
     $self->_super($super);
