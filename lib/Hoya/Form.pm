@@ -94,7 +94,7 @@ sub update {
     my $rules = $self->_rules;
 
     if (exists $rules->{$name}) {
-        for my $k (%$rule_up) {
+        for my $k (keys %$rule_up) {
             $rules->{$name}{$k} = $rule_up->{$k};
         }
     }
