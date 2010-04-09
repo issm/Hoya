@@ -66,6 +66,11 @@ sub NON_SPACE {
     #return _re_by_arg(qr/\S/, @_);
 }
 
+sub NON_SPACE_ML {
+    return qr/^\s* \S(.*\S)* \s*$/mx;
+    #return _re_by_arg(qr/\S/, @_);
+}
+
 
 sub NUM {
     return _re_by_arg(
