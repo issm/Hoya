@@ -132,7 +132,6 @@ sub go {
     #
     $res->cookies(en $action->cookies);
 
-
     #
     # ビュー名がURL書式の場合：そのURLへのリダイレクト処理を行う
     #

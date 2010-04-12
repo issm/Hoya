@@ -7,6 +7,7 @@ use base qw/Class::Accessor::Faster/;
 use Carp;
 use Try::Tiny;
 use Hoya::Util;
+use Hoya::Action;
 
 my @METHODS = qw/BEFORE GET POST AFTER/;
 
