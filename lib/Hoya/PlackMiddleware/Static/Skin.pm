@@ -32,14 +32,18 @@ sub _handle_static {
     } or return;
 
     my $static_root = "site/$env->{HOYA_SITE}/$env->{HOYA_SKIN}";
+    $static_root = "$env->{PROJECT_ROOT}/$static_root"
+        if $env->{PROJECT_ROOT};
     # v $env->{HOYA_SITE}における指定のファイルが存在しない場合，
     # v site/defaultにおける同名のファイルをリクエストする
-    $static_root = "site/default/$env->{HOYA_SKIN}"
-        unless -f "${static_root}/$env->{PATH_INFO}";
+    unless (-f "${static_root}/$env->{PATH_INFO}") {
+        $static_root = "site/default/$env->{HOYA_SKIN}";
+        $static_root = "$env->{PROJECT_ROOT}/$static_root"
+            if $env->{PROJECT_ROOT};
+    }
 
     $self->{file} ||= Plack::App::File->new({
-        root     => $env->{PROJECT_ROOT}
-            ? "$env->{PROJECT_ROOT}/$static_root" : $static_root,
+        root     => $static_root,
         encoding => $self->encoding,
     });
     local $env->{PATH_INFO} = $path; # rewrite PATH
