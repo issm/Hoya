@@ -29,7 +29,7 @@ sub new {
 
            status content_type
 
-           _path
+           _path _path_alt
           /
     );
 
@@ -45,6 +45,14 @@ sub _init {
         sprintf(
             '%s/%s/mt',
             $self->conf->{PATH}{SITE},
+            $self->env->{HOYA_SKIN},
+        )
+    );
+
+    $self->_path_alt(
+        sprintf(
+            '%s/site/default/%s/mt',
+            $self->conf->{PATH}{ROOT},
             $self->env->{HOYA_SKIN},
         )
     );
@@ -70,30 +78,6 @@ sub go {
         $self->_path,
         name2path($self->name),
     );
-    # v 存在しない場合，site/default下における同名のテンプレートを使用する
-    unless (-f $viewfile) {
-        my $msg = sprintf(
-            '[warning] View "%s" not found at site "%s", try to use at site "default".',
-            $self->name,
-            $self->env->{HOYA_SITE},
-        );
-        #carp $msg;
-
-        $self->_path(
-            sprintf(
-                '%s/site/default/%s/mt',
-                $self->conf->{PATH}{ROOT},
-                $self->env->{HOYA_SKIN},
-            )
-        );
-
-        $viewfile = sprintf(
-            '%s/site/default/%s/mt/%s.mt',
-            $self->conf->{PATH}{ROOT},
-            $self->env->{HOYA_SKIN},
-            name2path($self->name),
-        );
-    }
 
     my $content = '';
 
@@ -107,9 +91,16 @@ sub go {
     $var->{__import__} = undef;
     delete $var->{__import__};
 
+    warn D [
+        $self->_path,
+        $self->_path_alt,
+    ];
     my $mt =
         Text::MicroTemplate::Extended->new(
-            include_path  => $self->_path,
+            include_path  => [
+                $self->_path,
+                $self->_path_alt,
+            ],
             template_args => {
                 env  => $env,
                 conf => $conf,
@@ -127,7 +118,8 @@ sub go {
             use_cache => 1,
         );
     #
-    if (-f $viewfile) {
+    #if (-f $viewfile) {
+    if (1) {
         try {
             $content = $mt->render(
                 name2path($self->name)
