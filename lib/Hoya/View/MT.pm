@@ -91,10 +91,6 @@ sub go {
     $var->{__import__} = undef;
     delete $var->{__import__};
 
-    warn D [
-        $self->_path,
-        $self->_path_alt,
-    ];
     my $mt =
         Text::MicroTemplate::Extended->new(
             include_path  => [
