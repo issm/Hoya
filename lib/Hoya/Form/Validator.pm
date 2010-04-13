@@ -246,13 +246,13 @@ sub check {
                     $re = eval "Hoya::Re::$_m";
                 }
                 else {
-                    $re = qr/$re/;
+                    $re = qr/$re/x;
                 }
             }
             catch {
                 my $msg = shift;
                 croak << "...";
-[Hoya::Form::Validator] Invalid regexp: $f -> re: $msg'
+[Hoya::Form::Validator] Invalid regexp: $f -> re: $msg
 ...
             };
 
