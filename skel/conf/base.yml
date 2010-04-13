@@ -46,7 +46,7 @@ CACHE:
   EXPIRES:   600
 
 MAIL:
-  SERVER_SMTP: localhost:587
+  HOST_SMTP: localhost:587
   ADDRESS:
     FROM: noreply@example.com
     CC:
