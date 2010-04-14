@@ -83,7 +83,9 @@ builder {
 
     enable '+Hoya::PlackMiddleware::Static::Upload';
     enable '+Hoya::PlackMiddleware::Static::Skin';
-    #enable '+Hoya::PlackMiddleware::Static';
+    enable '+Hoya::PlackMiddleware::Static::Skin',
+        site => 'default',
+    ;
 
     #
     # URLMap
