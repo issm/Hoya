@@ -13,6 +13,7 @@ my ($CSS_COMMON, $JS_COMMON);
 my ($CSS_IMPORT, $JS_IMPORT);
 my ($CSS_IMPORT_IE, $JS_IMPORT_IE);
 my ($DIR_CSS, $DIR_JS, $DIR_IMG);
+my ($DIR_ALT_CSS, $DIR_ALT_JS, $DIR_ALT_IMG);
 
 my @IE = map "ie$_", reverse 6..9, '';
 
@@ -55,6 +56,10 @@ sub _init {
     $DIR_JS  = sprintf '%s/%s/js',  $_conf->{PATH}{SITE}, $_env->{HOYA_SKIN};
     $DIR_IMG = sprintf '%s/%s/img', $_conf->{PATH}{SITE}, $_env->{HOYA_SKIN};
 
+    $DIR_ALT_CSS = sprintf '%s/site/default/%s/css', $_conf->{PATH}{ROOT}, $_env->{HOYA_SKIN};
+    $DIR_ALT_JS  = sprintf '%s/site/default/%s/js',  $_conf->{PATH}{ROOT}, $_env->{HOYA_SKIN};
+    $DIR_ALT_IMG = sprintf '%s/site/default/%s/img', $_conf->{PATH}{ROOT}, $_env->{HOYA_SKIN};
+
     $self;
 }
 
@@ -64,16 +69,18 @@ sub import_css {
 
     # common
     for my $n_c (@$CSS_COMMON) {
-        my $path = sprintf '%s/%s.css', $DIR_CSS, $n_c;
+        my $path     = sprintf '%s/%s.css', $DIR_CSS, $n_c;
+        my $path_alt = sprintf '%s/%s.css', $DIR_ALT_CSS, $n_c;
         my $url  = sprintf 'css/%s.css', $n_c;
-        if (-f $path) {
+        if (-f $path || -f $path_alt) {
             push @$CSS_IMPORT, $url;
         }
 
         for my $ie (@IE) {
             my $path_ie = sprintf '%s/%s-%s.css', $DIR_CSS, $n_c, $ie;
+            my $path_ie_alt = sprintf '%s/%s-%s.css', $DIR_ALT_CSS, $n_c, $ie;
             my $url_ie  = sprintf 'css/%s-%s.css', $n_c, $ie;
-            if (-f $path_ie) {
+            if (-f $path_ie || -f $path_ie_alt) {
                 push @{$CSS_IMPORT_IE->{$ie}}, $url_ie;
             }
         }
@@ -96,14 +103,18 @@ sub import_css {
 
     for my $n_p (reverse(@common_page), $name2path) {
         my $path = sprintf '%s/%s.css', $DIR_CSS, $n_p;
+        my $path_alt = sprintf '%s/%s.css', $DIR_ALT_CSS, $n_p;
         my $url  = sprintf 'css/%s.css', $n_p;
 
-        push @$CSS_IMPORT, $url  if -f $path;
+        push @$CSS_IMPORT, $url
+            if -f $path || -f $path_alt;
 
         for my $ie (@IE) {
             my $path_ie = sprintf '%s/%s-%s.css', $DIR_CSS, $n_p, $ie;
+            my $path_ie_alt = sprintf '%s/%s-%s.css', $DIR_ALT_CSS, $n_p, $ie;
             my $url_ie  = sprintf 'css/%s-%s.css', $n_p, $ie;
-            push @{$CSS_IMPORT_IE->{$ie}}, $url_ie  if -f $path_ie;
+            push @{$CSS_IMPORT_IE->{$ie}}, $url_ie
+                if -f $path_ie || -f $path_ie_alt;
         }
     }
 
@@ -117,13 +128,17 @@ sub import_js {
     # common
     for my $n_c (@$JS_COMMON) {
         my $path = sprintf '%s/%s.js', $DIR_JS, $n_c;
+        my $path_alt = sprintf '%s/%s.js', $DIR_ALT_JS, $n_c;
         my $url = sprintf 'js/%s.js', $n_c;
-        push @$JS_IMPORT, $url  if -f $path;
+        push @$JS_IMPORT, $url
+            if -f $path || -f $path_alt;
 
         for my $ie (@IE) {
             my $path_ie = sprintf '%s/%s-%s.js', $DIR_JS, $n_c, $ie;
+            my $path_ie_alt = sprintf '%s/%s-%s.js', $DIR_ALT_JS, $n_c, $ie;
             my $url_ie  = sprintf 'js/%s-%s.js', $n_c, $ie;
-            push @{$JS_IMPORT_IE->{$ie}}, $url_ie  if -f $path_ie;
+            push @{$JS_IMPORT_IE->{$ie}}, $url_ie
+                if -f $path_ie || -f $path_ie_alt;
         }
     }
 
@@ -144,13 +159,17 @@ sub import_js {
 
     for my $n_p (reverse(@common_page), $name2path) {
         my $path = sprintf '%s/%s.js', $DIR_JS, $n_p;
+        my $path_alt = sprintf '%s/%s.js', $DIR_ALT_JS, $n_p;
         my $url  = sprintf 'js/%s.js', $n_p;
-        push @$JS_IMPORT, $url  if -f $path;
+        push @$JS_IMPORT, $url
+            if -f $path || -f $path_alt;
 
         for my $ie (@IE) {
             my $path_ie = sprintf '%s/%s-%s.js', $DIR_JS, $n_p, $ie;
+            my $path_ie_alt = sprintf '%s/%s-%s.js', $DIR_ALT_JS, $n_p, $ie;
             my $url_ie  = sprintf 'js/%s-%s.js', $n_p, $ie;
-            push @{$JS_IMPORT_IE->{$ie}}, $url_ie  if -f $path_ie;
+            push @{$JS_IMPORT_IE->{$ie}}, $url_ie
+                if -f $path_ie || -f $path_ie_alt;
         }
     }
 
