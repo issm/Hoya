@@ -5,7 +5,7 @@ use warnings;
 use parent qw/Plack::Middleware/;
 use Plack::App::File;
 
-use Plack::Util::Accessor qw/path encoding/;
+use Plack::Util::Accessor qw/path encoding site/;
 
 use Hoya::Util;
 use Hoya::Re;
@@ -23,6 +23,7 @@ sub call {
 sub _handle_static {
     my($self, $env) = @_;
 
+    my $site = $self->site || $env->{HOYA_SITE};
     my $path_re = $self->path || Hoya::Re::PATH_STATIC_SKIN;
     my $path = do {
         local $_ = $env->{PATH_INFO};
@@ -31,15 +32,17 @@ sub _handle_static {
         $_;
     } or return;
 
-    my $static_root = "site/$env->{HOYA_SITE}/$env->{HOYA_SKIN}";
+    my $static_root = "site/${site}/$env->{HOYA_SKIN}";
     $static_root = "$env->{PROJECT_ROOT}/$static_root"
         if $env->{PROJECT_ROOT};
     # v $env->{HOYA_SITE}における指定のファイルが存在しない場合，
     # v site/defaultにおける同名のファイルをリクエストする
-    unless (-f "${static_root}/$env->{PATH_INFO}") {
-        $static_root = "site/default/$env->{HOYA_SKIN}";
-        $static_root = "$env->{PROJECT_ROOT}/$static_root"
-            if $env->{PROJECT_ROOT};
+    #     → うまくいかん
+    unless (my @st = stat "${static_root}/$env->{PATH_INFO}") {
+        return  if $site ne 'default';
+        #$static_root = "site/default/$env->{HOYA_SKIN}";
+        #$static_root = "$env->{PROJECT_ROOT}/$static_root"
+        #    if $env->{PROJECT_ROOT};
     }
 
     $self->{file} ||= Plack::App::File->new({
