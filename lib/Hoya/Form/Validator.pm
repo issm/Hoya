@@ -147,17 +147,31 @@ sub check {
     #
     $q->each(sub
     {
-        my ($f, $v) = @_;
+        my ($f, $v) = @_;  # field, value
         my $rule = $rules->get($f);
 
         my @values = grep defined $_, $q->get_all($f);
         my $n_values = scalar @values;
 
+        #
         # ルールが存在しない場合
+        #
         unless (defined $rule) {
             $q_fixed->add($f, $v);
             return;
         }
+
+        #
+        # default
+        #
+        if (
+            (!defined $v  ||  $v eq '')  &&
+            exists $rule->{default}
+        ) {
+            $q_fixed->add($f, $rule->{default});
+            return;
+        }
+
 
         #
         my $v_fixed = $self->_fix_value($v, $rule);
