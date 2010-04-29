@@ -206,12 +206,10 @@ sub go {
     # PSGI formatting
     #
     my $psgi = $res->finalize;
-    push @$psgi, [$conf->{SKIN_NAME}];
+    #push @$psgi, [$conf->{SKIN_NAME}];
     # ^ PSGIフォーマットに「スキン」情報を追加
-
-
+    # ^ Plack-0.9933でエラー．不要であれば，今後削除
     $mm->finish_dsh;
-
     return $psgi;
 }
 
