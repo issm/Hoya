@@ -41,7 +41,16 @@ sub _result {
 # $value_fixed = _fix_value($value, $rule);
 sub _fix_value {
     my ($self, $value, $rule) = @_;
-    return undef  unless defined $value;
+
+    unless (defined $value) {
+        # type: check, checkbox, or radio
+        if ($rule->{type} =~ /^(?:check(?:box)?|radio)$/) {
+            $value = 0;
+        }
+        else {
+            return undef;
+        }
+    }
 
     $rule ||= {};
     my $value_fixed = $value;
