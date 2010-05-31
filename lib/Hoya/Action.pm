@@ -539,10 +539,10 @@ sub as_json {
 
 sub get_pagination {
     my $self = shift;
-    my ($total, $page) = @_;
+    my ($total, $num, $page) = @_;
     my $dp = Data::Page->new(
         $total,
-        $self->conf->{PHOTO}{NUM_PER_PAGE},
+        $num,
         $page || 1,
     );
 
