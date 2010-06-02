@@ -9,11 +9,11 @@ my $_1_NUM        = qr/[0-9]/;
 my $_1_ALPHABET   = qr/[0-9a-z]/i;
 my $_1_ALPHANUM   = qr/[0-9a-z]/i;
 my $_1_UNIQUE_KEY = qr/[0-9a-z-_]/i;
-# ret: http://pentan.info/doc/unicode_database_block.html
+# ref: http://pentan.info/doc/unicode_database_block.html
 my $_1_HIRAGANA   = qr/[\x{3040}-\x{309F}]/;
 my $_1_KATAKANA   = qr/[\x{30A0}-\x{30FF}]/;
 my $_1_KANJI      = qr/[\x{4E00}-\x{9FFF}]/;
-
+my $_1_HANKANA    = qr/[\x{FF60}-\x{FF9F}]/;
 
 
 # _re_by_arg($re, $n);
@@ -129,6 +129,21 @@ sub KATAKANA {
     );
 }
 
+
+sub KANJI {
+    return _re_by_arg(
+        qr/${_1_KANJI}/,
+        @_,
+    );
+}
+
+
+sub HANKANA {
+    return _re_by_arg(
+        qr/${_1_HANKANA}/,
+        @_,
+    );
+}
 
 
 
