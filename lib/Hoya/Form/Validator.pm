@@ -119,7 +119,9 @@ sub check {
             #
             # type: check, checkbox, or radio
             #
-            if ($rule->{type} =~ /^(?:check(?:box)?|radio)$/) {
+            if (
+                ($rule->{type} || '') =~ /^(?:check(?:box)?|radio)$/
+            ) {
                 #$q_fixed->add($field, undef);
                 $q->add($field, undef);
                 return;
