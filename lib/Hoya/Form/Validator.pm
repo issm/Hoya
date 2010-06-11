@@ -68,6 +68,16 @@ sub _fix_value {
         $value_fixed =~ tr/０-９ａ-ｚＡ-Ｚ　/0-9a-zA-Z /;
     }
 
+    # uc (upper case)
+    if ($rule->{uc}) {
+        $value_fixed =~ tr/a-zａ-ｚ/A-ZＡ-Ｚ/;
+    }
+    # lc (lower case)
+    if ($rule->{lc}) {
+        $value_fixed =~ tr/A-ZＡ-Ｚ/a-zａ-ｚ/;
+    }
+
+
     return $value_fixed;
 }
 
