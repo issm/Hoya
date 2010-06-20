@@ -28,6 +28,7 @@ our @EXPORT = qw/
                     is_def_or
                     merge_hash
                     notify
+                    ngram
                 /;
 
 Hash::Merge::set_behavior('RIGHT_PRECEDENT');
@@ -279,6 +280,20 @@ sub notify {
     };
 }
 
+
+sub ngram {
+    my ($text, $size) = @_;
+    $size = 2  unless defined $size;
+
+    my @token;
+    for (my $i = 0; $i < length $text; $i++) {
+        my $t = substr($text, $i, $size);
+        #last  if length $t < $size;
+        push @token, $t;
+    }
+
+    return join ' ', @token;
+}
 
 
 1;
