@@ -283,6 +283,7 @@ sub notify {
 
 sub ngram {
     my ($text, $size) = @_;
+    return ''  unless defined $text;
     $size = 2  unless defined $size;
 
     my @token;
