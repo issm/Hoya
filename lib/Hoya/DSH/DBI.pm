@@ -173,12 +173,12 @@ sub _q_mysql {
     my $sth = $self->prepare($sql);
 
     #
-    # INSERT, REPLACE, UPDATE, DELETE, CREATE TABLE, DROP TABLE
+    # INSERT, REPLACE, UPDATE, DELETE, CREATE TABLE, DROP TABLE, ALTER TABLE
     #
     if ($sql =~ qr/^\s*
                    (?:
                        INSERT|REPLACE|UPDATE|DELETE|
-                       CREATE\s+TABLE|DROP\s+TABLE
+                       CREATE\s+TABLE|DROP\s+TABLE|ALTER\s+TABLE
                    )\s
                   /ix) {
         my $rows_affected = 0;
@@ -205,12 +205,12 @@ sub _q_mysql {
         return $rows_affected;
     }
     #
-    # SELECT, SHOW, DESCRIBE
+    # SELECT, SHOW, DESCRIBE, EXPLAIN
     # 今のところscalarを要素に持つarrayrefのみbindを許可
     #
     elsif ($sql =~ qr/^\s*
                       (?:
-                          SELECT|SHOW|DESCRIBE
+                          SELECT|SHOW|DESCRIBE|EXPLAIN
                       )\s
                      /ix) {
         # キャッシュ
