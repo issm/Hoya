@@ -282,14 +282,15 @@ sub notify {
 
 
 sub ngram {
-    my ($text, $size) = @_;
+    my ($text, $size, $b) = @_;
     return ''  unless defined $text;
     $size = 2  unless defined $size;
+    return $text  if length $text < $size;
 
     my @token;
     for (my $i = 0; $i < length $text; $i++) {
         my $t = substr($text, $i, $size);
-        #last  if length $t < $size;
+        last  if ($b  &&  length $t < $size);
         push @token, $t;
     }
 
