@@ -23,7 +23,7 @@ sub run {
     my ($self, $req, $app_name) = @_;
 
     my $script_name = (caller 0)[1];
-    $req->env->{SCRIPT_PATH_FULL} = $script_name;
+    $req->env->{HOYA_SCRIPT_PATH} = $script_name;
 
     my $c = Hoya::Controller->new({
         req      => $req,

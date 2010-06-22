@@ -30,10 +30,10 @@ sub _init {
     my $conf = {};
 
     # PATH
-    # 環境変数"SCRIPT_PATH_FULL"にpsgiスクリプトのパスが入っている必要がある
+    # 環境変数"HOYA_SCRIPT_PATH"にpsgiスクリプトのパスが入っている必要がある
     my $PATH = {};
     my $script_dir = dirname(
-        File::Spec->rel2abs($env->{SCRIPT_PATH_FULL})
+        File::Spec->rel2abs($env->{HOYA_SCRIPT_PATH})
     );
     (my $ROOT = $script_dir) =~ s{/www$}{};
     $ROOT = $env->{PROJECT_ROOT}  if exists $env->{PROJECT_ROOT};
