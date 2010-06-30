@@ -47,7 +47,7 @@ sub connect {
     my $db_conf =
         $self->name ? $conf->{DSH}{$self->name} : $conf->{DB}; # 前者は新設定，後者は旧設定
 
-    my $db_type = lc ($db_conf->{DB}{TYPE} || 'mysql');
+    my $db_type = lc ($db_conf->{TYPE} || 'mysql');
 
     if($self->_dbh  &&  $self->_sth) {
         #carp sprintf '[%s] Already connected to %s', __PACKAGE__, $db_type;
@@ -127,8 +127,10 @@ sub query {
     my $self = shift;
     my ($sql, $bind, $ref_type, $key) = @_;
     my $conf = $self->conf;
+    my $db_conf =
+        $self->name ? $conf->{DSH}{$self->name} : $conf->{DB}; # 前者は新設定，後者は旧設定
+    my $db_type = $db_conf->{TYPE};
     my $cache = 0;
-    my $db_type = $conf->{DB}{TYPE};
 
     if (!defined $ref_type || $ref_type eq '') { $ref_type = 'array'; }
     elsif (ref $ref_type eq 'ARRAY')           { $ref_type = 'array'; }
@@ -284,6 +286,8 @@ sub load_sql {
     my $limit = $param->{limit};
 
     my $conf = $self->conf;
+    my $db_conf =
+        $self->name ? $conf->{DSH}{$self->name} : $conf->{DB}; # 前者は新設定，後者は旧設定
 
     unless (exists $self->_sql_cache->{$name}) {
         my $data = {};
@@ -309,7 +313,7 @@ sub load_sql {
         $sql = 'SELECT 1';
     }
 
-    my $table_prefix = $self->conf->{DB}{TABLE_PREFIX}  ||  '';
+    my $table_prefix = $db_conf->{TABLE_PREFIX}  ||  '';
     $sql =~ s/%(?:PRE)?%/$table_prefix/g;
     # ^ %PRE% または %% を $_pre の値に置き換える
 
