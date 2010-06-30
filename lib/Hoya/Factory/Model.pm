@@ -118,7 +118,7 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/name env conf dsh/;
+    $class->mk_accessors qw/name env conf dsh h/;
 
     return $self->_init;
 }
@@ -133,6 +133,7 @@ sub _init {
     $_dsh_type = $self->dsh_type || 'YAML';
     $_dsh  = $_DSH->{$_dsh_type} || undef;
     $self->dsh($_dsh);
+    $self->h($self->dsh);  # h: dshのエイリアス
 
     $self;
 }
@@ -150,6 +151,18 @@ sub dsh_type ($) {
     }
 }
 
+# dsh_typeメソッドと同義
+sub dsh_name ($) {
+    my $val_or_self = shift;
+    # 引数が値の場合
+    if (ref $val_or_self eq '') {
+        $_dsh_type = $val_or_self;
+    }
+    # そうでない場合
+    else {
+        return $_dsh_type;
+    }
+}
 
 # プラグインコード
 %s

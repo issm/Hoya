@@ -20,7 +20,7 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/env conf cache
+    $class->mk_accessors qw/name env conf cache
                             _sql_cache
                             _sth _dbh
                            /;
@@ -44,8 +44,10 @@ sub _init {
 sub connect {
     my $self = shift;
     my $conf = $self->conf;
+    my $db_conf =
+        $self->name ? $conf->{DSH}{$self->name} : $conf->{DB}; # 前者は新設定，後者は旧設定
 
-    my $db_type = lc ($conf->{DB}{TYPE} || 'mysql');
+    my $db_type = lc ($db_conf->{DB}{TYPE} || 'mysql');
 
     if($self->_dbh  &&  $self->_sth) {
         #carp sprintf '[%s] Already connected to %s', __PACKAGE__, $db_type;
@@ -56,16 +58,18 @@ sub connect {
     if($db_type eq 'mysql') {
         my $data_source = sprintf(
             'dbi:mysql:%s:%s:%s',
-            $conf->{DB}{NAME},
-            $conf->{DB}{HOST},
-            ($conf->{DB}{PORT} || 3306),
+            $db_conf->{NAME},
+            $db_conf->{HOST},
+            ($db_conf->{PORT} || 3306),
         );
         $self->_dbh(
             DBI->connect(
                 $data_source,
-                $conf->{DB}{USER},
-                $conf->{DB}{PASSWD},
-                { AutoCommit => 1 },
+                $db_conf->{USER},
+                $db_conf->{PASSWD},
+                {
+                    AutoCommit => 1
+                },
             ) or (
                 carp(
                     sprintf(

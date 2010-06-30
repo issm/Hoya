@@ -13,21 +13,18 @@ YEAR_RELEASE: 2010
 
 WEBSITE_NAME: welcome to my project
 
-PAGE:
-  CSS_COMMON: [_base, _layout, _additional]
-  JS_COMMON:  [_base, _additional]
-
 DSH:
-  DBI:  0
-  YAML: 1
-
-DB:
-  TYPE:   mysql
-  NAME:   dbname
-  HOST:   localhost
-  USER:   user
-  PASSWD: password
-  TABLE_PREFIX: pre_
+  dbi:
+    CLASS:  DBI
+    TYPE:   mysql
+    HOST:   localhost
+    PORT:   3306
+    NAME:   dbname
+    USER:   user
+    PASSWD: password
+    TABLE_PREFIX: pre_
+  yaml:
+    CLASS:  #YAML
 
 COOKIE:
   EXPIRES: +14d
@@ -50,3 +47,7 @@ MAIL:
     your email signature.
 
 CONTENT_TYPE_DEFAULT: 'text/html; charset=utf-8'
+
+PAGE:
+  CSS_COMMON: [_base, _layout, _additional]
+  JS_COMMON:  [_base, _additional]

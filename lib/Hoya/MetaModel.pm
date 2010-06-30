@@ -37,12 +37,29 @@ sub _init {
 sub _init_dsh {
     my $self = shift;
     $self->_dsh({});
+    my $DSH_CONF = $self->conf->{DSH} || {};
 
-    my @dsh = grep {
-        $self->conf->{DSH}{$_};  # 値が1のもののみ抜き出す
+    # 新設定
+    my @dsh_names = grep {
+        # クラスに「真の」値が設定されているものを抜き出す
+        ref $DSH_CONF->{$_} eq 'HASH'  &&  $DSH_CONF->{$_}{CLASS};
+    } keys %$DSH_CONF;
+    for my $name (@dsh_names) {
+        unless (exists $self->_dsh->{$name}) {
+            $self->_dsh->{$name} = Hoya::DSH->new({
+                name => $name,
+                type => $DSH_CONF->{$name}{CLASS},
+                env  => $self->env,
+                conf => $self->conf,
+            });
+        }
+    }
+
+    # 旧設定: deprecated
+    my @_dsh = grep {
+        $self->conf->{DSH}{$_} == 1;  # 値が1のもののみ抜き出す
     } keys %{$self->conf->{DSH} || {}};
-
-    for my $dsh (@dsh) {
+    for my $dsh (@_dsh) {
         unless (exists $self->_dsh->{$dsh}) {
             $self->_dsh->{$dsh} = Hoya::DSH->new({
                 type => $dsh,
@@ -84,11 +101,11 @@ sub get_model {
     return wantarray ? @models : $models[0];
 }
 
-# get_dsh($type);
+# get_dsh($name);
 sub get_dsh {
-    my ($self, $type) = @_;
-    return undef  unless defined $type;
-    return $self->_dsh->{$type};
+    my ($self, $name) = @_;
+    return undef  unless defined $name;
+    return $self->_dsh->{$name};
 }
 
 
@@ -136,7 +153,7 @@ initialize.
 
 returns Hoya::Model::* object.
 
-=item get_dsh($type)
+=item get_dsh($name)
 
 returns Hoya::DSH::$type object.
 

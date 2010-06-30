@@ -14,6 +14,7 @@ use Hoya::Util;
 use Hoya::DSH::DBI; 
 #use Hoya::DSH::YAML;
 
+my $_name;
 my $_env;
 my $_conf;
 my $_type;
@@ -25,7 +26,7 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/env conf type/;
+    $class->mk_accessors qw/name env conf type/;
 
     return $self->_init;
 }
@@ -33,7 +34,8 @@ sub new {
 
 sub _init {
     my $self = shift;
-    $_env = $self->env;
+    $_name = $self->name;
+    $_env  = $self->env;
     $_conf = $self->conf;
     $_type = $self->type;
 
@@ -54,6 +56,7 @@ sub _init {
 use ${dsh_class};
 
 ${dsh_class}->new({
+    name  => \$_name,
     env   => \$_env,
     conf  => \$_conf,
     cache => \$_cache,
