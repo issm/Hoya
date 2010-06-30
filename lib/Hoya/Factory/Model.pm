@@ -28,7 +28,7 @@ sub _init {
         my $model_class = 'Hoya::Model::' . $self->name;
         my $pl   = $self->_load;
         my $code = $self->_generate_as_string($pl);
-        eval $code or die $!;
+        eval $code or die $@;
         $model = "$model_class"->new({
             name => $self->name,
             env  => $self->env,
@@ -37,7 +37,15 @@ sub _init {
         });
     }
     catch {
-        croak shift;
+        my $msg = shift;
+        my $name = $self->name;
+
+        my $text = << "...";
+**** Error in "model file": pl/model/${name}.pl ****
+
+$msg
+...
+        croak $text;
     };
 
     return $model;
@@ -56,18 +64,20 @@ sub _load {
     my $buff;
     try {
         local $/;
-        open my $fh, '<', $pl or croak $!;
+        open my $fh, '<', $pl or die $!;
         $buff = de <$fh>;
         close $fh;
         $buff =~ s/__(?:END|DATA)__.*$//s; # __END__ 以降を削除する
     }
     catch {
-        my $msg = shift;
-        my $text = sprintf(
-            '[error] Model file not found: %s (%s)',
-            $self->name,
-            $pl,
-        );
+        my $msg  = shift;
+        my $name = $self->name;
+        my $path = name2path $name;
+        my $text = << "...";
+**** Model "$name" not found, check existence: pl/model/${path}.pl ****
+
+$msg
+...
         croak $text;
         $buff = '';
     };

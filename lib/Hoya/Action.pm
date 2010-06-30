@@ -175,9 +175,11 @@ for my $METH (@METHODS) {
         }
         catch {
             my $msg = shift;
-            my $name = $self->name;
+            my $name = name2path $self->name;
             my $text = << "...";
-[error\@action::$name/${METH}] $msg
+**** Error in "${METH}" method in "action file": pl/action/${name}.pl ****
+
+$msg
 ...
             croak $text;
         };
@@ -344,11 +346,11 @@ sub import_var {
     if (
       (grep $name eq $_, @Hoya::NAMES_IMPORT_FORBIDDEN)
     ) {
-        my $msg = sprintf(
-            'The variable "%s" is forbidden to import!',
-            $name,
-        );
-        croak $msg;
+        my $text = << "...";
+**** Error: The variable "${name}" is forbidden to import! ****
+
+...
+        croak $text;
     }
 
     #
@@ -487,7 +489,8 @@ sub super {
     if ($name eq $self->name) {
         my $name = $self->name;
         my $text = << "...";
-[error\@action::$name] Cannot call itself as "super action".
+**** Error: cannot call itself as "super action"! ****
+
 ...
         croak $text;
     }

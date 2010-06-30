@@ -53,9 +53,11 @@ sub _init {
     }
     catch {
         my $msg = shift;
-        my $name = $self->name;
+        my $name = name2path $self->name;
         my $text = << "...";
-[error\@Hoya::Factory::Action] $msg
+**** Error in "action file": pl/action/${name}.pl ****
+
+$msg
 ...
         croak $text;
     };
@@ -77,16 +79,20 @@ sub _load {
     my $buff;
     try {
         local $/;
-        open my $fh, '<', $pl or croak $!;
+        open my $fh, '<', $pl or die $!;
         $buff = de <$fh>;
         close $fh;
         $buff =~ s/__(?:END|DATA)__.*$//s; # __END__ 以降を削除する
     }
     catch {
-        my $text = sprintf(
-            '[error] Action "%s" not found.',
-            $self->name,
-        );
+        my $msg  = shift;
+        my $name = $self->name;
+        my $path = name2path $name;
+        my $text = << "...";
+**** Action "$name" not found, check existence: pl/action/${path}.pl ****
+
+$msg
+...
         croak $text;
         $buff = '';
     };
