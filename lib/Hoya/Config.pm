@@ -36,6 +36,7 @@ sub _init {
         File::Spec->rel2abs($env->{HOYA_SCRIPT_PATH})
     );
     (my $ROOT = $script_dir) =~ s{/www$}{};
+    $ROOT = $env->{HOYA_PROJECT_ROOT}  if exists $env->{HOYA_PROJECT_ROOT};
     $ROOT = $env->{PROJECT_ROOT}  if exists $env->{PROJECT_ROOT};
 
     $PATH->{ROOT}      = $ROOT;

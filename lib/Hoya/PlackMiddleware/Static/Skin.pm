@@ -32,9 +32,9 @@ sub _handle_static {
         $_;
     } or return;
 
-    my $static_root = "site/${site}/$env->{HOYA_SKIN}";
-    $static_root = "$env->{PROJECT_ROOT}/$static_root"
-        if $env->{PROJECT_ROOT};
+    my $project_root = $env->{HOYA_PROJECT_ROOT} || $env->{PROJECT_ROOT};
+    my $static_root  = "site/${site}/$env->{HOYA_SKIN}";
+    $static_root = "${project_root}/$static_root"  if $project_root;
     # v $env->{HOYA_SITE}における指定のファイルが存在しない場合，
     # v site/defaultにおける同名のファイルをリクエストする
     #     → うまくいかん

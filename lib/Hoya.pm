@@ -24,6 +24,9 @@ sub run {
 
     my $script_name = (caller 0)[1];
     $req->env->{HOYA_SCRIPT_PATH} = $script_name;
+    $req->env->{HOYA_PROJECT_ROOT} =
+        $ENV{HOYA_PROJECT_ROOT} || $ENV{PROJECT_ROOT};
+    $req->env->{HOYA_SITE} = $ENV{HOYA_SITE};
 
     my $c = Hoya::Controller->new({
         req      => $req,
