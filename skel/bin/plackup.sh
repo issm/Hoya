@@ -39,6 +39,7 @@ if [ ! $SERVER_PORT ]; then
     SERVER_PORT=5000
 fi
 echo "SERVER_PORT: [32m$SERVER_PORT[m"
+echo "SERVER_USER: [32m$SERVER_USER[m"
 
 
 exec 2>&1
