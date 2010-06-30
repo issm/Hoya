@@ -91,7 +91,7 @@ sub _setup {
         );
 
         _create_files (
-            "{project_root}/pl/action/index.pl",
+            "${project_root}/pl/action/index.pl",
         );
     }
 
