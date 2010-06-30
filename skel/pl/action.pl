@@ -1,8 +1,9 @@
 # アクションを継承する
-#a->super qw/common/;
+#a->super('parent_action');
 
 # モデルを読み込む
-#my @models = a->model qw/sample foo bar/;
+#my ($m1, $m2, $m3) = a->model qw/sample foo bar/;
+
 
 # 事前処理（各種メソッド共通）
 BEFORE {

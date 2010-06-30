@@ -3,7 +3,7 @@
 
 ? block title => sub {
 ? #### タイトル オーバライド ここから ####
-<?=$var->{TITLE};?>
+<?= $ACTION_NAME; ?> -
 ? #### タイトル オーバライド ここまで ####
 ? }
 
@@ -11,11 +11,9 @@
 
 ? block content => sub {
 ? #### #content オーバライド ここから ####
+<h1><?= $conf->{PROJECT_NAME}; ?></h1>
 
-
-hi.
-
-
+<p>hi.</p>
 
 ? #### #content オーバライド ここまで ####
 ? }
