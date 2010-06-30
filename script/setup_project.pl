@@ -34,7 +34,7 @@ sub _setup {
         make_path (
             (map {
                 "${project_root}/$_";
-            } qw/bin conf doc lib, log script t www/),
+            } qw/bin conf doc lib log script t www/),
             $makepath_opts_default,
         );
 
