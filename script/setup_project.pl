@@ -89,6 +89,10 @@ sub _setup {
 
             $makepath_opts_default,
         );
+
+        _create_files (
+            "{project_root}/pl/action/index.pl",
+        );
     }
 
     # site/default/default/{css,img,js,mt,tt}
@@ -106,6 +110,14 @@ sub _setup {
         unless (-e $ln_target) {
             `/usr/bin/env ln -s $site_root $ln_target`;
         }
+
+
+        map {
+            _copy_file(
+                "${hoya_root}/skel/skin/mt/${_}.mt",
+                "${project_root}/s/mt/${_}.mt",
+            );
+        } qw/_base index/;
     }
 
     # hoya -> $hoya_root
