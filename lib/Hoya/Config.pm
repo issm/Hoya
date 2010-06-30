@@ -93,10 +93,9 @@ sub _init {
 
     if (defined $self->req) {
         # LOCATION
-        (my $_PROTOCOL = lc $req->protocol) =~ s{/.*$}{};
-        $LOCATION->{PROTOCOL} = $conf->{LOCATION}{PROTOCOL} || $_PROTOCOL;
-        $LOCATION->{URL}      = '' . $req->uri;  # as string
-        $LOCATION->{HOST}     = $req->env->{HTTP_HOST};
+        ($LOCATION->{PROTOCOL} = lc $req->protocol) =~ s{/.*$}{};
+        $LOCATION->{URL}       = '' . $req->uri;  # as string
+        $LOCATION->{HOST}      = $req->env->{HTTP_HOST};
 
         # URL_BASE
         $URL_BASE = $req->base . '/';  # as string

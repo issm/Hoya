@@ -6,17 +6,12 @@
 #
 #--------------------------------------------------------------------------------
 ---
-LOCAL: 0
+LOCAL: 1
 
 PROJECT_NAME: my project
 YEAR_RELEASE: 2010
 
 WEBSITE_NAME: welcome to my project
-
-LOCATION:
-  PROTOCOL: 
-  HOST:     
-  PATH:     
 
 PAGE:
   CSS_COMMON: [_base, _layout, _additional]
@@ -54,6 +49,4 @@ MAIL:
     --
     your email signature.
 
-SESSION_KEY_NAME: session_id
-
-CONTENT_TYPE_DEFAULT: text/html; charset=utf-8
+CONTENT_TYPE_DEFAULT: 'text/html; charset=utf-8'
