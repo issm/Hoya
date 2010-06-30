@@ -205,12 +205,12 @@ sub _q_mysql {
         return $rows_affected;
     }
     #
-    # SELECT, SHOW, DESCRIBE, EXPLAIN
+    # SELECT, SHOW, DESCRIBE(== DESC), EXPLAIN
     # 今のところscalarを要素に持つarrayrefのみbindを許可
     #
     elsif ($sql =~ qr/^\s*
                       (?:
-                          SELECT|SHOW|DESCRIBE|EXPLAIN
+                          SELECT|SHOW|DESCRIBE|DESC|EXPLAIN
                       )\s
                      /ix) {
         # キャッシュ
