@@ -737,7 +737,7 @@ Returns new Hoya::Form::Validator object.
 
 Proceeds \&callback BEFORE GET/POST function. Common for GET and POST request methods.
 
-In \&callback, first argument($_[0]) refers Hoya::Action;;* object.
+In \&callback, first argument($_[0]) refers Hoya::Action::* object.
 
 =item GET \&callback
 
