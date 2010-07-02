@@ -34,10 +34,10 @@ sub _handle {
     $ua_info = $ua_mapper->get_info;
 
     if (defined $ua_info) {
-        $skin_name = $ua_info->{name};
-        $conf->{SKIN_NAME}  = $skin_name;
-        $conf->{PATH}{SKIN} = "$conf->{PATH}{SITE}/${skin_name}";
-        $env->{HOYA_SKIN}   = $skin_name;
+        $conf->{UA_INFO}    = $ua_info;
+        $conf->{SKIN_NAME}  = $ua_info->{name};
+        $conf->{PATH}{SKIN} = "$conf->{PATH}{SITE}/$conf->{SKIN_NAME}";
+        $env->{HOYA_SKIN}   = $conf->{SKIN_NAME};
     }
 
     return;

@@ -8,9 +8,7 @@ use Carp;
 use Try::Tiny;
 
 use Hoya::Util;
-use Hoya::ConfigX;
 use Hoya::Mapper::URL;
-use Hoya::Mapper::UserAgent;
 use Hoya::MetaModel;
 use Hoya::Factory::Action;
 use Hoya::View;
@@ -22,10 +20,8 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/req app_name
-                            _conf
-                            _logger
-                            _mm
+    $class->mk_accessors qw/req conf app_name
+                            _logger _mm
                            /;
 
     return $self->_init;
@@ -34,13 +30,6 @@ sub new {
 #
 sub _init {
     my $self = shift;
-
-    $self->_conf(
-        Hoya::ConfigX->new({
-            req => $self->req,
-        })->get
-    );
-
     return $self;
 }
 
@@ -50,7 +39,7 @@ sub go {
     my $self = shift;
     my $req  = $self->req;
     my $env  = $req->env;
-    my $conf = $self->_conf;
+    my $conf = $self->conf;
 
     # $env->{HOYA_SITE}, $env->{HOYA_SKIN} のいずれか/両方がセットされていない場合，終了
     if (
@@ -92,22 +81,6 @@ sub go {
     #
     my ($q, $up) = $self->_decode_queries;
     my $qq = $action_info->{qq};  # Hash::MultiValueオブジェクト
-
-    #
-    # user agent mapping
-    #
-    #my ($ua_mapper, $ua_info);
-    #$ua_mapper = Hoya::Mapper::UserAgent->new({
-    #    req  => $req,
-    #    conf => $conf,
-    #});
-    #$ua_info = $ua_mapper->get_info;
-    #$conf->{UA_INFO} = $ua_info;
-
-    #
-    # skin
-    #
-    #$conf->{SKIN_NAME} = $conf->{UA_INFO}{name} || 'default';
 
     #
     # action

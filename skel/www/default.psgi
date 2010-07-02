@@ -37,7 +37,6 @@ use Hoya;
 use Hoya::Util;
 use Hoya::Re;
 use Hoya::Config::Core;
-use Hoya::ConfigX;
 use Hoya::Controller;
 use Hoya::Mapper::URL;
 use Hoya::Mapper::UserAgent;
