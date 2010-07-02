@@ -22,18 +22,20 @@
 ? }
 
 ? # for IE
-? for my $ie (reverse(6..9, '')) {
+? unless ($conf->{PAGE}{DISABLE_IE_SPECIFIC}) {
+?   for my $ie (reverse(6..9, '')) {
   <!--[if IE <?= $ie; ?> ]>
-? # css for IE
-? for my $css (@{$var->{CSS_IMPORT_IE}{"ie$ie"}}) {
+?     # css for IE
+?     for my $css (@{$var->{CSS_IMPORT_IE}{"ie$ie"}}) {
   <link rel="stylesheet" type="text/css" href="<?= $css; ?>" charset="utf-8" />
-? }
-? # javascript for IE
-? for my $js (@{$var->{JS_IMPORT_IE}{"ie$ie"}}) {
+?     }
+?     # javascript for IE
+?     for my $js (@{$var->{JS_IMPORT_IE}{"ie$ie"}}) {
   <script type="text/javascript" src="<?= $js; ?>" charset="utf-8"></script>
-? }
+?     }
   <![endif]-->
-? }
+?   }
+? }  # end of: unless ($conf->{PAGE}{DISABLE_IE_SPECIFIC}) {
 
 </head>
 <body>

@@ -56,5 +56,14 @@ MAIL:
 CONTENT_TYPE_DEFAULT: 'text/html; charset=utf-8'
 
 PAGE:
+  #
   CSS_COMMON: [_base, _layout, _additional]
   JS_COMMON:  [_base, _additional]
+
+  # 
+  PATH_PREFIX:
+    COMMON: common  # ex. js/"common"/base.js
+    PAGE:   page    # ex. css/"page"/top/index.css
+
+  # not use "<!--[if IE* ]--> ... <!--[endif]-->"
+  DISABLE_IE_SPECIFIC: 0

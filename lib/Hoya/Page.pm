@@ -29,7 +29,9 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/name env conf/;
+    $class->mk_accessors qw/name env conf
+                            _page_conf
+                           /;
 
     return $self->_init;
 }
@@ -40,6 +42,8 @@ sub _init {
     $_name = $self->name;
     $_env  = $self->env;
     $_conf = $self->conf;
+
+    $self->_page_conf($self->conf->{PAGE});
 
     $CSS_COMMON = $_conf->{PAGE}{CSS_COMMON};
     $JS_COMMON  = $_conf->{PAGE}{JS_COMMON};
@@ -66,28 +70,56 @@ sub _init {
 
 sub import_css {
     my ($self) = @_;
+    my $disable_ie_specific = $self->_page_conf->{DISABLE_IE_SPECIFIC} || 0;
 
+    #
     # common
+    #
+    my $pre_c = $self->_page_conf->{PATH_PREFIX}{COMMON};
+    my $is_pre_c = (defined $pre_c  &&  $pre_c ne '') ? 1 : 0;
+
     for my $n_c (@$CSS_COMMON) {
-        my $path     = sprintf '%s/%s.css', $DIR_CSS, $n_c;
-        my $path_alt = sprintf '%s/%s.css', $DIR_ALT_CSS, $n_c;
-        my $url  = sprintf 'css/%s.css', $n_c;
-        if (-f $path || -f $path_alt) {
-            push @$CSS_IMPORT, $url;
+        my $f = "${n_c}.css";
+        my ($css, $css_alt) = (
+            $is_pre_c
+                ?  "${DIR_CSS}/${pre_c}/$f"
+                :  "${DIR_CSS}/$f",
+            $is_pre_c
+                ?  "${DIR_ALT_CSS}/${pre_c}/$f"
+                :  "${DIR_ALT_CSS}/$f",
+        );
+        if (-f $css || -f $css_alt) {
+            my $path = $is_pre_c
+                ?  "css/${pre_c}/$f"  :  "css/$f";
+            push @$CSS_IMPORT, $path;
         }
 
-        for my $ie (@IE) {
-            my $path_ie = sprintf '%s/%s-%s.css', $DIR_CSS, $n_c, $ie;
-            my $path_ie_alt = sprintf '%s/%s-%s.css', $DIR_ALT_CSS, $n_c, $ie;
-            my $url_ie  = sprintf 'css/%s-%s.css', $n_c, $ie;
-            if (-f $path_ie || -f $path_ie_alt) {
-                push @{$CSS_IMPORT_IE->{$ie}}, $url_ie;
+        unless ($disable_ie_specific) {
+            for my $ie (@IE) {
+                my $f_ie = "${n_c}-${ie}.css";
+                my ($css_ie, $css_ie_alt) = (
+                    $is_pre_c
+                        ?  "${DIR_CSS}/${pre_c}/${f_ie}"
+                        :  "${DIR_CSS}/${f_ie}",
+                    $is_pre_c
+                        ?  "${DIR_ALT_CSS}/${pre_c}/${f_ie}"
+                        :  "${DIR_ALT_CSS}/${f_ie}",
+                );
+                if (-f $css_ie || -f $css_ie_alt) {
+                    my $path_ie = $is_pre_c
+                        ?  "css/${pre_c}/${f_ie}"  :  "css/${f_ie}";
+                    push @{$CSS_IMPORT_IE->{$ie}}, $path_ie;
+                }
             }
         }
     }
 
+    #
     # page
+    #
     my $name2path = name2path($_name);
+    my $pre_p = $self->_page_conf->{PATH_PREFIX}{PAGE};
+    my $is_pre_p = (defined $pre_p  &&  $pre_p ne '') ? 1 : 0;
 
     my @common_page = ();
     my @dir_ = split '/', $name2path;
@@ -101,20 +133,42 @@ sub import_css {
         push @common_page, $css_;
     } while (pop @dir_);
 
-    for my $n_p (reverse(@common_page), $name2path) {
-        my $path = sprintf '%s/%s.css', $DIR_CSS, $n_p;
-        my $path_alt = sprintf '%s/%s.css', $DIR_ALT_CSS, $n_p;
-        my $url  = sprintf 'css/%s.css', $n_p;
+    for my $n_p (
+        reverse(@common_page),
+        $name2path,
+    ) {
+        my $f = "${n_p}.css";
+        my ($css, $css_alt) = (
+            $is_pre_p
+                ?  "${DIR_CSS}/${pre_p}/$f"
+                :  "${DIR_CSS}/$f",
+            $is_pre_p
+                ?  "${DIR_ALT_CSS}/${pre_p}/$f"
+                :  "${DIR_ALT_CSS}/$f",
+        );
+        if (-f $css || -f $css_alt) {
+            my $path = $is_pre_p
+                ?  "css/${pre_p}/$f"  :  "css/$f";
+            push @$CSS_IMPORT, $path;
+        }
 
-        push @$CSS_IMPORT, $url
-            if -f $path || -f $path_alt;
-
-        for my $ie (@IE) {
-            my $path_ie = sprintf '%s/%s-%s.css', $DIR_CSS, $n_p, $ie;
-            my $path_ie_alt = sprintf '%s/%s-%s.css', $DIR_ALT_CSS, $n_p, $ie;
-            my $url_ie  = sprintf 'css/%s-%s.css', $n_p, $ie;
-            push @{$CSS_IMPORT_IE->{$ie}}, $url_ie
-                if -f $path_ie || -f $path_ie_alt;
+        unless ($disable_ie_specific) {
+            for my $ie (@IE) {
+                my $f_ie = "${n_p}-${ie}.css";
+                my ($css_ie, $css_ie_alt) = (
+                    $is_pre_p
+                        ?  "${DIR_CSS}/${pre_p}/${f_ie}"
+                        :  "${DIR_CSS}/${f_ie}",
+                    $is_pre_p
+                        ?  "${DIR_ALT_CSS}/${pre_p}/${f_ie}"
+                        :  "${DIR_ALT_CSS}/${f_ie}",
+                );
+                if (-f $css_ie || -f $css_ie_alt) {
+                    my $path_ie = $is_pre_p
+                        ?  "css/${pre_p}/${f_ie}"  :  "css/${f_ie}";
+                    push @{$CSS_IMPORT_IE->{$ie}}, $path_ie;
+                }
+            }
         }
     }
 
@@ -124,26 +178,57 @@ sub import_css {
 
 sub import_js {
     my ($self) = @_;
+    my $disable_ie_specific = $self->_page_conf->{DISABLE_IE_SPECIFIC} || 0;
 
+    #
     # common
-    for my $n_c (@$JS_COMMON) {
-        my $path = sprintf '%s/%s.js', $DIR_JS, $n_c;
-        my $path_alt = sprintf '%s/%s.js', $DIR_ALT_JS, $n_c;
-        my $url = sprintf 'js/%s.js', $n_c;
-        push @$JS_IMPORT, $url
-            if -f $path || -f $path_alt;
+    #
+    my $pre_c = $self->_page_conf->{PATH_PREFIX}{COMMON};
+    my $is_pre_c = (defined $pre_c  &&  $pre_c ne '') ? 1 : 0;
 
-        for my $ie (@IE) {
-            my $path_ie = sprintf '%s/%s-%s.js', $DIR_JS, $n_c, $ie;
-            my $path_ie_alt = sprintf '%s/%s-%s.js', $DIR_ALT_JS, $n_c, $ie;
-            my $url_ie  = sprintf 'js/%s-%s.js', $n_c, $ie;
-            push @{$JS_IMPORT_IE->{$ie}}, $url_ie
-                if -f $path_ie || -f $path_ie_alt;
+    for my $n_c (@$JS_COMMON) {
+        my $f = "${n_c}.js";
+        my ($js, $js_alt) = (
+            $is_pre_c
+                ?  "${DIR_JS}/${pre_c}/$f"
+                :  "${DIR_JS}/$f",
+            $is_pre_c
+                ?  "${DIR_ALT_JS}/${pre_c}/$f"
+                :  "${DIR_ALT_JS}/$f",
+        );
+        if (-f $js || -f $js_alt) {
+            my $path = $is_pre_c
+                ? "js/${pre_c}/$f" : "js/$f";
+            push @$JS_IMPORT, $path;
+        }
+
+
+        unless ($disable_ie_specific) {
+            for my $ie (@IE) {
+                my $f_ie = "${n_c}-${ie}.js";
+                my ($js_ie, $js_ie_alt) = (
+                    $is_pre_c
+                        ?  "${DIR_JS}/${pre_c}/${f_ie}"
+                        :  "${DIR_JS}/${f_ie}",
+                    $is_pre_c
+                        ?  "${DIR_ALT_JS}/${pre_c}/${f_ie}"
+                        :  "${DIR_ALT_JS}/${f_ie}",
+                );
+                if (-f $js_ie || -f $js_ie_alt) {
+                    my $path_ie = $is_pre_c
+                        ?  "js/${pre_c}/${f_ie}"  :  "js/${f_ie}";
+                    push @{$JS_IMPORT_IE->{$ie}}, $path_ie;
+                }
+            }
         }
     }
 
+    #
     # page
+    #
     my $name2path = name2path($_name);
+    my $pre_p = $self->_page_conf->{PATH_PREFIX}{PAGE};
+    my $is_pre_p = (defined $pre_p  &&  $pre_p ne '') ? 1 : 0;
 
     my @common_page = ();
     my @dir_ = split '/', $name2path;
@@ -157,19 +242,40 @@ sub import_js {
         push @common_page, $js_;
     } while (pop @dir_);
 
-    for my $n_p (reverse(@common_page), $name2path) {
-        my $path = sprintf '%s/%s.js', $DIR_JS, $n_p;
-        my $path_alt = sprintf '%s/%s.js', $DIR_ALT_JS, $n_p;
-        my $url  = sprintf 'js/%s.js', $n_p;
-        push @$JS_IMPORT, $url
-            if -f $path || -f $path_alt;
+    for my $n_p (
+        reverse(@common_page),
+        $name2path,
+    ) {
+        my $f = "${n_p}.js";
+        my ($js, $js_alt) = (
+            $is_pre_p
+                ?  "${DIR_JS}/${pre_p}/$f"
+                :  "${DIR_JS}/$f",
+            $is_pre_p
+                ?  "${DIR_ALT_JS}/${pre_p}/$f"
+                :  "${DIR_ALT_JS}/$f",
+        );
+        if (-f $js || -f $js_alt) {
+            my $path = $is_pre_p
+        }
 
-        for my $ie (@IE) {
-            my $path_ie = sprintf '%s/%s-%s.js', $DIR_JS, $n_p, $ie;
-            my $path_ie_alt = sprintf '%s/%s-%s.js', $DIR_ALT_JS, $n_p, $ie;
-            my $url_ie  = sprintf 'js/%s-%s.js', $n_p, $ie;
-            push @{$JS_IMPORT_IE->{$ie}}, $url_ie
-                if -f $path_ie || -f $path_ie_alt;
+        unless ($disable_ie_specific) {
+            for my $ie (@IE) {
+                my $f_ie = "${n_p}-${ie}.js";
+                my ($js_ie, $js_ie_alt) = (
+                    $is_pre_p
+                        ?  "${DIR_JS}/${pre_p}/${f_ie}"
+                        :  "${DIR_JS}/${f_ie}",
+                    $is_pre_p
+                        ?  "${DIR_ALT_JS}/${pre_p}/${f_ie}"
+                        :  "${DIR_ALT_JS}/${f_ie}",
+                );
+                if (-f $js_ie || -f $js_ie_alt) {
+                    my $path_ie = $is_pre_p
+                        ?  "js/${pre_p}/${f_ie}"  :  "js/${f_ie}";
+                    push @{$JS_IMPORT_IE->{$ie}}, $path_ie;
+                }
+            }
         }
     }
 
