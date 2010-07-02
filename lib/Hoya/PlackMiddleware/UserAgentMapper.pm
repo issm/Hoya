@@ -7,7 +7,6 @@ use parent qw/Plack::Middleware/;
 use Plack::Util::Accessor qw/site_name script_name/;
 
 use Plack::Request;
-use Hoya::Config;
 use Hoya::Mapper::UserAgent;
 use Hoya::Util;
 

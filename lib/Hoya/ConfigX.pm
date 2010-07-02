@@ -1,4 +1,4 @@
-package Hoya::Config;
+package Hoya::ConfigX;
 use strict;
 use warnings;
 use utf8;
@@ -176,7 +176,7 @@ __END__
 
 =head1 NAME
 
-Hoya::Config - Configuration loading class.
+Hoya::ConfigX - Configuration loading class.
 
 =head1 SYNOPSIS
 

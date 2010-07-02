@@ -8,7 +8,7 @@ use Carp;
 use Try::Tiny;
 
 use Hoya::Util;
-use Hoya::Config;
+use Hoya::ConfigX;
 use Hoya::Mapper::URL;
 use Hoya::Mapper::UserAgent;
 use Hoya::MetaModel;
@@ -36,7 +36,7 @@ sub _init {
     my $self = shift;
 
     $self->_conf(
-        Hoya::Config->new({
+        Hoya::ConfigX->new({
             req => $self->req,
         })->get
     );
