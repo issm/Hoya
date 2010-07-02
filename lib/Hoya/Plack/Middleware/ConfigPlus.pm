@@ -28,7 +28,7 @@ sub _handle {
     $env->{SITE_NAME}     = $site_name;
     $conf->{SITE_NAME}    = $site_name;
     $conf->{PATH}{SITE}   = "$conf->{PATH}{ROOT}/${site_name}";
-    $conf->{PATH}{UPLOAD} = "$conf->{PATH}{UPLOAD}/${site_name}";
+    $conf->{PATH}{UPLOAD} = "$conf->{PATH}{ROOT}/upload/${site_name}";
 
     if (defined $req) {
         my ($LOCATION, $URL_BASE);
