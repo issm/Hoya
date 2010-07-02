@@ -20,6 +20,7 @@ main:
   - ^user/ ($INT) /?$:
       - [user_id]
       - {hoge: ほげほげ}
+      - user
 
   - .*:
       - index
