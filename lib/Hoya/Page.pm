@@ -257,6 +257,8 @@ sub import_js {
         );
         if (-f $js || -f $js_alt) {
             my $path = $is_pre_p
+                ?  "js/${pre_p}/$f"  :  "js/$f";
+            push @$JS_IMPORT, $path;
         }
 
         unless ($disable_ie_specific) {
