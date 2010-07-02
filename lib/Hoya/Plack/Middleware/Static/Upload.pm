@@ -30,7 +30,7 @@ sub _handle_static {
         return  unless $matched;
         $_;
     } or return;
-    warn D $env;
+
     my $project_root = $env->{HOYA_PROJECT_ROOT} || $env->{PROJECT_ROOT};
     my $static_root  = "upload/$env->{HOYA_SITE}";
     $self->{file} = Plack::App::File->new({
