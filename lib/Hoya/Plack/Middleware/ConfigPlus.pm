@@ -25,9 +25,12 @@ sub _handle {
     my $conf = $self->conf;
     my $site_name = $env->{HOYA_SITE} || 'default';
 
+    $env->{$_} = $ENV{$_}
+        for qw/HOYA_PROJECT_ROOT HOYA_SITE/;
+
     $env->{SITE_NAME}     = $site_name;
     $conf->{SITE_NAME}    = $site_name;
-    $conf->{PATH}{SITE}   = "$conf->{PATH}{ROOT}/${site_name}";
+    $conf->{PATH}{SITE}   = "$conf->{PATH}{ROOT}/site/${site_name}";
     $conf->{PATH}{UPLOAD} = "$conf->{PATH}{ROOT}/upload/${site_name}";
 
     if (defined $req) {
