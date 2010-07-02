@@ -21,12 +21,13 @@ sub call {
 
 sub _handle {
     my ($self, $env) = @_;
-    my $req = Plack::Request->new($env);
-    my $conf = $self->conf;
-    my $site_name = $env->{HOYA_SITE} || 'default';
 
     $env->{$_} = $ENV{$_}
         for qw/HOYA_PROJECT_ROOT HOYA_SITE/;
+
+    my $req = Plack::Request->new($env);
+    my $conf = $self->conf;
+    my $site_name = $env->{HOYA_SITE} || 'default';
 
     $env->{SITE_NAME}     = $site_name;
     $conf->{SITE_NAME}    = $site_name;
