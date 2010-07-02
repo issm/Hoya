@@ -13,6 +13,7 @@ use Hoya::Util;
 # 動的ロードにすると5.8.8系でエラーが出る(?)ので，ひとまずここで読み込む
 use Hoya::DSH::DBI; 
 #use Hoya::DSH::YAML;
+use Hoya::DSH::DBIx::Skinny;
 
 my $_name;
 my $_env;

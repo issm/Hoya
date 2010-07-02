@@ -8,12 +8,19 @@
 ---
 LOCAL: 1
 
-PROJECT_NAME: my_project
+PROJECT_NAME: myproject
 YEAR_RELEASE: 2010
 
 WEBSITE_NAME: welcome to my project
 
 DSH:
+  skinny:
+    CLASS:  DBIx::Skinny
+    #MODULE: +Some::Where::MyDB
+    MODULE: MyDB
+    # ^ the former: locate MyDB.pm in any PERL5LIB path
+    # ^ the latter: locate lib/{MyProject}/DB/MyDB.pm
+    # ^ write connection settings in this *.pm file
   dbi:
     CLASS:  DBI
     TYPE:   mysql

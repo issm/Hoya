@@ -21,6 +21,7 @@ use Carp;
 use Try::Tiny;
 use File::Basename;
 use File::Spec;
+use File::Path '2.08';
 use Class::Accessor::Faster;
 use Hash::Merge;
 use Hash::MultiValue;
@@ -29,7 +30,7 @@ use URI::Escape;
 use HTML::Entities;
 use Date::Calc;
 use MIME::Lite;
-use DBI;
+use DBI '1.609';
 use DBIx::Skinny;
 use DBIx::Skinny::Schema::Loader;
 
@@ -56,9 +57,13 @@ unless (defined $PROJECT_ROOT) {
 my $CACHE_ROOT      = "${PROJECT_ROOT}/tmp/hoya_cache";
 my $LOGDIR          = "${PROJECT_ROOT}/log";
 my $ENABLE_LOGGER   = $ENV{HOYA_ENABLE_LOGGER} || 0;
-#===================================================================================
+#======================================================================================
 
 my $CONF = Hoya::Config::Core->new({entry => __FILE__})->as_hashref;
+do {
+    # preload inner modules in following (?):
+    Hoya::MetaModel->new({conf => $CONF, env => \%ENV});
+};
 
 my $logger;
 if ($ENABLE_LOGGER) {
