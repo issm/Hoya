@@ -99,8 +99,13 @@ sub build_common {
 #==========================================================================================
 
     enable '+Hoya::Plack::Middleware::ConfigPlus',
-        conf => $CONF,
-    ;
+        conf => $CONF;
+    enable '+Hoya::Plack::Middleware::UserAgentMapper',
+        conf => $CONF;
+    enable '+Hoya::Plack::Middleware::Static::Upload',
+        path => qr{(?:^/(p/) )}x;
+    enable '+Hoya::Plack::Middleware::Static::Skin';
+    enable '+Hoya::Plack::Middleware::Static::Skin', site => 'default';
 
     enable 'Session',
         state => Plack::Session::State::Cookie->new(
@@ -115,18 +120,6 @@ sub build_common {
                 cache_depth        => 5,
             }),
         ),
-    ;
-
-    enable '+Hoya::Plack::Middleware::UserAgentMapper',
-        conf => $CONF,
-    ;
-    enable '+Hoya::Plack::Middleware::Static::Upload';
-    #enable '+Hoya::Plack::Middleware::Static::Upload',
-    #    path => qr{(?:^/(upload/) )}x,
-    #;
-    #enable '+Hoya::Plack::Middleware::Static::Skin';
-    enable '+Hoya::Plack::Middleware::Static::Skin',
-        site => $SITE_NAME,
     ;
 }
 
