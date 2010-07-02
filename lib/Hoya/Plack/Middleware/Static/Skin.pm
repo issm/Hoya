@@ -1,5 +1,5 @@
 # modification from Plack::Middleware::Static;
-package Hoya::PlackMiddleware::Static::Skin;
+package Hoya::Plack::Middleware::Static::Skin;
 use strict;
 use warnings;
 use parent qw/Plack::Middleware/;

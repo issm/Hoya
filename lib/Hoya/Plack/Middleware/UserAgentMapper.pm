@@ -1,10 +1,10 @@
-package Hoya::PlackMiddleware::UserAgentMapper;
+package Hoya::Plack::Middleware::UserAgentMapper;
 use strict;
 use warnings;
 use utf8;
 use parent qw/Plack::Middleware/;
 
-use Plack::Util::Accessor qw/site_name script_name/;
+use Plack::Util::Accessor qw/conf/;
 
 use Plack::Request;
 use Hoya::Mapper::UserAgent;
@@ -21,22 +21,24 @@ sub call {
 
 sub _handle {
     my ($self, $env) = @_;
-
-    $env->{HOYA_SITE} = $self->site_name;
-
-    (my $script_dir = $self->script_name) =~ s{/[^/]+$}{};
-    my $conf_dir = "$script_dir/../conf";
+    my $skin_name = 'default';
+    my $conf = $self->conf;
 
     my ($ua_mapper, $ua_info);
     $ua_mapper = Hoya::Mapper::UserAgent->new({
         req  => Plack::Request->new($env),
-        conf => {
-            PATH => { CONF => $conf_dir },
-        },
+        conf => $conf,
+        #    PATH => { CONF => $conf_dir },
+        #},
     });
     $ua_info = $ua_mapper->get_info;
 
-    $env->{HOYA_SKIN} = $ua_info->{name};
+    if (defined $ua_info) {
+        $skin_name = $ua_info->{name};
+        $conf->{SKIN_NAME}  = $skin_name;
+        $conf->{PATH}{SKIN} = "$conf->{PATH}{SITE}/${skin_name}";
+        $env->{HOYA_SKIN}   = $skin_name;
+    }
 
     return;
 }

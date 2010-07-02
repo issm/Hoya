@@ -1,11 +1,11 @@
 # modification from Plack::Middleware::Static;
-package Hoya::PlackMiddleware::Static::Upload;
+package Hoya::Plack::Middleware::Static;
 use strict;
 use warnings;
 use parent qw/Plack::Middleware/;
 use Plack::App::File;
 
-use Plack::Util::Accessor qw/path encoding/;
+use Plack::Util::Accessor qw/encoding/;
 
 use Hoya::Util;
 use Hoya::Re;
@@ -23,19 +23,15 @@ sub call {
 sub _handle_static {
     my($self, $env) = @_;
 
-    my $path_re = $self->path || Hoya::Re::PATH_STATIC_UPLOAD;
     my $path = do {
         local $_ = $env->{PATH_INFO};
-        my $matched = $_ =~ $path_re;
+        my $matched = $_ =~ Hoya::Re::PATH_STATIC;
         return  unless $matched;
         $_;
     } or return;
 
-    my $project_root = $env->{HOYA_PROJECT_ROOT} || $env->{PROJECT_ROOT};
-    my $static_root  = "upload/$env->{HOYA_SITE}";
-    $self->{file} = Plack::App::File->new({
-        root => $project_root
-            ? "${project_root}/$static_root" : $static_root,
+    $self->{file} ||= Plack::App::File->new({
+        root     => "site/$env->{HOYA_SITE}/$env->{HOYA_SKIN}",
         encoding => $self->encoding,
     });
     local $env->{PATH_INFO} = $path; # rewrite PATH

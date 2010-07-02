@@ -20,7 +20,15 @@ our @NAMES_IMPORT_FORBIDDEN =
 
 
 sub run {
-    my ($self, $req, $app_name) = @_;
+    my ($self, $req, $conf, $app_name) = @_;
+#================================ per-request settings ====================================
+    my $SITE_NAME       = $ENV{HOYA_SITE} || 'default';
+    my $SESSION_KEY     = "hoya_${SITE_NAME}_session";
+    my $SESSION_EXPIRES = 60 * 60 * 24 * 28;  # 28 days
+#===================================================================================
+    #warn D [$SITE_NAME];
+
+
 
     my $script_name = (caller 0)[1];
     $req->env->{HOYA_SCRIPT_PATH} = $script_name;
