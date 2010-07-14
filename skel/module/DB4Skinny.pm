@@ -12,6 +12,10 @@ use base qw/DBIx::Skinny::Schema::Loader/;
 use DBIx::Skinny::Schema;
 use utf8;
 
+# utf-8 columns
+#install_utf8_columns qw/name
+#                       /;
+
 #install_table table => schema {
 #};
 
