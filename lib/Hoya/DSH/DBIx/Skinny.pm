@@ -84,5 +84,18 @@ sub column {
     ;
 }
 
+# join_cond('=' => [$col_L, $col_R], ...);
+sub join_cond {
+    my ($self, @param) = @_;
+    my ($cond, @cond);
+    while (@param) {
+        my ($op, $l, $r) = (shift(@param), @{shift @param});
+        push @cond, join(' ', $l, $op, $r);
+    }
+    $cond = join ' AND ', map "($_)", @cond;
+    return $cond;
+}
+
+
 
 1;
