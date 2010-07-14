@@ -6,17 +6,15 @@ use base qw/Class::Accessor::Faster/;
 
 use Carp;
 use Try::Tiny;
-
 use Hoya::Util;
-#use Hoya::DSH::DBIx::Skinny::DB::Loader;
-#use Hoya::DSH::DBIx::Skinny::DB::Sample;
+
 
 sub new {
     my $class = shift;
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
     $class->mk_accessors qw/name env conf cache
-                            _skinny
+                            skinny
                            /;
     return $self->_init;
 }
@@ -65,8 +63,8 @@ $msg
     };
 
 
-    $self->_skinny($skinny);
-    return $skinny;
+    $self->skinny($skinny);
+    return $self;
 }
 
 
