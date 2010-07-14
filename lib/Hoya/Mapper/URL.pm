@@ -106,6 +106,11 @@ sub get_action_info {
         if ($matched) {
             $re_path_matched = $re_path;
             $rule_applied = $pair->{$re_path} || [];
+
+            # $rule_applied がスカラ値の場合，arrayrefの要素に変換する
+            $rule_applied = [$rule_applied]
+                if (ref $rule_applied eq '');
+
             last;
         }
     }
