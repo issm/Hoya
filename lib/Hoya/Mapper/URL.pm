@@ -89,26 +89,43 @@ sub get_action_info {
     my $re_var = qr/(?:\$([a-zA-Z0-9_]+) | \$\{([^\}]+)\} )/x;
 
     #
-    # 適用ルールを検索する
+    # ルールを検索する
     #
     my $re_path_matched = '';
     for my $pair (@$_map_rule) {
-        my $re_path = (keys %$pair)[0];
-        my $re_path_eval = $re_path; # 「変数」展開用
+        my $re_path = (keys %$pair)[0];  # ペアのキー（パスの正規表現）
+        my $re_path_eval = $re_path;     # 「変数」展開用
         # $re_path内の「変数」を展開する
         1 while (
             $re_path_eval =~ s/$re_var/$_map_var->{$1 || $2} || '';/gex
         );
-        # v 以前にマッチしていなければ，パタンマッチを試みる
-        unless ($matched) {
-            $matched = (@params = $path_info =~ qr/$re_path_eval/x) ? 1 : 0;
-        }
+
+        $matched =
+            (@params = $path_info =~ qr/$re_path_eval/x) ? 1 : 0;
         # v マッチした，または，以前にマッチしている
         if ($matched) {
             $re_path_matched = $re_path;
+            $rule_applied = $pair->{$re_path} || [];
+            last;
+        }
+    }
+    #
+    # $rule_applied にアクション名（スカラ値）が存在しない場合
+    # $re_path 登場以降を再スキャンし，
+    # 最初に登場するアクション名を $rule_applied に追加する
+    #
+    unless (grep {ref $_ eq ''} @$rule_applied) {
+        my $path_appeared = 0;
+        for my $pair (@$_map_rule) {
+            my $re_path = (keys %$pair)[0];
+            $path_appeared = 1  if $re_path eq $re_path_matched;
+            next  unless $path_appeared;
+
             my $rule = $pair->{$re_path};
-            if (defined $rule) {
-                $rule_applied = $rule;
+            if (
+                my ($action_name) = grep {ref $_ eq ''} @$rule
+            ) {
+                push @$rule_applied, $action_name;
                 last;
             }
         }
