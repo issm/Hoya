@@ -68,4 +68,21 @@ $msg
 }
 
 
+# column('table');  # ${PREFIX}table
+sub table {
+    my ($self, $table) = @_;
+    my $db_conf = $self->conf->{DSH}{$self->name} || {};
+    return ($db_conf->{TABLE_PREFIX} || '') . $table;
+}
+
+# column('column', 'table');  # ${PREIFX}table.column
+sub column {
+    my ($self, $column, $table) = @_;
+    return defined $table
+        ?  $self->table($table) . ".${column}"
+        :  $column
+    ;
+}
+
+
 1;
