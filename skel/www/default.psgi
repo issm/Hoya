@@ -21,7 +21,7 @@ use Carp;
 use Try::Tiny;
 use File::Basename;
 use File::Spec;
-use File::Path '2.08';
+use File::Path '2.08', qw/make_path remove_tree/;
 use Class::Accessor::Faster;
 use Hash::Merge;
 use Hash::MultiValue;
@@ -60,8 +60,16 @@ my $ENABLE_LOGGER   = $ENV{HOYA_ENABLE_LOGGER} || 0;
 #======================================================================================
 
 my $CONF = Hoya::Config::Core->new({entry => __FILE__})->as_hashref;
+
+# 一時生成したアクションファイル，モデルファイルを削除する
+if (-d (my $DIR_TMP_LIB = "$CONF->{PATH}{TMP}/lib")) {
+    remove_tree $DIR_TMP_LIB;
+    warn "[31mRemoved: ${DIR_TMP_LIB}[m";
+}
+
 do {
     # preload inner modules in following (?):
+    Hoya::Mapper::URL->new({conf => $CONF, env => \%ENV});
     Hoya::MetaModel->new({conf => $CONF, env => \%ENV});
 };
 

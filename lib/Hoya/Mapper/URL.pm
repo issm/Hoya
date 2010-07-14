@@ -13,7 +13,6 @@ use Try::Tiny;
 
 use Hoya::Util;
 
-my $_req;
 my $_env;
 my $_conf;
 my $_app_name;
@@ -27,16 +26,14 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/req env conf app_name/;
-
+    $class->mk_accessors qw/env conf app_name/;
     return $self->_init;
 }
 
 #
 sub _init {
     my $self = shift;
-    $_req      = $self->req;
-    $_env      = $_req->env;
+    $_env      = $self->env;
     $_conf     = $self->conf;
     $_app_name = $self->app_name;
     $_map_rule = {};

@@ -70,7 +70,7 @@ sub go {
     #
     my ($url_mapper, $action_info);
     $url_mapper = Hoya::Mapper::URL->new({
-        req      => $req,
+        env      => $req->env,
         conf     => $conf,
         app_name => $self->app_name,
     });
