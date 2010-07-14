@@ -68,20 +68,50 @@ $msg
 }
 
 
-# table('table');  # ${PREFIX}table
+# table('table');         # ${PREFIX}table
+# table('table', 'tbl');  # ${PREFIX}table tbl
 sub table {
-    my ($self, $table) = @_;
+    my ($self, $table, $alias) = @_;
     my $db_conf = $self->conf->{DSH}{$self->name} || {};
-    return ($db_conf->{TABLE_PREFIX} || '') . $table;
+    my $sql = $table;
+    $sql = "$table $alias"
+        if defined $alias;
+    $sql = "$db_conf->{TABLE_PREFIX}$sql"
+        if defined $db_conf->{TABLE_PREFIX};
+
+    return $sql;
 }
 
-# column('column', 'table');  # ${PREIFX}table.column
+# column('col');                           # col
+# column('col', 'table');                  # ${PREIFX}table.col
+# column('col', 'table', '-');             # ${PREIFX}table.col
+# column('col', 'table', 'colx');          # ${PREFIX}table.col colx
+# column('col', '-tbl');                   # tbl.col
+# column('col', '-tbl', 'colx');           # tbl.col colx
+# column('col', '-tbl', 'c', sub {...});   # 
 sub column {
-    my ($self, $column, $table) = @_;
-    return defined $table
-        ?  $self->table($table) . ".${column}"
-        :  $column
-    ;
+    my ($self, $col, $table, $alias, $sub) = @_;
+    my $db_conf = $self->conf->{DSH}{$self->name};
+    my $col_name = $col;
+
+    if (defined $table) {
+        if (my ($table_alias) = $table =~ /^-(.*)$/) {
+            $col_name = "${table_alias}.${col}"
+                if $table_alias ne '';
+        }
+        else {
+            $col_name = "${table}.${col}";
+            $col_name = "$db_conf->{TABLE_PREFIX}${col_name}"
+                if defined $db_conf->{TABLE_PREFIX};
+        }
+    }
+
+    if (defined $sub  &&  ref $sub eq 'CODE') {
+        $col_name = $sub->($self, $col_name)
+    }
+
+    return (defined $alias  &&  $alias ne '-')
+        ? "$col_name $alias" : $col_name;
 }
 
 # join_cond('=' => [$col_L, $col_R], ...);
