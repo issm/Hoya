@@ -106,14 +106,17 @@ sub get_action_info {
         if ($matched) {
             $re_path_matched = $re_path;
             $rule_applied = $pair->{$re_path} || [];
-
             # $rule_applied がスカラ値の場合，arrayrefの要素に変換する
             $rule_applied = [$rule_applied]
                 if (ref $rule_applied eq '');
+            #
+            $rule_applied = [[], {}]
+                unless defined $rule_applied->[0];
 
             last;
         }
     }
+
     #
     # $rule_applied にアクション名（スカラ値）が存在しない場合
     # $re_path 登場以降を再スキャンし，
@@ -127,8 +130,12 @@ sub get_action_info {
             next  unless $path_appeared;
 
             my $rule = $pair->{$re_path};
+            $rule = [$rule]  if (ref $rule eq '');
+
             if (
-                my ($action_name) = grep {ref $_ eq ''} @$rule
+                my ($action_name) = grep {
+                    (ref $_ eq '')  &&  defined $_;
+                } @$rule
             ) {
                 push @$rule_applied, $action_name;
                 last;
@@ -146,6 +153,7 @@ sub get_action_info {
             if (ref $i eq 'ARRAY') { $param = $i; }
             if (ref $i eq 'HASH')  { $const = $i; }
         }
+
         if ($action_info->{name} eq '') {
             croak sprintf(
                 '[error] Name of action, to be mapped, is not defined'
