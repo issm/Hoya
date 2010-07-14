@@ -26,6 +26,11 @@ our $FINISH = '__FINISH_ACTION__';
 
 my @METHODS = qw/BEFORE GET POST AFTER/;
 
+my $CONTENT_TYPE = {
+    json => 'text/javascript',  #'application/json',
+    xml  => 'application/xml',  #'text/xml',
+};
+
 
 sub new {
     my $class = shift;
@@ -534,9 +539,20 @@ sub new_validator {
 
 sub as_json {
     my ($self, $param) = @_;
-    #$self->content_type('application/json');
-    $self->content_type('text/javascript');
+    $self->content_type($CONTENT_TYPE->{json});
     return;
+}
+sub is_as_json {
+    return shift->content_type eq $CONTENT_TYPE->{json} ? 1 : 0;
+}
+
+sub as_xml {
+    my ($self, $param) = @_;
+    $self->content_type($CONTENT_TYPE->{xml});
+    return;
+}
+sub is_as_xml {
+    return shift->content_type eq $CONTENT_TYPE->{xml} ? 1 : 0;
 }
 
 

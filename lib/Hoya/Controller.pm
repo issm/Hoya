@@ -130,16 +130,10 @@ sub go {
             )
         );
 
+        # json出力モード
+        #   戻り値をレスポンスボディとする
         #
-        # Content-Typeが次のいずれかの場合，戻り値をレスポンスボディとする
-        #   application/json, text/javascript
-        #
-        if ($action->content_type =~
-                m{^(?:
-                      application/json |
-                      text/javascript
-                  );?}x
-              ) {
+        if ($action->is_as_json) {
             eval { use JSON; };
             my $json = de JSON::encode_json($action->data || {});
             if (my $_callback = $q->get('callback')) {
@@ -147,6 +141,17 @@ sub go {
             }
 
             $res->content(en $json);
+        }
+        #
+        # xml出力モード
+        #   戻り値をレスポンスボディとする
+        #
+        elsif ($action->is_as_xml) {
+            eval { use XML::TreePP; };
+            # <response>...</response> のように挟むための準備
+            my $data = {response => $action->data || {}};
+            my $xml = XML::TreePP->new->write($data);
+            $res->content(en $xml);
         }
         #
         # ビュー名がURL書式でない場合：通常の処理を行う

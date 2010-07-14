@@ -14,6 +14,7 @@ use Data::Recursive::Encode;
 use UUID::Tiny;
 use YAML;
 use JSON;
+use XML::TreePP;
 use Image::Magick;
 use Data::Page;
 use Text::MicroTemplate::Extended;
