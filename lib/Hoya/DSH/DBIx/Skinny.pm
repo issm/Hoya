@@ -68,7 +68,7 @@ $msg
 }
 
 
-# column('table');  # ${PREFIX}table
+# table('table');  # ${PREFIX}table
 sub table {
     my ($self, $table) = @_;
     my $db_conf = $self->conf->{DSH}{$self->name} || {};
