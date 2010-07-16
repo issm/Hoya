@@ -567,6 +567,7 @@ sub get_pagination {
 
     my $pg = +{
         page => +{
+            this     => $page,
             first    => $dp->first_page,
             last     => $dp->last_page,
             next     => $dp->next_page,
@@ -574,6 +575,7 @@ sub get_pagination {
             previous => $dp->previous_page,
         },
         entries => +{
+            num       => $num,
             from      => $dp->first,
             to        => $dp->last,
             total     => $total,
