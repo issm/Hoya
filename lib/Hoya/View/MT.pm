@@ -6,6 +6,7 @@ use utf8;
 use base qw/Class::Accessor::Faster/;
 
 use Text::MicroTemplate::Extended;
+use Text::MicroTemplate;
 use Encode;
 use HTML::Entities;
 use Carp;
@@ -20,6 +21,15 @@ sub new {
     my $class = shift;
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
+
+
+    {
+        no strict 'refs';
+
+        # T::MT::encoded_string を名前空間指定なしで利用できるようにする
+        *{"${class}::encoded_string"} = \&Text::MicroTemplate::encoded_string;
+    }
+
 
     $class->mk_accessors(
         qw/name type env conf
