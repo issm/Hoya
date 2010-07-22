@@ -1,0 +1,50 @@
+= Wikiっぽいドキュメント機能 =
+
+== 概要 ==
+
+Wikiっぽくドキュメントを残すことができます．
+
+
+
+
+
+== データファイル ==
+
+{$PROJECT_ROOT}/data/docs/ 以下の *.txt ファイルを編集することで，表示に反映できます．
+
+例えば，このページは，{$PROJECT_ROOT}/data/docs/index.txt というファイルが基になっています．
+
+
+=== 作成方法 ===
+
+次の2とおりの方法があります．
+
+* ターミナル等から直接ファイルを作成する
+* 希望するファイル名に対応するURLへアクセスし，「ページを新しく作成する」ボタンをクリックする
+
+
+=== 記述方法 ===
+
+Mediawikiフォーマットを利用できます．
+
+* http://www.mediawiki.org/wiki/Help:Formatting
+
+データファイルからHTMLへの変換には [http://search.cpan.org/dist/Text-MediawikiFormat/ Text::MediawikiFormat] を利用しているため，一部の記述には対応していません．
+
+
+
+
+
+== CSS ==
+
+{$PROJECT_ROOT}/data/docs/__style.css を編集することで，表示のスタイルを調整することができます．
+
+
+
+
+
+== テンプレート ==
+
+{$PROJECT_ROOT}/site/default/default/mt/docs/index.mt が基本テンプレートです．
+
+ヘッダやフッタ等を変更したい場合には，このファイルを直接編集する必要があります．

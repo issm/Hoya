@@ -34,6 +34,7 @@ use MIME::Lite;
 use DBI '1.609';
 use DBIx::Skinny;
 use DBIx::Skinny::Schema::Loader;
+use Text::MediawikiFormat qw/wikiformat/;
 
 use Hoya;
 use Hoya::Util;
@@ -152,6 +153,17 @@ sub build_app {
     # main
     #
     if ($urlmap_name eq 'main') {
+        $app = builder {
+            if ($logger) {
+                enable 'LogDispatch', logger => $logger;
+            }
+            $a;
+        };
+    }
+    #
+    # docs
+    #
+    elsif ($urlmap_name eq 'docs') {
         $app = builder {
             if ($logger) {
                 enable 'LogDispatch', logger => $logger;
