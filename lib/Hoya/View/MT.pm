@@ -9,6 +9,7 @@ use Text::MicroTemplate::Extended;
 use Text::MicroTemplate;
 use Encode;
 use HTML::Entities;
+use URI::Escape;
 use Carp;
 use Try::Tiny;
 
@@ -115,7 +116,8 @@ sub go {
                 var  => $var,
                 %var_import,
 
-                URL  => $conf->{LOCATION}{URL},
+                URL           => $conf->{LOCATION}{URL},
+                URL_UNESCAPED => de(uri_unescape($conf->{LOCATION}{URL})),
 
                 VIEW_NAME   => $self->name,
                 ACTION_NAME => $self->action_name,
