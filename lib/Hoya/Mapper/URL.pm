@@ -39,7 +39,7 @@ sub _init {
     $_map_rule = {};
     $_map_var  = {};
 
-    $self->_load_map;
+    $self->_load_map  if defined $_app_name;
     return $self;
 }
 
