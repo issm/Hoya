@@ -16,7 +16,7 @@
 ? }
 
 ? # javascript
-  <script type="text/javascript" src="js/jquery-1.4.1.min.js" charset="utf-8"></script>
+  <script type="text/javascript" src="js/lib/jquery-1.4.2.min.js" charset="utf-8"></script>
 ? for my $js (@{$var->{JS_IMPORT}}) {
   <script type="text/javascript" src="<?= $js; ?>" charset="utf-8"></script>
 ? }

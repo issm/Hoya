@@ -102,7 +102,7 @@ sub _setup {
         make_path (
             (map {
                 "${site_root}/$_";
-            } qw/css img js mt tt/),
+            } qw{css css/common css/page img js js/lib js/common js/page mt tt}),
             $makepath_opts_default,
         );
 
@@ -112,12 +112,21 @@ sub _setup {
         }
 
 
+        # s/mt/{_base,index}.mt
         map {
             _copy_file(
                 "${hoya_root}/skel/skin/mt/${_}.mt",
                 "${project_root}/s/mt/${_}.mt",
             );
         } qw/_base index/;
+
+        # s/js/lib/{jquery-1.4.2.min}.js
+        map {
+            _copy_file(
+                "${hoya_root}/skel/skin/js/lib/${_}.js",
+                "${project_root}/s/js/lib/${_}.js",
+            );
+        } qw/jquery-1.4.2.min/;
     }
 
     # hoya -> $hoya_root
