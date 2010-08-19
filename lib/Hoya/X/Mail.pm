@@ -25,6 +25,8 @@ sub new {
            body signature _files
            smtp_host
            template_dir
+
+           _error_message
           /
     );
 
@@ -34,6 +36,7 @@ sub new {
 sub _init {
     my $self = shift;
     $self->_files([]);
+    $self->_error_message('');
 
     $_types = MIME::Types->new;
 
@@ -123,7 +126,9 @@ sub _check_file {
 sub send {
     my $self = shift;
     my $debug = shift;
+    my $sent;
 
+    $self->_error_message('');
     $self->body('')  unless is_def $self->body;
 
     try {
@@ -163,15 +168,19 @@ sub send {
             );
         }
 
-        $mail->send(
+        $sent = $mail->send(
             'smtp',
             $self->smtp_host,
             Debug => $debug,
         );
     }
     catch {
-        carp shift;
+        my $msg = shift;
+        $self->_error_message($msg);
+        carp $msg;
     };
+
+    return $sent;
 }
 
 
