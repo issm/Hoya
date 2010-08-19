@@ -138,7 +138,8 @@ use Hoya::Factory::Action;
             {
                 no warnings;
                 sub a { return $self; }
-                sub A { a; }
+                sub A { return $self; }
+                sub r { return $self->req; }
             }
 
             %s
