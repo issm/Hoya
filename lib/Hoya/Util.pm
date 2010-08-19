@@ -18,7 +18,9 @@ our @EXPORT = qw/
                     name2path
                     name2class
                     d
+                    dc
                     D
+                    Dc
                     printlog
                     random_key
                     unique_key
@@ -32,6 +34,9 @@ our @EXPORT = qw/
                 /;
 
 Hash::Merge::set_behavior('RIGHT_PRECEDENT');
+
+our $DUMP_PREFIX  = "[32m";
+our $DUMP_POSTFIX = "[m";
 
 
 sub new {
@@ -85,7 +90,15 @@ sub name2class {
 
 
 sub d { dump @_; }
+# colored "d"
+sub dc {
+    return $DUMP_PREFIX . (d @_) . $DUMP_POSTFIX;
+}
 sub D { Dumper @_; }
+# colored "D"
+sub Dc {
+    return $DUMP_PREFIX . (D @_) . $DUMP_POSTFIX;
+}
 
 
 sub printlog {
