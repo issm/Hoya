@@ -128,4 +128,99 @@ sub join_cond {
 
 
 
+#
+# wrappers of DBIx::Skinny
+#
+
+# $h->insert($name, \%columns);
+sub insert {
+    my ($self, $name, $columns) = @_;
+    return $self->skinny->insert(
+        $self->table($name),
+        $columns,
+    );
+}
+# create -> insert
+sub create { return shift->insert(@_); }
+
+# $true = $h->bulk_insert($name, \@data);
+sub bulk_insert {
+    my ($self, $name, $data) = @_;
+    return $self->skinny->bulk_insert(
+        $self->table($name),
+        $data,
+    );
+}
+
+# $row_count = $h->update($name, \%data, \%cond);
+sub update {
+    my ($self, $name, $data, $cond) = @_;
+    return $self->skinny->update(
+        $self->table($name),
+        $data,
+        $cond,
+    );
+}
+
+# $row_count = $h->update_by_sql($sql, \@bind);
+sub update_by_sql { return shift->skinny->update_by_sql(@_); }
+
+# $row_count = $h->delete($name, \%cond);
+sub delete {
+    my ($self, $name, $cond) = @_;
+    return $self->skinny->delete(
+        $self->table($name),
+        $cond,
+    );
+}
+
+# $row_count = $h->delete_by_sql($sql, \@bind);
+sub delete_by_sql { return shift->skinny->delete_by_sql(@_); }
+
+# $row = $h->find_or_create($name, \%columns);
+sub find_or_create {
+    my ($self, $name, $columns) = @_;
+    return $self->skinny->find_or_create(
+        $self->table($name),
+        $columns,
+    );
+}
+# find_or_insert -> find_or_create
+sub find_or_insert { return shift->find_or_create(@_); }
+
+# $itr = $h->search($name, \%columns, \%options);
+sub search {
+    my ($self, $name, $columns, $options) = @_;
+    return $self->skinny->search(
+        $self->table($name),
+        $columns,
+        $options,
+    );
+}
+
+# $row = $h->single($name, \%columns);
+sub single {
+    my ($self, $name, $columns) = @_;
+    return $self->skinny->single(
+        $self->table($name),
+        $columns,
+    );
+}
+
+# $itr = $h->search_named($sql, \%bind);
+sub search_named { return shift->skinny->search_named(@_); }
+
+# $itr = $h->search_by_sql($sql, \@bind);
+sub search_by_sql { return shift->skinny->search_by_sql(@_); }
+
+# $row = $h->find_or_new($name, \%columns);
+sub find_or_new {
+    my ($self, $name, $columns) = @_;
+    return $self->skinny->find_or_new(
+        $self->table($name),
+        $columns,
+    );
+}
+
+
 1;
