@@ -32,6 +32,18 @@ my $CONTENT_TYPE = {
 };
 
 
+# name:         アクション名
+# req:          is-a Plack::Request
+# conf:
+# q:
+# qq:
+# up:
+# mm:            is-a Hoya::MetaModel
+# vars:
+# cookies:
+# base_name:     大元のアクション名
+# sub_name:      継承元のアクション名
+# backward_name: フォワーディング元のアクション名
 sub new {
     my $class = shift;
     my $param = shift || {};
@@ -39,7 +51,7 @@ sub new {
     $class->mk_accessors(
         qw/name req env conf q qq up mm page
            vars cookies logger pass_name
-           sub_name base_name
+           base_name sub_name backward_name
            status content_type charset
            data
            _super
@@ -489,6 +501,7 @@ sub _set_cookie {
 
 
 
+# $action->super($name_super);
 sub super {
     my ($self, $name) = @_;
 
@@ -511,14 +524,49 @@ sub super {
         mm        => $self->mm,
         vars      => $self->vars,
         cookies   => $self->cookies,
-        sub_name  => $self->name,
         base_name => $self->base_name,
+        sub_name  => $self->name,
     });
 
     $self->_super($super);
     return $super;
 }
 
+
+# forward($name_forwarded);
+sub forward {
+    my ($self, $name) = @_;
+
+    if ($name eq $self->name) {
+        my $name = $self->name;
+        my $text = << "...";
+**** Error: cannot call itself as "forwarded action"! ****
+
+...
+        croak $text;
+    }
+
+    my $forwarded = Hoya::Factory::Action->new({
+        name           => $name,
+        req            => $self->req,
+        conf           => $self->conf,
+        q              => $self->q,
+        qq             => $self->qq,
+        up             => $self->up,
+        mm             => $self->mm,
+        vars           => $self->vars,
+        cookies        => $self->cookies,
+        base_name      => $self->base_name,
+        backward_name  => $self->name,
+    });
+    my $pass_forwarded = $forwarded->go;
+    $self->update_param($pass_forwarded);
+    return $pass_forwarded->{name};
+}
+sub fw { return shift->forward(@_); }
+
+# $model = $a->model($name);
+# @models = $a->model($name1, $name2, ...);
 sub model {
     my ($self, @names) = @_;
     return undef  unless @names;
@@ -526,6 +574,8 @@ sub model {
 }
 
 
+# $validator = $a->new_validator();
+# $validator = $a->new_validator($form_name);
 sub new_validator {
     my ($self, $name, $rule) = @_;
     $name = $self->name  unless defined $name;
@@ -557,6 +607,7 @@ sub is_as_xml {
 }
 
 
+# $pagination = $a->get_pagination($total, $num, $page);
 sub get_pagination {
     my $self = shift;
     my ($total, $num, $page) = @_;
@@ -592,9 +643,13 @@ sub get_pagination {
 
 
 
-
-
 #### exported ####
+# finish;
+#
+# should be used in "action file" like:
+#   return finish;
+# or can be used at last of code, like:
+#   finish;
 sub finish {
     return $FINISH;
 }
@@ -602,20 +657,26 @@ sub finish {
 
 
 #### exported 4 below ####
+# BEFORE \&code;
 sub BEFORE (&) {
     # (caller 0)[0] でクラス名を取得している
     _bind_method((caller 0)[0], 'BEFORE', shift || sub {''});
 }
+# GET \&code;
 sub GET (&) {
     _bind_method((caller 0)[0], 'GET', shift || sub {''});
 }
+# POST \&code;
 sub POST (&) {
     _bind_method((caller 0)[0], 'POST', shift || sub {''});
 }
+# AFTER \&code;
 sub AFTER (&) {
     _bind_method((caller 0)[0], 'AFTER', shift || sub {''});
 }
 
+# _bind_method($class, $method, \&code);
+# $action->_bind_method($class, $method, \&code);
 sub _bind_method {
     shift  if scalar(@_) == 4;
     my ($class, $method, $code) = @_;

@@ -12,6 +12,18 @@ use Hoya::Action;
 my @METHODS = qw/BEFORE GET POST AFTER/;
 
 
+# name:         アクション名
+# req:          is-a Plack::Request
+# conf:
+# q:
+# qq:
+# up:
+# mm:            is-a Hoya::MetaModel
+# vars:
+# cookies:
+# base_name:     大元のアクション名
+# sub_name:      継承元のアクション名
+# backward_name: フォワーディング元のアクション名
 sub new {
     my $class = shift;
     my $param = shift || {};
@@ -19,7 +31,7 @@ sub new {
 
     $class->mk_accessors qw/name req conf q qq up mm view_name
                             cookies vars
-                            sub_name base_name
+                            base_name sub_name backward_name
                            /;
 
     return $self->_init;
@@ -39,17 +51,18 @@ sub _init {
         die $@  if $@;
 
         $action = "$action_class"->new({
-            name      => $self->name,
-            req       => $self->req,
-            conf      => $self->conf,
-            q         => $self->q,
-            qq        => $self->qq,
-            up        => $self->up,
-            mm        => $self->mm,
-            cookies   => $self->cookies,
-            vars      => $self->vars,
-            sub_name  => $self->sub_name,
-            base_name => $self->base_name || $self->name,
+            name          => $self->name,
+            req           => $self->req,
+            conf          => $self->conf,
+            q             => $self->q,
+            qq            => $self->qq,
+            up            => $self->up,
+            mm            => $self->mm,
+            cookies       => $self->cookies,
+            vars          => $self->vars,
+            base_name     => $self->base_name || $self->name,
+            sub_name      => $self->sub_name,
+            backward_name => $self->backward_name,
         });
     }
     catch {
