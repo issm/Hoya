@@ -68,16 +68,23 @@ $msg
 }
 
 
-# table('table');         # ${PREFIX}table
-# table('table', 'tbl');  # ${PREFIX}table tbl
+# table('table');          # ${PREFIX}table
+# table('-table');         # table
+# table('table', 'tbl');   # ${PREFIX}table tbl
+# table('-table', 'tbl');  # table tbl
 sub table {
     my ($self, $table, $alias) = @_;
     my $db_conf = $self->conf->{DSH}{$self->name} || {};
+
+    my $no_prefix = ($table =~ s/^-//) || 0;
+
     my $sql = $table;
     $sql = "$table $alias"
         if defined $alias;
-    $sql = "$db_conf->{TABLE_PREFIX}$sql"
-        if defined $db_conf->{TABLE_PREFIX};
+    unless ($no_prefix) {
+        $sql = "$db_conf->{TABLE_PREFIX}$sql"
+            if defined $db_conf->{TABLE_PREFIX};
+    }
 
     return $sql;
 }
@@ -221,6 +228,55 @@ sub find_or_new {
         $columns,
     );
 }
+
+
+# $rs = $h->resultset({select => \@columns, from => \@tables, });
+# $rs = $h->resultset({select => \@columns, from => \@tables, where => \@where });
+sub resultset {
+    my ($self, $param) = @_;
+    my $select = $param->{select} || [];
+    my $from   = $param->{from} || [];
+
+    $select = [
+        map {
+            $self->column(@$_);
+        } @$select,
+    ];
+    $from = [
+        map {
+            $self->table(@$_);
+        } @$from,
+    ];
+
+    my $rs = $self->skinny->resultset({
+        select => $select,
+        from   => $from,
+    });
+
+    # where
+    if (defined (my $where = $param->{where})) {
+        while (@$where) {
+            my ($l, $r) = (shift @$where, shift @$where);
+            last  unless is_def $l, $r;
+
+            # l
+            if (ref $l eq 'ARRAY') {
+                $l = $self->column(@$l);
+            }
+            # r
+            if (ref $r eq 'ARRAY') {
+                $r = $self->column(@$r);
+            }
+
+            $rs->add_where($l => $r);
+        }
+    }
+
+    return $rs;
+}
+
+
+
 
 
 1;
