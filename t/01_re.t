@@ -15,6 +15,13 @@ use Hoya::Util;
 my $DICDIR = "$FindBin::Bin/dic";
 my ($target, $cases) = (qr//, {});
 
+
+sub p {
+    #diag "\n[35m", @_, "[m\n";
+    #diag @_;
+}
+
+
 sub test_these {
     die '$target need to be Regexp.'
         unless ref $target eq 'Regexp';
@@ -28,10 +35,6 @@ sub test_these {
     }
 }
 
-sub p {
-    #diag "\n[35m", @_, "[m\n";
-    #diag @_;
-}
 
 
 #--------------------------------------------------------------------------------
