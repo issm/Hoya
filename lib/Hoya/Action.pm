@@ -147,7 +147,7 @@ sub __AFTER  { '' }
 #   __AFTER__
 for my $METH (@METHODS) {
     no strict 'refs';
-    
+
     my $class = __PACKAGE__;
     my $method = "__${METH}__";
 
@@ -157,9 +157,10 @@ for my $METH (@METHODS) {
         $self->update_param($pass);
 
         try {
+            # 継承元であるアクションクラスが存在する場合，
+            # 先にそのクラスの同名メソッドを実行する
             if (defined $self->_super) {
                 $ret = $self->_super->${method}($pass);
-                #$ret = eval "\$self->_super->${method}(\$pass)";
                 $self->update_param($ret);
                 if (
                     (defined $ret->{name}  &&  $ret->{name} ne '')  ||
@@ -600,7 +601,7 @@ sub finish {
 
 
 
-#### exported ####
+#### exported 4 below ####
 sub BEFORE (&) {
     # (caller 0)[0] でクラス名を取得している
     _bind_method((caller 0)[0], 'BEFORE', shift || sub {''});
@@ -618,9 +619,12 @@ sub AFTER (&) {
 sub _bind_method {
     shift  if scalar(@_) == 4;
     my ($class, $method, $code) = @_;
-    no strict 'refs';
-    no warnings 'redefine';
-    *{"${class}::__${method}"} = sub { $code->(); };
+
+    {
+        no strict 'refs';
+        no warnings 'redefine';
+        *{"${class}::__${method}"} = sub { $code->(); };
+    }
 }
 
 

@@ -35,7 +35,8 @@ sub _init {
     try {
         my $pl   = $self->_load;
         my $code = $self->_generate_as_string($pl);
-        eval $code or die $@;
+        eval $code;
+        die $@  if $@;
 
         $action = "$action_class"->new({
             name      => $self->name,
@@ -107,8 +108,7 @@ sub _generate_as_string ($) {
     my ($self, $pl) = @_;
     $pl ||= '';
 
-    return sprintf(
-        << '...',
+    my $code_fmt = << '...';
 package Hoya::Action::%s;
 use strict;
 use warnings;
@@ -127,33 +127,34 @@ use Hoya::Factory::Action;
 
 {
     no warnings;
-    eval {
-        sub _main {
-            use warnings;
-            no warnings 'redefine';
-        
-            my $self = shift;
-            #$self->SUPER::_main(@_);
-        
-            {
-                no warnings;
-                sub a { return $self; }
-                sub A { return $self; }
-                sub r { return $self->req; }
-            }
 
-            %s
+    # overwrite of Hoya::Action::_main
+    sub _main {
+        use warnings;
+        no warnings 'redefine';
+
+        my $self = shift;
+        #$self->SUPER::_main(@_);
+
+        {
+            no warnings;
+            sub a { return $self; }
+            sub A { return $self; }
+            sub r { return $self->req; }
         }
-    };
+
+        %s
+    }
 }
 
 1;
 __END__
 ...
+    return sprintf(
+        $code_fmt,
         name2class($self->name),
         $pl,
     );
-
 }
 
 
