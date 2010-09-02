@@ -1,8 +1,5 @@
 #!/bin/sh
 
-SITE_NAME=$1
-SERVER_PORT=$2
-
 PROJECT_ROOT=/path/to/project
 BINDIR=/usr/local/bin
 SBINDIR=/usr/local/sbin
@@ -10,6 +7,12 @@ HOYADIR=/path/to/Hoya
 SERVER_USER=apache
 HOST=localhost
 ENABLE_LOGGER=1
+
+SITE_NAME=$1
+SERVER_PORT=$2
+
+PERL_VER=`env perl -e 'print "5." . join ".", map int($_), ($] =~ /(\d{3})(\d{3})$/);'`
+echo "PERL_VER:    [32m$PERL_VER[m"
 
 PLACK_ENV=development
 CH1=`echo $SITE_NAME | cut -c1`
@@ -61,20 +64,21 @@ exec \
     HOYA_PROJECT_ROOT=${PROJECT_ROOT} \
     HOYA_SITE=${SITE_NAME} \
     HOYA_ENABLE_LOGGER=${ENABLE_LOGGER} \
-  $BINDIR/plackup \
-  -E $PLACK_ENV \
-  -R www,pl,lib,conf,$HOYADIR/lib,$HOYADIR/extlib \
-  -s HTTP::Server::PSGI \
-  --host=$HOST \
-  --port=$SERVER_PORT \
-  -I $HOYADIR/lib \
-  -I $HOYADIR/extlib \
-  -I lib \
+  plackup \
+    -E $PLACK_ENV \
+    -R www,pl,lib,conf,$HOYADIR/lib/$HOYADIR/extlib \
+    -s HTTP::Server::PSGI \
+    --host=$HOST \
+    --port=$SERVER_PORT \
+    -I $HOYADIR/lib \
+    -I $HOYADIR/extlib \
+    -I lib \
   $PSGI_FILE
 
-#  --max-workers 16 \
-#  --max-workers 32 \
-#  -s HTTP::Server::PSGI \
-#  -s Starman \
-#  --socket=/tmp/plack-netps.sock \
-#  --host=$HOST \
+#    -I $HOME/local/lib/site_perl/$PERL_VER/darwin-2level \
+#    --max-workers 16 \
+#    --max-workers 32 \
+#    -s HTTP::Server::PSGI \
+#    -s Starman \
+#    --socket=/tmp/plack-netps.sock \
+#    --host=$HOST \
