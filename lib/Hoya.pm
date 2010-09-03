@@ -26,8 +26,14 @@ sub run {
     my $SESSION_EXPIRES = 60 * 60 * 24 * 28;  # 28 days
 #===================================================================================
 
+    # 環境変数 HOYA_ROOT
+    ($req->env->{HOYA_ROOT} = __FILE__) =~ s{/lib/Hoya\.pm$}{};
+
+    # 環境変数 HOYA_PROJECT_ROOT
     $req->env->{HOYA_PROJECT_ROOT} =
         $ENV{HOYA_PROJECT_ROOT} || $ENV{PROJECT_ROOT};
+
+    # 環境変数 HOYA_SITE
     $req->env->{HOYA_SITE} = $ENV{HOYA_SITE};
 
     my $c = Hoya::Controller->new({
