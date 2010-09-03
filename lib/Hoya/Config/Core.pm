@@ -58,7 +58,7 @@ sub _init {
     $PATH->{FILECACHE} = "$PATH->{TMP}/FileCache";
 
     # グローバル
-    # base.yml, additional.yml, _local.yml
+    # base.yml, additional.yml, _local.yml, _dev.yml
     {
         for my $f (qw/base additional/) {
             my $file = "$PATH->{CONF}/$f.yml";
@@ -66,6 +66,10 @@ sub _init {
         }
         if ($self->_conf->{LOCAL}) {
             my $file = "$PATH->{CONF}/_local.yml";
+            $self->_add_from_yaml($file);
+        }
+        if ($self->_conf->{DEVELOPMENT} || $self->_conf->{DEV}) {
+            my $file = "$PATH->{CONF}/_dev.yml";
             $self->_add_from_yaml($file);
         }
 
