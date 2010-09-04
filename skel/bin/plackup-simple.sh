@@ -1,11 +1,11 @@
 #!/bin/sh
 
-PROJECT_ROOT=/path/to/project
 HOYADIR=/path/to/Hoya
 HOST=localhost
 ENABLE_LOGGER=1
 
 
+PROJECT_ROOT=$(cd $(dirname $0)/../ && pwd)
 SITE_NAME=$1
 SERVER_PORT=$2
 

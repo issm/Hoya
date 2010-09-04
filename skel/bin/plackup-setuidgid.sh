@@ -1,13 +1,12 @@
 #!/bin/sh
 
-PROJECT_ROOT=/path/to/project
-BINDIR=/usr/local/bin
-SBINDIR=/usr/local/sbin
 HOYADIR=/path/to/Hoya
+SBINDIR=/usr/local/sbin
 SERVER_USER=apache
 HOST=localhost
 ENABLE_LOGGER=1
 
+PROJECT_ROOT=$(cd $(dirname $0)/../ && pwd)
 SITE_NAME=$1
 SERVER_PORT=$2
 
