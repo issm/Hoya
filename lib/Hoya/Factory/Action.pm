@@ -107,8 +107,17 @@ sub _load {
 
 $msg
 ...
-        croak $text;
-        $buff = '';
+        #croak $text;
+        $buff = << '...';
+BEFORE {
+    a->status(500);
+    a->import_var(
+        message => '%s',
+    );
+    return 'error_action-not-found';
+};
+...
+        $buff = sprintf $buff, $text;
     };
 
     return $buff;
