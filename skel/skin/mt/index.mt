@@ -13,7 +13,7 @@
 ? #### #content オーバライド ここから ####
 <h1><?= $conf->{PROJECT_NAME}; ?></h1>
 
-<p>hi.</p>
+<p>Hello, world.</p>
 
 ? #### #content オーバライド ここまで ####
 ? }

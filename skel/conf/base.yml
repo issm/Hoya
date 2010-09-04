@@ -15,7 +15,7 @@ WEBSITE_NAME: welcome to my project
 
 DSH:
   skinny:
-    CLASS:  DBIx::Skinny
+    CLASS:  #DBIx::Skinny
     #MODULE: +Some::Where::MyDB
     MODULE: MyDB
     # ^ the former: locate MyDB.pm in any PERL5LIB path
@@ -23,7 +23,7 @@ DSH:
     # ^ write connection settings in this *.pm file
     TABLE_PREFIX: pre_
   dbi:
-    CLASS:  DBI
+    CLASS:  #DBI
     TYPE:   mysql
     HOST:   localhost
     PORT:   3306
@@ -63,8 +63,10 @@ PAGE:
 
   # 
   PATH_PREFIX:
-    COMMON: common  # ex. js/"common"/base.js
-    PAGE:   page    # ex. css/"page"/top/index.css
+    COMMON: common  
+    PAGE:   page    
+    # ^ COMMON => ex. js/"common"/base.js     
+    # ^ PAGE   => ex. css/"page"/top/index.css
 
   # not use "<!--[if IE* ]--> ... <!--[endif]-->"
   DISABLE_IE_SPECIFIC: 0
