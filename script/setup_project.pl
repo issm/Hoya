@@ -38,10 +38,10 @@ sub _setup {
             $makepath_opts_default,
         );
 
-        # bin/plackup.sh
+        # bin/plackup-simple.sh
         _copy_file(
-            "${hoya_root}/skel/bin/plackup.sh",
-            "${project_root}/bin/plackup.sh",
+            "${hoya_root}/skel/bin/plackup-simple.sh",
+            "${project_root}/bin/plackup-simple.sh",
             0755,
         );
 
