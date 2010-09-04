@@ -15,7 +15,6 @@ use UUID::Tiny;
 use YAML;
 use JSON;
 use XML::TreePP;
-use Image::Magick;
 use Data::Page;
 use Text::MicroTemplate::Extended;
 use Carp;
@@ -29,12 +28,13 @@ use Hash::MultiValue;
 use Params::Validate;
 use URI::Escape;
 use HTML::Entities;
-use Date::Calc;
-use MIME::Lite;
-use DBI '1.609';
-use DBIx::Skinny;
-use DBIx::Skinny::Schema::Loader;
-use Text::MediawikiFormat qw/wikiformat/;
+#use Date::Calc;
+#use MIME::Lite;
+#use DBI '1.609';
+#use DBIx::Skinny;
+#use DBIx::Skinny::Schema::Loader;
+#use Text::MediawikiFormat qw/wikiformat/;
+#use Image::Magick;
 
 use Hoya;
 use Hoya::Util;
@@ -119,6 +119,8 @@ sub build_common {
 
     enable 'Session',
         state => Plack::Session::State::Cookie->new(
+            domain      => $CONF->{COOKIE}{DOMAIN},
+            path        => $CONF->{COOKIE}{PATH},
             session_key => $SESSION_KEY,
             expires     => $SESSION_EXPIRES,
         ),
