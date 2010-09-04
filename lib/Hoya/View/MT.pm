@@ -83,11 +83,16 @@ sub go {
     my $env  = $self->env;
     my $conf = $self->conf;
     my $var  = $self->var;
+    my $name2path = name2path($name);
+
+    # テンプレートスケルトンのパス
+    # 最終代替テンプレートとして使用する
+    my $path_skel = "$env->{HOYA_ROOT}/skel/skin/mt";
 
     my $viewfile = sprintf(
         '%s/%s.mt',
         $self->_path,
-        name2path($self->name),
+        $name2path,
     );
 
     my $content = '';
@@ -105,8 +110,9 @@ sub go {
     my $mt =
         Text::MicroTemplate::Extended->new(
             include_path  => [
-                $self->_path,
-                $self->_path_alt,
+                $self->_path,      # 指定
+                $self->_path_alt,  # 代替
+                $path_skel,        # 最終代替
             ],
             template_args => {
                 env  => $env,
@@ -119,7 +125,7 @@ sub go {
                 URL           => $conf->{LOCATION}{URL},
                 URL_UNESCAPED => de(uri_unescape($conf->{LOCATION}{URL})),
 
-                VIEW_NAME   => $self->name,
+                VIEW_NAME   => $name,
                 ACTION_NAME => $self->action_name,
 
             },
