@@ -6,7 +6,7 @@
 #
 #--------------------------------------------------------------------------------
 ---
-# variables for 'path'
+# variables for 'path-regexp'
 VAR:
   INT:  '\d+'
   ABC:  '[a-zA-Z]+'
@@ -25,7 +25,7 @@ main:
   - ^user/ ($INT) /?$:
       - [user_id]
       - {hoge: ほげほげ}
-      - user
+      - user_profile
 
   - .*:
       - index
