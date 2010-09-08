@@ -36,11 +36,12 @@ sub _load {
     my $self = shift;
     my $rulefile;
 
-    #
+    # conf/form.yml をさがす
     $rulefile = sprintf(
         '%s/form.yml',
         $self->conf->{PATH}{CONF},
     );
+    # なければ conf/form/{action_name_path}.yml をさがす
     unless (-f $rulefile) {
         $rulefile = sprintf(
             '%s/form/%s.yml',
