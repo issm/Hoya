@@ -195,6 +195,16 @@ sub find_or_create {
 # find_or_insert -> find_or_create
 sub find_or_insert { return shift->find_or_create(@_); }
 
+# $count = $h->count($name, $column, \%options);
+sub count {
+    my ($self, $name, $column, $options) = @_;
+    return $self->skinny->count(
+        $self->table($name),
+        $column,
+        $options,
+    );
+}
+
 # $itr = $h->search($name, \%columns, \%options);
 sub search {
     my ($self, $name, $columns, $options) = @_;
