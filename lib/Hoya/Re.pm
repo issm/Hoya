@@ -167,6 +167,10 @@ sub EMAIL {
               ${DOMAIN}
             $/ix;
 }
+sub EMAIL_OR_NULL {
+    my $RE = EMAIL;
+    return qr/(?:${RE}|^$)/;
+}
 
 
 sub URL {
@@ -203,10 +207,18 @@ sub TEL {
               )
               $/x;
 }
+sub TEL_OR_NULL {
+    my $RE = TEL;
+    return qr/(?:${RE}|^$)/;
+}
 
 
 sub ZIPCODE {
     return qr/^(\d{3})-?(\d{4})$/x;
+}
+sub ZIPCODE_OR_NULL {
+    my $RE = ZIPCODE;
+    return qr/(?:${RE}|^$)/;
 }
 
 
