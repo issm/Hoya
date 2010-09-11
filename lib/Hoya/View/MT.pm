@@ -107,6 +107,9 @@ sub go {
     $var->{__import__} = undef;
     delete $var->{__import__};
 
+    my ($_url, $_url_noparam) = ($conf->{LOCATION}{URL});
+    ($_url_noparam = $_url) =~ s/\?.*$//;
+
     my $mt =
         Text::MicroTemplate::Extended->new(
             include_path  => [
@@ -122,8 +125,10 @@ sub go {
                 var  => $var,
                 %var_import,
 
-                URL           => $conf->{LOCATION}{URL},
-                URL_UNESCAPED => de(uri_unescape($conf->{LOCATION}{URL})),
+                URL                   => $_url,
+                URL_NOPARAM           => $_url_noparam,
+                URL_UNESCAPED         => de(uri_unescape($_url)),
+                URL_NOPARAM_UNESCAPED => de(uri_unescape($_url_noparam)),
 
                 VIEW_NAME   => $name,
                 ACTION_NAME => $self->action_name,
