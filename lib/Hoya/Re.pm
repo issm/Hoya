@@ -222,6 +222,16 @@ sub ZIPCODE_OR_NULL {
 }
 
 
+sub FILENAME {
+    # exclude: / \ ¥ : ; < > ' " | * ? { }
+    return qr/^[^\/\\\¥\:\;\<\>\'\"\|\*\?\{\}]+$/;
+}
+sub FILENAME_OR_NULL {
+    my $RE = FILENAME;
+    return qr/(?:${RE}|^$)/;
+}
+
+
 
 1;
 __END__
