@@ -2,7 +2,8 @@ package Hoya;
 use strict;
 use warnings;
 use utf8;
-our $VERSION = '0.01';
+use 5.008_001;
+our $VERSION = '0.0002_002';
 
 use base qw/Class::Accessor::Faster/;
 use Hoya::Controller;

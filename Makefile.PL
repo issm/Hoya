@@ -1,6 +1,9 @@
 use inc::Module::Install;
+
+
 name 'Hoya';
 all_from 'lib/Hoya.pm';
+
 
 requires 'Plack::Middleware::Session';
 requires 'URI::Escape';
@@ -21,8 +24,9 @@ requires 'List::MoreUtils';
 requires 'Data::Page';
 
 # used in test
-requires 'Data::Random';
-requires 'Data::Random::WordList';
+test_requires 'Test::More';
+test_requires 'Data::Random';
+test_requires 'Data::Random::WordList';
 
 #requires 'Log::Dispatch::DesktopNotification'; # optional
 
@@ -36,7 +40,9 @@ requires 'Data::Random::WordList';
 tests 't/*.t';
 #author_tests 'xt';
 
-test_requires 'Test::More';
+
+auto_install;
+auto_set_repository
 auto_set_repository;
 auto_include;
 WriteAll;
