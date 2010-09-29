@@ -37,7 +37,7 @@ test_requires 'Data::Random::WordList';
 #requires 'PDF::API2';
 #requires 'PDF::API2::Lite';
 
-tests 't/*.t';
+tests 't/*.t t/*/*.t';
 #author_tests 'xt';
 
 
