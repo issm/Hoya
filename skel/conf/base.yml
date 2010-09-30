@@ -21,6 +21,12 @@ DSH:
     # ^ the former: locate MyDB.pm in any PERL5LIB path
     # ^ the latter: locate lib/{MyProject}/DB/MyDB.pm
     # ^ write connection settings in this *.pm file
+    TYPE:   mysql
+    HOST:   localhost
+    PORT:   3306
+    NAME:   dbname
+    USER:   user
+    PASSWD: password
     TABLE_PREFIX: pre_
   dbi:
     CLASS:  #DBI

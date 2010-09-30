@@ -48,12 +48,31 @@ sub _setup {
         }
 
         eval "use ${module_name};";
-        $skinny = ${module_name}->new;
+        my $attr = ${module_name}->attribute;
 
-        croak 'xxx'  unless defined $skinny;
+        # クラス定義時に接続情報が設定されている場合，それを利用する
+        if (defined $attr->{dsn}) {
+            $skinny = ${module_name}->new;
+        }
+        # そうでない場合，$db_conf から該当する設定を渡して接続する
+        else {
+            $skinny = ${module_name}->new(+{
+                dsn      => "dbi:$db_conf->{TYPE}:$db_conf->{NAME}",
+                username => $db_conf->{USER},
+                password => $db_conf->{PASSWD},
+            });
+        }
+
+        croak 'failed to initialize DSH::DBIx::Skinny handler for unknown reasons...'
+            unless defined $skinny;
     }
     catch {
         my $msg = shift;
+
+        if ($ENV{HOYA_PROJECT_TEST}) {
+            warn $msg;
+        }
+
         my $text = << "...";
 **** Error in Hoya::DSH::DBIx::Skinny ****
 

@@ -3,15 +3,18 @@ use warnings;
 
 
 package MyProject::DB::MyDB;
-use DBIx::Skinny;
+use DBIx::Skinny setup => +{
+    dsn      => 'dbi:mysql:{dbname}',
+    username => '{username}',
+    password => '{password}',
+};
 1;
 
 
 package MyProject::DB::MyDB::Schema;
+use base qw/DBIx::Skinny::Schema::Loader/;
 use DBIx::Skinny::Schema;
 use utf8;
-
-# DBIx::Skinny::Schema::Loader->make_schema_at() が便利
 
 # utf-8 columns
 #install_utf8_columns qw/name
@@ -31,6 +34,7 @@ use utf8;
 #    };
 #};
 
+__PACKAGE__->load_schema;
 
 
 1;
