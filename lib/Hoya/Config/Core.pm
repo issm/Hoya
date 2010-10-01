@@ -58,19 +58,23 @@ sub _init {
     $PATH->{FILECACHE} = "$PATH->{TMP}/FileCache";
 
     # グローバル
-    # base.yml, additional.yml, _local.yml, _dev.yml
+    # base.yml, additional.yml, _local.yml, _dev.yml, _test.yml
     {
+        my $dir = $PATH->{CONF};
+
         for my $f (qw/base additional/) {
-            my $file = "$PATH->{CONF}/$f.yml";
-            $self->_add_from_yaml($file);
+            $self->_add_from_yaml( "$dir/$f.yml" );
         }
         if ($self->_conf->{LOCAL}) {
-            my $file = "$PATH->{CONF}/_local.yml";
-            $self->_add_from_yaml($file);
+            $self->_add_from_yaml( "$dir/_local.yml" );
         }
+        # 開発環境向け設定で上書きする
         if ($self->_conf->{DEVELOPMENT} || $self->_conf->{DEV}) {
-            my $file = "$PATH->{CONF}/_dev.yml";
-            $self->_add_from_yaml($file);
+            $self->_add_from_yaml( "$dir/_dev.yml" );
+        }
+        # テスト環境向け設定で上書きする
+        if ($ENV{HOYA_PROJECT_TEST}) {
+            $self->_add_from_yaml( "$dir/_test.yml" );
         }
 
         $conf = $self->_conf;
