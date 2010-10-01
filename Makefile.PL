@@ -5,37 +5,41 @@ name 'Hoya';
 all_from 'lib/Hoya.pm';
 
 
-requires 'Plack::Middleware::Session';
-requires 'URI::Escape';
-requires 'YAML::Syck';
-requires 'JSON::Syck';
-requires 'UUID::Tiny';
-requires 'Data::Recursive::Encode';
-requires 'Hash::Merge';
-requires 'Hash::MultiValue';
-requires 'Text::MicroTemplate::Extended';
-requires 'Digest::SHA1';
-requires 'Try::Tiny';
-requires 'Log::Dispatch';
-requires 'Data::Dumper';
-requires 'Data::Dump';
-requires 'Params::Validate';
-requires 'List::MoreUtils';
-requires 'Data::Page';
+requires 'Plack::Middleware::Session';    #
+requires 'URI::Escape';                   # Hoya::Mapper::URL, Hoya::View::MT
+requires 'YAML::Syck';                    # Hoya::Config::Core?, Hoya::DSH::DBI, Hoya::Form, Hoya::Mapper::URL, Hoya::Mapper::UserAgent
+requires 'JSON::Syck';                    #
+requires 'UUID::Tiny';                    # Hoya::Util
+requires 'Data::Recursive::Encode';       # Hoya::Util
+requires 'Hash::Merge';                   # Hoya::Util, Hoya::Mapper::URL
+requires 'Hash::MultiValue';              # Hoya::Util, Hoya::Action, Hoya::Action::* (dynamically), Hoya::Model::* (dynamically), Hoya::Form::Validator, Hoya::Mapper::URL, 
+requires 'Text::MicroTemplate::Extended'; # Hoya::View::MT
+requires 'Digest::SHA1';                  # Hoya::DSH::DBI
+requires 'Try::Tiny';                     # almost all in Hoya modules
+requires 'Log::Dispatch';                 #
+requires 'Data::Dumper';                  # Hoya::Util
+requires 'Data::Dump';                    # Hoya::Util
+requires 'Params::Validate';              # Hoya::Model::* (dynamically), Hoya::Action, Hoya::Form::Validator, 
+requires 'List::MoreUtils';               # Hoya::Form::Validator
+requires 'Data::Page';                    # Hoya::Action, Hoya::Model::* (dynamically)
 
-# used in test
-test_requires 'Test::More';
-test_requires 'Data::Random';
-test_requires 'Data::Random::WordList';
+if ($ENV{HOYA_USE_X}) {
+    #requires 'Log::Dispatch::DesktopNotification';  # optional
+    requires 'MIME::Lite';                          # Hoya::X::Mail
+    requires 'MIME::Types';                         # Hoya::X::Mail?
+    requires 'Image::Magick';
+    requires 'Image:Size';
+    requires 'PDF::API2';                           # Hoya::X::PDF
+    requires 'PDF::API2::Lite';                     # Hoya::X::PDF
+}
 
-#requires 'Log::Dispatch::DesktopNotification'; # optional
 
-#requires 'MIME::Lite';
-#requires 'MIME::Types';
-#requires 'Image::Magick';
-#requires 'Image:Size';
-#requires 'PDF::API2';
-#requires 'PDF::API2::Lite';
+test_requires 'Test::More';               # *.t
+test_requires 'Data::Random';             # Hoya::Re
+test_requires 'Data::Random::WordList';   # Hoya::Re
+test_requires 'Clone';                    # Hoya::X::Params::Validate::Spec
+test_requires 'Text::MediawikiFormat';    # Hoya::X::Text::MediawikiFormat
+
 
 tests 't/*.t t/*/*.t';
 #author_tests 'xt';
