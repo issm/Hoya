@@ -5,6 +5,25 @@ use Carp;
 
 use Hoya::Util;
 
+our @LABELS = qw/
+    ANY
+    NON_SPACE NON_SPACE_ML
+    NUM ALPHABET ALPHANUM
+    UNIQUE_KEY RANDOM_KEY
+    FLAG
+    HIRAGANA KATAKANA KANJI HANKANA
+    DOMAIN
+    EMAIL    EMAIL_OR_NULL
+    URL
+    DATETIME
+    DATE
+    TIME
+    TEL      TEL_OR_NULL
+    ZIPCODE  ZIPCODE_OR_NULL
+    FILENAME FILENAME_OR_NULL
+/;
+
+
 my $_1_NUM        = qr/[0-9]/;
 my $_1_ALPHABET   = qr/[0-9a-z]/i;
 my $_1_ALPHANUM   = qr/[0-9a-z]/i;
@@ -14,6 +33,17 @@ my $_1_HIRAGANA   = qr/[\x{3040}-\x{309F}]/;
 my $_1_KATAKANA   = qr/[\x{30A0}-\x{30FF}]/;
 my $_1_KANJI      = qr/[\x{4E00}-\x{9FFF}]/;
 my $_1_HANKANA    = qr/[\x{FF60}-\x{FF9F}]/;
+
+
+sub import {
+    no strict 'refs';
+    my $caller = caller(0);
+
+    for my $n (@LABELS) {
+        *{"$caller\::RE_$n"} = sub { eval "$n(\@_)"; };
+    }
+}
+
 
 
 # _re_by_arg($re, $n);
