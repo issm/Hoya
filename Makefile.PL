@@ -50,7 +50,6 @@ tests 't/*.t t/*/*.t t/*/*/*.t';
 
 
 auto_install;
-auto_set_repository
 auto_set_repository;
 auto_include;
 WriteAll;
