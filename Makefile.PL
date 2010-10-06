@@ -41,7 +41,7 @@ test_requires 'Clone';                    # Hoya::X::Params::Validate::Spec
 test_requires 'Text::MediawikiFormat';    # Hoya::X::Text::MediawikiFormat
 
 
-tests 't/*.t t/*/*.t';
+tests 't/*.t t/*/*.t t/*/*/*.t';
 #author_tests 'xt';
 
 
