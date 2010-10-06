@@ -28,7 +28,7 @@ if ($ENV{HOYA_USE_X}) {
     requires 'MIME::Lite';                          # Hoya::X::Mail
     requires 'MIME::Types';                         # Hoya::X::Mail?
     requires 'Image::Magick';
-    requires 'Image:Size';
+    requires 'Image::Size';
     requires 'PDF::API2';                           # Hoya::X::PDF
     requires 'PDF::API2::Lite';                     # Hoya::X::PDF
     requires 'LWP::UserAgent';                      # Hoya::X::Business::Payment::Epsilon
