@@ -32,6 +32,7 @@ if ($ENV{HOYA_USE_X}) {
     requires 'PDF::API2';                           # Hoya::X::PDF
     requires 'PDF::API2::Lite';                     # Hoya::X::PDF
     requires 'LWP::UserAgent';                      # Hoya::X::Business::Payment::Epsilon
+    requires 'Crypt::SSLeay';                       # Hoya::X::Business::Payment::Epsilon
     requires 'XML::Simple';                         # Hoya::X::Business::Payment::Epsilon
     requires 'HTTP::Request::Common';               # Hoya::X::Business::Payment::Epsilon
 }
