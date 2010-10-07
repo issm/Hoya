@@ -97,7 +97,9 @@ sub get_sales {
 
     my $info = {};
     for my $i (@{$doc->{result}}) {
-        $info->{$_} = $i->{$_}  for keys %$i;
+        for my $ii (keys %$i) {
+            ($info->{$ii} = $i->{$ii}) =~ s/\+/ /g;
+        }
     }
 
     return $info;
