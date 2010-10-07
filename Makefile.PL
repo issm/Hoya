@@ -5,6 +5,7 @@ name 'Hoya';
 all_from 'lib/Hoya.pm';
 
 
+requires 'Plack';                         #
 requires 'Plack::Middleware::Session';    #
 requires 'URI::Escape';                   # Hoya::Mapper::URL, Hoya::View::MT
 requires 'YAML::Syck';                    # Hoya::Config::Core?, Hoya::DSH::DBI, Hoya::Form, Hoya::Mapper::URL, Hoya::Mapper::UserAgent
