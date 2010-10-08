@@ -15,6 +15,9 @@ requires 'Data::Recursive::Encode';       # Hoya::Util
 requires 'Hash::Merge';                   # Hoya::Util, Hoya::Mapper::URL
 requires 'Hash::MultiValue';              # Hoya::Util, Hoya::Action, Hoya::Action::* (dynamically), Hoya::Model::* (dynamically), Hoya::Form::Validator, Hoya::Mapper::URL, 
 requires 'Text::MicroTemplate::Extended'; # Hoya::View::MT
+requires 'Cache::FileCache';              # Hoya::DSH;
+requires 'DBI';                           # Hoya::DSH::DBIx::Skinny, Hoya::DSH::DBI
+requires 'DBIx::Skinny';                  # Hoya::DSH::DBIx::Skinny
 requires 'Digest::SHA1';                  # Hoya::DSH::DBI
 requires 'Try::Tiny';                     # almost all in Hoya modules
 requires 'Log::Dispatch';                 #
