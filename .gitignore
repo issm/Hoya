@@ -9,4 +9,5 @@ extlib
 _extlib/
 _default.psgi
 
+t/_proj/tmp/*
 
