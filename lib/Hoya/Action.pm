@@ -105,6 +105,7 @@ sub go {
     my $pass = $self->get_param;
 
     my $req_meth = $self->req->method;
+    $req_meth = 'GET'  unless defined $req_meth;
 
     # BEFORE
     $pass = $self->__BEFORE__($pass);
