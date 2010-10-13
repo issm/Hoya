@@ -42,8 +42,8 @@ if ($ENV{HOYA_USE_X}) {
     requires 'HTTP::Request::Common';               # Hoya::X::Business::Payment::Epsilon
 }
 
-
 test_requires 'Test::More';               # *.t
+test_requires 'Test::These';              # *.t
 test_requires 'Data::Random';             # Hoya::Re
 test_requires 'Data::Random::WordList';   # Hoya::Re
 test_requires 'Clone';                    # Hoya::Action, Hoya::X::Params::Validate::Spec
