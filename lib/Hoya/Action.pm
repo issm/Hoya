@@ -641,6 +641,18 @@ sub get_pagination {
 }
 
 
+#
+sub q_fill_empty {
+    my ($self, @keys) = @_;
+    @keys = ()  unless defined $keys[0];
+    my $q = $self->q;
+    for my $k (@keys) {
+        $q->add($k => '')  unless defined $q->get($k);
+    }
+    $self->q($q);
+}
+
+
 
 
 #### exported ####
@@ -785,6 +797,10 @@ When 1st argument is hashref, \%var is merged to "variable hash".
 =item import_var($name, $value)
 
 Sets variable to be available directly at View, as $hoge, not $var->{hoge}.
+
+=item q_fill_empty(@keys)
+
+Sets "empty string" if $action->q->get($key) is undefined.
 
 =item finish
 
