@@ -12,7 +12,7 @@ use Data::Random::WordList;
 use Hoya::Re;
 use Hoya::Util;
 
-my $DICDIR = "$FindBin::Bin/dic";
+my $DICDIR = "$FindBin::Bin/_dic";
 my ($target, $cases) = (qr//, {});
 
 
