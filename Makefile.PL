@@ -46,7 +46,7 @@ if ($ENV{HOYA_USE_X}) {
 test_requires 'Test::More';               # *.t
 test_requires 'Data::Random';             # Hoya::Re
 test_requires 'Data::Random::WordList';   # Hoya::Re
-test_requires 'Clone';                    # Hoya::X::Params::Validate::Spec
+test_requires 'Clone';                    # Hoya::Action, Hoya::X::Params::Validate::Spec
 test_requires 'Text::MediawikiFormat';    # Hoya::X::Text::MediawikiFormat
 
 
