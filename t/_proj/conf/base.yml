@@ -1,0 +1,78 @@
+#--------------------------------------------------------------------------------
+#
+#  base.yml
+#    基本設定ファイル
+#    Hoya::Config が使用する
+#
+#--------------------------------------------------------------------------------
+---
+DEV: 1
+
+PROJECT_NAME: myproject
+YEAR_RELEASE: 2010
+
+WEBSITE_NAME: welcome to my project
+
+DSH:
+  skinny:
+    CLASS:  #DBIx::Skinny
+    #MODULE: +Some::Where::MyDB
+    MODULE: MyDB
+    # ^ the former: locate MyDB.pm in any PERL5LIB path
+    # ^ the latter: locate lib/{MyProject}/DB/MyDB.pm
+    # ^ write connection settings in this *.pm file
+    TYPE:   mysql
+    HOST:   localhost
+    PORT:   3306
+    NAME:   dbname
+    USER:   user
+    PASSWD: password
+    TABLE_PREFIX: pre_
+  dbi:
+    CLASS:  #DBI
+    TYPE:   mysql
+    HOST:   localhost
+    PORT:   3306
+    NAME:   dbname
+    USER:   user
+    PASSWD: password
+    TABLE_PREFIX: pre_
+  yaml:
+    CLASS:  #YAML
+
+COOKIE:
+  EXPIRES: +14d
+  DOMAIN:  
+  PATH:    /
+  SECURE:  0
+
+CACHE:
+  ENABLED:   1
+  NAMESPACE: hoya
+  EXPIRES:   600
+
+MAIL:
+  HOST_SMTP: localhost:587
+  ADDRESS:
+    FROM: noreply@example.com
+    CC:
+  SIGNATURE: |
+    --
+    your email signature.
+
+CONTENT_TYPE_DEFAULT: 'text/html; charset=utf-8'
+
+PAGE:
+  #
+  CSS_COMMON: [_base, _layout, _additional]
+  JS_COMMON:  [_base, _additional]
+
+  # 
+  PATH_PREFIX:
+    COMMON: common  
+    PAGE:   page    
+    # ^ COMMON => ex. js/"common"/base.js     
+    # ^ PAGE   => ex. css/"page"/top/index.css
+
+  # not use "<!--[if IE* ]--> ... <!--[endif]-->"
+  DISABLE_IE_SPECIFIC: 0
