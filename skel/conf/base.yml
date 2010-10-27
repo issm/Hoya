@@ -15,7 +15,7 @@ WEBSITE_NAME: welcome to my project
 
 DSH:
   skinny:
-    CLASS:  #DBIx::Skinny
+    #CLASS:  DBIx::Skinny
     #MODULE: +Some::Where::MyDB
     MODULE: MyDB
     # ^ the former: locate MyDB.pm in any PERL5LIB path
@@ -29,7 +29,7 @@ DSH:
     PASSWD: password
     TABLE_PREFIX: pre_
   dbi:
-    CLASS:  #DBI
+    #CLASS:  DBI
     TYPE:   mysql
     HOST:   localhost
     PORT:   3306
@@ -38,7 +38,7 @@ DSH:
     PASSWD: password
     TABLE_PREFIX: pre_
   yaml:
-    CLASS:  #YAML
+    #CLASS:  YAML
 
 COOKIE:
   EXPIRES: +14d
