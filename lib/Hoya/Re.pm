@@ -40,7 +40,7 @@ sub import {
     my $caller = caller(0);
 
     for my $n (@LABELS) {
-        *{"$caller\::RE_$n"} = sub { eval "$n(\@_)"; };
+        *{"$caller\::RE_$n"} = *{"$n"};
     }
 }
 
