@@ -5,6 +5,7 @@ name 'Hoya';
 all_from 'lib/Hoya.pm';
 
 
+requires 'UNIVERSAL::require';            #
 requires 'Plack';                         #
 requires 'Plack::Middleware::Session';    #
 requires 'URI::Escape';                   # Hoya::Mapper::URL, Hoya::View::MT

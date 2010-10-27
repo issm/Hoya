@@ -4,7 +4,7 @@ use warnings;
 use utf8;
 use base qw/Class::Accessor::Faster/;
 
-
+use UNIVERSAL::require;
 use Carp;
 use Try::Tiny;
 
@@ -34,10 +34,10 @@ sub _init {
 
     my $view_class = 'Hoya::View::' . $self->type;
     try {
-        eval "use ${view_class};";
+        $view_class->use;
     }
     catch {
-        eval 'use Hoya::View::MT;';
+        Hoya::View::MT->use;
     };
 
     try {

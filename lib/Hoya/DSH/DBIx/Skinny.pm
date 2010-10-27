@@ -4,6 +4,7 @@ use warnings;
 use utf8;
 use base qw/Class::Accessor::Faster/;
 
+use UNIVERSAL::require;
 use Carp;
 use Try::Tiny;
 use Hoya::Util;
@@ -47,7 +48,7 @@ sub _setup {
             $module_name = name2class $module_name;
         }
 
-        eval "use ${module_name};";
+        $module_name->use;
         my $attr = ${module_name}->attribute;
 
         # クラス定義時に接続情報が設定されている場合，それを利用する

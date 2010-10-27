@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use utf8;
 use base qw/Exporter/;
+use UNIVERSAL::require;
 use UUID::Tiny qw/:std/;
 use Encode;
 use Data::Recursive::Encode;
@@ -272,7 +273,7 @@ sub notify {
     my $message = shift;
 
     try {
-        eval 'use Log::Dispatch::DesktopNotification;';
+        Log::Dispatch::DesktopNotification->use;
         my $logger = Log::Dispatch::DesktopNotification->new(
             name      => 'notify',
             min_level => 'debug',
@@ -281,7 +282,7 @@ sub notify {
             sticky    => 1,
             priority  => 2,
         );
-        #eval 'use Log::Dispatch::MacGrowl;';
+        #Log::Dispatch::MacGrowl->use;
         #my $logger = Log::Dispatch::MacGrowl->new(
         #);
         $logger->log(

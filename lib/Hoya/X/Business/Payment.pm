@@ -2,6 +2,7 @@ package Hoya::X::Business::Payment;
 use strict;
 use warnings;
 use parent qw/Class::Accessor::Fast/;
+use UNIVERSAL::require;
 use Try::Tiny;
 use LWP::UserAgent;
 use Hoya::Util;
@@ -24,7 +25,7 @@ sub new {
     try {
         die 'Payment type is not specified'  if $subclass =~ /::$/;
 
-        eval "use $subclass";
+        $subclass->use;
         $self = bless $class->SUPER::new($param), $subclass;
         $ua->agent($subclass);
     }

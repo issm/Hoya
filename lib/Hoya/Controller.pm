@@ -4,6 +4,7 @@ use warnings;
 use utf8;
 use base qw/Class::Accessor::Faster/;
 
+use UNIVERSAL::require;
 use Carp;
 use Try::Tiny;
 
@@ -134,7 +135,7 @@ sub go {
         #   戻り値をレスポンスボディとする
         #
         if ($action->is_as_json) {
-            eval { use JSON; };
+            JSON->use;
             my $json = de JSON::encode_json($action->data || {});
             if (my $_callback = $q->get('callback')) {
                 $json = "${_callback}(${json})";
@@ -147,7 +148,7 @@ sub go {
         #   戻り値をレスポンスボディとする
         #
         elsif ($action->is_as_xml) {
-            eval { use XML::TreePP; };
+            XML::TreePP->use;
             # <response>...</response> のように挟むための準備
             my $data = {response => $action->data || {}};
             my $xml = XML::TreePP->new->write($data);
