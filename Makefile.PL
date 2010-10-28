@@ -52,7 +52,7 @@ test_requires 'Text::MediawikiFormat';    # Hoya::X::Text::MediawikiFormat
 
 
 tests 't/*.t t/*/*.t t/*/*/*.t';
-#author_tests 'xt';
+author_tests 'xt';
 
 
 auto_install;
