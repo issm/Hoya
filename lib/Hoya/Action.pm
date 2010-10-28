@@ -671,20 +671,20 @@ sub finish {
 
 #### exported 4 below ####
 # BEFORE \&code;
-sub BEFORE (&) {
+sub BEFORE (&) {  ## no critic
     # (caller 0)[0] でクラス名を取得している
     _bind_method((caller 0)[0], 'BEFORE', shift || sub {''});
 }
 # GET \&code;
-sub GET (&) {
+sub GET (&) {  ## no critic
     _bind_method((caller 0)[0], 'GET', shift || sub {''});
 }
 # POST \&code;
-sub POST (&) {
+sub POST (&) {  ## no critic
     _bind_method((caller 0)[0], 'POST', shift || sub {''});
 }
 # AFTER \&code;
-sub AFTER (&) {
+sub AFTER (&) {  ## no critic
     _bind_method((caller 0)[0], 'AFTER', shift || sub {''});
 }
 

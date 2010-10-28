@@ -47,7 +47,7 @@ sub _init {
     try {
         my $pl   = $self->_load;
         my $code = $self->_generate_as_string($pl);
-        eval $code;
+        eval $code;  ## no critic
         die $@  if $@;
 
         $action = "$action_class"->new({
@@ -126,7 +126,7 @@ BEFORE {
 
 
 #
-sub _generate_as_string ($) {
+sub _generate_as_string {
     my ($self, $pl) = @_;
     $pl ||= '';
 

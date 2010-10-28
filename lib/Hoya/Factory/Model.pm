@@ -28,7 +28,7 @@ sub _init {
         my $model_class = 'Hoya::Model::' . $self->name;
         my $pl   = $self->_load;
         my $code = $self->_generate_as_string($pl);
-        eval $code or die $@;
+        eval $code or die $@;  ## no critic
         $model = "$model_class"->new({
             name => $self->name,
             env  => $self->env,
