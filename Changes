@@ -1,4 +1,39 @@
 Revision history for Perl extension Hoya
 
-0.0001    Mon Feb  8 12:10:07 2010
-          - original version
+0.0002_09  2010-10-28 12:34
+           - Fixed source code for Test::Perl::Critic
+           - Added/Modified some test code
+
+0.0002_08  2010-10-06 22:53
+           - Requires Crypt::SSLeay, if use "X"
+
+0.0002_07  2010-10-06 21:39
+           - Requires LWP::UserAgent, XML::Simple, HTTP::Request::Common, if use "X"
+
+0.0002_06  2010-10-06 13:40
+           - Added Hoya::X::Business:Payment::Epsilon
+
+0.0002_05  2010-10-02 09:33
+           - Improved Hoya::Re
+
+0.0002_04  2010-10-02 08:44
+           - Added Hoya::X::Params::Validate::Spec
+           - Modified Hoya::Mapper::URL
+           - Modified Hoya::Config::Core
+
+0.0002_03  2010-09-30 11:57
+           - Modified Hoya::DSH::DBIx::Skinny and related files
+
+0.0002_02  2010-09-01 22:15
+           - Modified almost of all source codes
+           - Added Hoya::X::Text::MediawikiFormat
+
+0.0002_01  2010-07-02 10:25
+           - DBIx::Skinny is available as Hoya::DSH::DBIx::Skinny
+           - Modified configuration loading process.
+
+0.0001     2010-07-01 07:27
+           - First prototype.
+
+0.0000     2010-02-08 12:10
+           - original version
