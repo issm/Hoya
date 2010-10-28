@@ -86,7 +86,7 @@ sub get_sales {
     if (defined $tx_code)       { $params_post->{trans_code} = $tx_code; }
     elsif (defined $order_code) { $params_post->{order_number} = $order_code; }
     else {
-        return undef;
+        return;
     }
 
     my $req = POST  $conf->{url}{get_sales}, $params_post;

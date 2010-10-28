@@ -57,7 +57,7 @@ sub _init_dsh {
 
     # 旧設定: deprecated
     my @_dsh = grep {
-        $self->conf->{DSH}{$_} == 1;  # 値が1のもののみ抜き出す
+        ( $self->conf->{DSH}{$_} || 0 ) == 1;  # 値が1のもののみ抜き出す
     } keys %{$self->conf->{DSH} || {}};
     for my $dsh (@_dsh) {
         unless (exists $self->_dsh->{$dsh}) {
@@ -87,7 +87,7 @@ sub finish_dsh {
 # get_model($name);
 sub get_model {
     my ($self, @names) = @_;
-    return undef  unless @names;
+    return  unless @names;
 
     my @models;
     for my $name (@names) {
@@ -104,7 +104,7 @@ sub get_model {
 # get_dsh($name);
 sub get_dsh {
     my ($self, $name) = @_;
-    return undef  unless defined $name;
+    return  unless defined $name;
     return $self->_dsh->{$name};
 }
 
@@ -112,7 +112,7 @@ sub get_dsh {
 # _create_model($name);
 sub _create_model {
     my ($self, $name) = @_;
-    return undef  unless defined $name;
+    return  unless defined $name;
 
     $self->_model->{$name} = Hoya::Factory::Model->new({
         name => $name,

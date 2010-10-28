@@ -144,8 +144,8 @@ sub random_key {
     # UUID*$n のbit文字列から，6bitずつ順に取り出して
     # @unique_key_charmap の1文字にマップする
     for my $i (0 .. $n*8-1) {
-        my $b_sub = substr($uuid_n_bitstr, $i*6, 6);
-        my $b_sub_int = eval "0b${b_sub}";
+        my $b_sub = sprintf '%08s', substr($uuid_n_bitstr, $i*6, 6);
+        my $b_sub_int = unpack( 'C', pack('B8', $b_sub) );
         $ret .= $unique_key_charmap[$b_sub_int];
     }
 
@@ -169,7 +169,7 @@ sub __random_key {
         my @a = (shift @c, shift @c, shift @c, shift @c);
         my $sum = 0;
         for my $a (@a) {
-            $sum += eval(sprintf '0x%s', ($a||'00')) || 0;
+            $sum += hex(sprintf '%s', ($a||'00')) || 0;
         }
         $ret .= $unique_key_charmap[$sum];
     }

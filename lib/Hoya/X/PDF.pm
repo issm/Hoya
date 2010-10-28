@@ -823,7 +823,7 @@ Hoya::X::PDF - Simplifies to create simple PDF files.
 =head1 METHODS
 
 
-=over 2
+=over 4
 
 =item $pdf = Megane::Tool::PDF->new( %options )
 
@@ -950,6 +950,8 @@ B<%options>
   strokecolor
   fillcolor
   action  描画方法． stroke, fill, fillstroke
+
+=back
 
 
 =head1 AUTHOR

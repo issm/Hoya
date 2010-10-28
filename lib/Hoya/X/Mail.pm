@@ -224,7 +224,7 @@ message body using Text::MicroTemplate::Extended.
 
 =item attach(\%file1, \%file2, ...);
 
-=send send($debug);
+=item send($debug);
 
 send
 

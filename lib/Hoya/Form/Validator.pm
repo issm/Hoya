@@ -10,6 +10,7 @@ use Hash::MultiValue;
 use Carp;
 use Try::Tiny;
 use Hoya::Util;
+use Hoya::Re;
 
 sub OK                 {   0; }
 sub REQUIRED           { 101; }
@@ -48,7 +49,7 @@ sub _fix_value {
             $value = 0;
         }
         else {
-            return undef;
+            return;
         }
     }
 
@@ -278,7 +279,7 @@ sub check {
             my $re = $rule->{re};
             try {
                 if (my ($_m) = $re =~ /^\+(.*)$/) {
-                    $re = eval "Hoya::Re::$_m";
+                    $re = "RE_$_m"->();
                 }
                 else {
                     $re = qr/$re/x;

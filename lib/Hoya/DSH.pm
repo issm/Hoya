@@ -4,6 +4,7 @@ use warnings;
 use utf8;
 use base qw/Class::Accessor::Faster/;
 
+use UNIVERSAL::require;
 use Cache::FileCache;
 use Carp;
 use Try::Tiny;
@@ -52,22 +53,18 @@ sub _init {
     my $dsh;
     my $dsh_class = "Hoya::DSH::${_type}";
     try {
-
-        my $dsh = eval << "...";
-use ${dsh_class};
-
-${dsh_class}->new({
-    name  => \$_name,
-    env   => \$_env,
-    conf  => \$_conf,
-    cache => \$_cache,
-});
-...
+        $dsh_class->use;
+        $dsh = "$dsh_class"->new({
+            name  => $_name,
+            env   => $_env,
+            conf  => $_conf,
+            cache => $_cache,
+        });
         return $dsh;
     }
     catch {
         carp shift;
-        return undef;
+        return;
     };
 }
 

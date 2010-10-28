@@ -304,7 +304,7 @@ sub load_sql {
         catch {
             carp shift;
             #carp sprintf '[%s] YAML file does not exist: %s.', __PACKAGE__, $yamlfile;
-            return undef;
+            return;
         };
     }
     my $sql = $self->_sql_cache->{$name}{$key};

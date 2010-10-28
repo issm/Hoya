@@ -82,7 +82,7 @@ sub _init {
 
 sub _to_time {
     my ($self, $t) = @_;
-    return undef  unless defined $t;
+    return  unless defined $t;
 
     my ($n, $u_sec, $u_min, $u_hour, $u_day, $u_week)
         = $t =~ /^\s*
@@ -299,7 +299,7 @@ sub _main {}
 
 sub var {
     my ($self, $name, $value) = @_;
-    return undef  unless is_def $name;
+    return  unless is_def $name;
     # setter
     if (is_def $name, $value) {
         return $self->set_var($name, $value);
@@ -332,7 +332,7 @@ sub set_var {
 }
 sub get_var {
     my ($self, @names) = @_;
-    return undef  unless @names;
+    return  unless @names;
 
     if (wantarray) {
         return
@@ -351,14 +351,14 @@ sub get_var {
             return $v;
         }
         else {
-            return undef;
+            return;
         }
     }
 }
 
 sub import_var {
     my ($self, @args) = @_;
-    return undef  unless @args;
+    return  unless @args;
 
     my ($name, $value, $more) = @args;
 
@@ -391,7 +391,7 @@ sub import_var {
         return $value;
     }
 
-    return undef;
+    return;
 }
 
 
@@ -570,7 +570,7 @@ sub fw { return shift->forward(@_); }
 # @models = $a->model($name1, $name2, ...);
 sub model {
     my ($self, @names) = @_;
-    return undef  unless @names;
+    return  unless @names;
     return $self->mm->get_model(@names);
 }
 
