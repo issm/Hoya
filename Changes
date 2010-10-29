@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.0003_02  2010-10-20 18:53
+           - Fixed test
+
 0.0003_01  2010-10-20 18:15
            - Modified "model" loading process.
 
