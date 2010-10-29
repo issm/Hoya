@@ -8,35 +8,31 @@
 ---
 DEV: 1
 
-PROJECT_NAME: myproject
+PROJECT_NAME: hoya-test
 YEAR_RELEASE: 2010
 
 WEBSITE_NAME: welcome to my project
 
 DSH:
   skinny:
-    #CLASS:  DBIx::Skinny
-    #MODULE: +Some::Where::MyDB
-    MODULE: MyDB
-    # ^ the former: locate MyDB.pm in any PERL5LIB path
-    # ^ the latter: locate lib/{MyProject}/DB/MyDB.pm
-    # ^ write connection settings in this *.pm file
+    CLASS:  DBIx::Skinny
+    MODULE: Test
     TYPE:   mysql
     HOST:   localhost
     PORT:   3306
-    NAME:   dbname
-    USER:   user
-    PASSWD: password
-    TABLE_PREFIX: pre_
+    NAME:   test
+    USER:   
+    PASSWD: 
+    TABLE_PREFIX: 
   dbi:
     #CLASS:  DBI
     TYPE:   mysql
     HOST:   localhost
     PORT:   3306
-    NAME:   dbname
-    USER:   user
-    PASSWD: password
-    TABLE_PREFIX: pre_
+    NAME:   test
+    USER:   
+    PASSWD: 
+    TABLE_PREFIX: 
   yaml:
     #CLASS:  YAML
 

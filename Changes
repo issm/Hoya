@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.0003_01  2010-xx-xx xx:xx
+           - Modified "model" loading process.
+
 0.0002_10  2010-10-29 18:07
            - Fixed Hoya::Form::Validator
 

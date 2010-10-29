@@ -3,9 +3,10 @@ use strict;
 use warnings;
 use utf8;
 use base qw/Class::Accessor::Faster/;
-
+use UNIVERSAL::require;
 use Carp;
 use Try::Tiny;
+use Hoya::Re;
 use Hoya::Util;
 
 
@@ -23,29 +24,58 @@ sub _init {
     my ($self) = self_param @_;
 
     my $model;
+    my $model_params = {
+        name => $self->name,
+        env  => $self->env,
+        conf => $self->conf,
+        dsh  => $self->dsh,
+    };
+
 
     try {
-        my $model_class = 'Hoya::Model::' . $self->name;
-        my $pl   = $self->_load;
-        my $code = $self->_generate_as_string($pl);
-        eval $code or die $@;  ## no critic
-        $model = "$model_class"->new({
-            name => $self->name,
-            env  => $self->env,
-            conf => $self->conf,
-            dsh  => $self->dsh,
-        });
+        # 0.0003 導入のモジュール方式
+        my $my_model_class = sprintf(
+            '%s::Model::%s',
+            name2class( $self->conf->{PROJECT_NAME} ),
+            ucfirst($self->name),
+        );
+
+        try {
+            $my_model_class->use  or  die $!;
+            $model = "$my_model_class"->new($model_params);
+        }
+        catch {
+            my $msg = shift;
+            my $name = $self->name;
+            my $text = << "...";
+**** Error in "model class": $my_model_class ****
+
+$msg
+...
+            croak $text;
+        };
     }
     catch {
-        my $msg = shift;
-        my $name = $self->name;
+        #carp shift;
 
-        my $text = << "...";
+        # 従来方式
+        try {
+            my $model_class = 'Hoya::Model::' . $self->name;
+            my $pl   = $self->_load;
+            my $code = $self->_generate_as_string($pl);
+            eval $code or die $@;  # no critic
+            $model = "$model_class"->new($model_params);
+        }
+        catch {
+            my $msg = shift;
+            my $name = $self->name;
+            my $text = << "...";
 **** Error in "model file": pl/model/${name}.pl ****
 
 $msg
 ...
-        croak $text;
+            croak $text;
+        };
     };
 
     return $model;
