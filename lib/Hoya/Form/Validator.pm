@@ -278,8 +278,9 @@ sub check {
         if (exists $rule->{re}) {
             my $re = $rule->{re};
             try {
-                if (my ($_m) = $re =~ /^\+(.*)$/) {
-                    $re = "RE_$_m"->();
+                if ( my ($_m, $_n) = ($re =~ qr/^ \+([^(]*) (?:\((.+)\))? $/x) ) {
+                    no strict 'refs';
+                    $re = "RE_$_m"->($_n);
                 }
                 else {
                     $re = qr/$re/x;
