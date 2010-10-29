@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use utf8;
 use FindBin;
-use lib "$FindBin::Bin/../../lib", "$FindBin::Bin/../../extlib";
+use lib "$FindBin::Bin/../../lib", "$FindBin::Bin/../../extlib", "${FindBin::Bin}/../_proj/lib";
 use Test::More;
 use Test::These;
 use Hoya::Config::Core;
