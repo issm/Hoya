@@ -32,6 +32,7 @@ our @EXPORT = qw/
                     merge_hash
                     notify
                     ngram
+                    mark_commas
                 /;
 
 Hash::Merge::set_behavior('RIGHT_PRECEDENT');
@@ -312,6 +313,14 @@ sub ngram {
 }
 
 
+
+sub mark_commas {
+    my $n = shift;
+    $n =~ s/(\d{1,3})(?=(?:\d\d\d)+(?!\d))/$1,/g;
+    return $n;
+}
+
+
 1;
 __END__
 
@@ -382,6 +391,12 @@ If $str is set, return "hashed" string based on $str.
 =item notify($message);
 
 Notify.
+
+=item mark_commas($num);
+
+Mark commas a number each 3 digis.
+
+  mark_commas(3000); # 3,000
 
 =back
 
