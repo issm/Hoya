@@ -37,7 +37,7 @@ sub _init {
         my $my_model_class = sprintf(
             '%s::Model::%s',
             name2class( $self->conf->{PROJECT_NAME} ),
-            ucfirst($self->name),
+            name2class( $self->name ),
         );
 
         try {
