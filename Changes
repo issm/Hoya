@@ -1,5 +1,9 @@
 Revision history for Perl extension Hoya
 
+0.0003_04  2010-11-24 19:05
+           - Fixed "model name" processing in Hoya::Factory::Model
+           - Added some tests for Hoya::Util
+
 0.0003_03  2010-11-20 08:15
            - Added Hoya::Util::mark_commas
 
