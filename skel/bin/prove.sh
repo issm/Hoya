@@ -16,7 +16,7 @@ cd $HOYA_PROJECT_ROOT
 
 if [ $1 -a -e $1 ]
 then
-    PROVE_TARGET=$1
+    PROVE_TARGET="$*"
 else
     PROVE_TARGET="t/*.t t/*/*.t"
 fi
