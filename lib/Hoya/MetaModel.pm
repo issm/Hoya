@@ -73,9 +73,10 @@ sub _init_dsh {
 
 sub finish_dsh {
     my $self = shift;
-    if (defined $self->_dsh->{DBI}) {
+    my $dsh = $self->_dsh;
+    for my $k (keys %$dsh) {
         try {
-            $self->_dsh->{DBI}->disconnect;
+            $dsh->{$k}->disconnect  if ref($dsh->{$k}) =~ /(?:::)?DBIx?(?:::)?/;
         }
         catch {
             carp shift;

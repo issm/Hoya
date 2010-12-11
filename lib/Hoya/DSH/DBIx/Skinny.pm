@@ -88,6 +88,13 @@ $msg
 }
 
 
+# $dsh->disconnect();
+sub disconnect {
+    my $self = shift;
+    $self->skinny->disconnect;
+}
+
+
 # table('table');          # ${PREFIX}table
 # table('-table');         # table
 # table('table', 'tbl');   # ${PREFIX}table tbl
