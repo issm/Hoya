@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.0003_05  2010-12-11 18:45
+           - Fixed database disconnection proccessing of Hoya::MetaModel and Hoya::DSH::DBIx::Skinny
+
 0.0003_04  2010-11-24 19:05
            - Fixed "model name" processing in Hoya::Factory::Model
            - Added some tests for Hoya::Util
