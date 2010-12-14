@@ -19,7 +19,7 @@ requires 'XML::TreePP';                   # Hoya::View
 requires 'Text::MicroTemplate::Extended'; # Hoya::View::MT
 requires 'Cache::FileCache';              # Hoya::DSH;
 requires 'DBI';                           # Hoya::DSH::DBIx::Skinny, Hoya::DSH::DBI
-requires 'DBIx::Skinny';                  # Hoya::DSH::DBIx::Skinny
+requires 'DBIx::Skinny' => '0.0727';      # Hoya::DSH::DBIx::Skinny
 requires 'Digest::SHA1';                  # Hoya::DSH::DBI
 requires 'Try::Tiny';                     # almost all in Hoya modules
 requires 'Log::Dispatch';                 #

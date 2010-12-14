@@ -49,7 +49,7 @@ sub _setup {
         }
 
         $module_name->use;
-        my $attr = ${module_name}->attribute;
+        my $attr = ${module_name}->_attributes;
 
         # クラス定義時に接続情報が設定されている場合，それを利用する
         if (defined $attr->{dsn}) {
