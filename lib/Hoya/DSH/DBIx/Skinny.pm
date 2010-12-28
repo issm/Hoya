@@ -177,6 +177,15 @@ sub insert {
 # create -> insert
 sub create { return shift->insert(@_); }
 
+# $h->replace($name, \%columns);
+sub replace {
+    my ($self, $name, $columns) = @_;
+    return $self->skinny->replace(
+        $self->table($name),
+        $columns,
+    );
+}
+
 # $true = $h->bulk_insert($name, \@data);
 sub bulk_insert {
     my ($self, $name, $data) = @_;
