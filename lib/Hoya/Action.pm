@@ -451,7 +451,7 @@ sub cookie {
 }
 sub remove_cookie {
     my ($self, $name) = @_;
-    return $self->cookie($name, '', undef, undef, -60*60);
+    return $self->_set_cookie($name, '', undef, undef, -60*60);
 }
 sub _get_cookie {
     my $self = shift;
