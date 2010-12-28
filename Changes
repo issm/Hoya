@@ -1,5 +1,10 @@
 Revision history for Perl extension Hoya
 
+0.0003_07  2010-12-28 22:40
+           - requires Plack::Session
+           - Added Hoya::DSH::DBIx::Skinny::replace
+           - Added Hoya::Action::expire_session
+
 0.0003_06  2010-12-14 22:33
            - requires DBIx::Skinny >= 0.0727.
 
