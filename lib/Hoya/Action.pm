@@ -5,6 +5,7 @@ use utf8;
 use parent qw/Exporter Class::Accessor::Faster/;
 no warnings 'redefine';
 
+use Plack::Session;
 use Params::Validate qw/:all/;
 use Hash::MultiValue;
 use Carp;
@@ -414,6 +415,11 @@ sub remove_session {
     delete $self->req->session->{$name}
         if exists $self->req->session->{$name};
 }
+sub expire_session {
+    my $self = shift;
+    my $session = Plack::Session->new($self->env);
+    return $session->expire;
+}
 sub _get_session {
     my $self = shift;
     my ($name) = @_;
@@ -741,6 +747,10 @@ Gets/Sets session value.
 =item remove_session($name)
 
 Removes session value which isi associated with $name.
+
+=item expire_session
+
+Expires session.
 
 =item cookie
 
