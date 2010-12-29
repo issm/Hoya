@@ -473,7 +473,7 @@ sub _get_cookie {
 }
 sub _set_cookie {
     my $self = shift;
-    my ($name, $value, $path, $domain, $expires);
+    my ($name, $value, $path, $domain, $expires, $expires_on_close);
 
     # hashref type or Hash::MultiValue
     if (ref $_[0] eq 'HASH'  or  ref $_[0] eq 'Hash::MultiValue') {
@@ -483,10 +483,11 @@ sub _set_cookie {
         $path    = $c->{path};
         $domain  = $c->{domain};
         $expires = $c->{expires};
+        $expires_on_close = $c->{expires_on_close} || 0;
     }
     # array type
     elsif (defined $_[0]  &&  defined $_[1]) {
-        ($name, $value, $path, $domain, $expires) = @_;
+        ($name, $value, $path, $domain, $expires, $expires_on_close) = @_;
     }
     # others
     else {
@@ -498,7 +499,10 @@ sub _set_cookie {
         path   => $path    || $self->conf->{COOKIE}{PATH},
         domain => $domain  || $self->conf->{COOKIE}{DOMAIN},
     };
-    if (defined $expires  or  defined $self->conf->{COOKIE}{EXPIRES}) {
+    if (
+        ! $expires_on_close  &&
+        ( defined $expires  or  defined $self->conf->{COOKIE}{EXPIRES} )
+    ) {
         $self->cookies->{$name}{expires}
             = $self->_to_time($expires || $self->conf->{COOKIE}{EXPIRES});
     }
@@ -769,7 +773,9 @@ Gets/Sets cookie.
 - path
 - domain
 - expires
-time to be expired.
+Time to be expired. If undefined, uses conf.COOKIE.EXPIRES instead, if defined that.
+- expires_on_close
+Forces expiring on closing browser.
 
 Format of "expires"
 
