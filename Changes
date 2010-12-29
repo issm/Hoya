@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.0003_08  2010-12-29 23:35
+           - Hoya::Action::cookie's parameter "expires_on_close" is available.
+
 0.0003_07  2010-12-28 22:40
            - requires Plack::Session
            - Added Hoya::DSH::DBIx::Skinny::replace
