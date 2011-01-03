@@ -1,5 +1,9 @@
 Revision history for Perl extension Hoya
 
+0.0003_09  2011-01-03 15:50
+           - Fixed UUV warning in Hoya::X::Business::Payment
+           - Modified Hoya::X::Business::Payment::Epsilon
+
 0.0003_08  2010-12-29 23:35
            - Hoya::Action::cookie's parameter "expires_on_close" is available.
 
