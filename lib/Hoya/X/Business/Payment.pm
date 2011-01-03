@@ -17,7 +17,7 @@ sub new {
     my ($class, $param) = @_;
     #$class->mk_accessors qw/type ua status result/;
 
-    $param->{type} = ucfirst $param->{type};
+    $param->{type} = ucfirst ($param->{type} || '');
 
     my $self;
     my $subclass = __PACKAGE__ . "::" . $param->{type};
