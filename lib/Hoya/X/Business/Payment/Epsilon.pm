@@ -1,7 +1,6 @@
 package Hoya::X::Business::Payment::Epsilon;
 use strict;
 use warnings;
-use utf8;
 use parent qw/Hoya::X::Business::Payment/;
 use Encode;
 use Data::Recursive::Encode;
@@ -68,7 +67,7 @@ sub submit_method {
            memo1 memo2
           /,
     ) {
-        $q->{$k} = encode('sjis', $data->{$k})  if defined $data->{$k};
+        $q->{$k} = encode('cp932', $data->{$k})  if defined $data->{$k};
     }
 
     my $res = $self->ua->post($conf->{url}{submit_method}, $q);
@@ -108,10 +107,10 @@ sub submit_card_info {
         card_number => $param->{card_number},
         expire_m    => $param->{expire_m},
         expire_y    => $param->{expire_y},
-        auth        => '登 録 Confirm',
+        auth        => decode('utf-8', '登 録 Confirm'),
         xml         => 1,
     };
-    $q->{$_} = encode('sjis', $q->{$_})  for keys %$q;
+    $q->{$_} = encode('cp932', $q->{$_})  for keys %$q;
 
     $res = $self->ua->post($target_url, $q);
     my $headers = $res->headers;
@@ -130,7 +129,7 @@ sub submit_card_info {
         $result = {
             result      => 0,
             error_code  => 1,
-            error_text  => '申し訳ございません。通信上のエラーが発生しました。',
+            error_text  => decode('utf-8', '申し訳ございません。通信上のエラーが発生しました。'),
         };
 
         $html = decode('cp932', $res->content);
