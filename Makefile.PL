@@ -41,6 +41,8 @@ if ($ENV{HOYA_USE_X}) {
     requires 'LWP::UserAgent';                      # Hoya::X::Business::Payment::Epsilon
     requires 'Crypt::SSLeay';                       # Hoya::X::Business::Payment::Epsilon
     requires 'XML::Simple';                         # Hoya::X::Business::Payment::Epsilon
+    requires 'HTML::TreeBuilder';                   # Hoya::X::Business::Payment::Epsilon
+    requires 'HTML::Entities';                      # Hoya::X::Business::Payment::Epsilon
     requires 'HTTP::Request::Common';               # Hoya::X::Business::Payment::Epsilon
 }
 
