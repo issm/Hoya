@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.0003_10  2011-01-03 19:35
+           - No utf8 at Hoya::X::Business::Payment::Epsilon
+
 0.0003_09  2011-01-03 15:50
            - Fixed UUV warning in Hoya::X::Business::Payment
            - Modified Hoya::X::Business::Payment::Epsilon
