@@ -69,7 +69,7 @@ sub get_info {
         name => 'default',
     };
 
-    my $ua = $_req->user_agent;
+    my $ua = $_req->user_agent || '';
 
     my ($matched, $rule_applied);
 
