@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.0003_11  2011-01-12 18:00
+           - Fixed UUV warning in Hoya::Mapper::UserAgent
+
 0.0003_10  2011-01-03 19:35
            - No utf8 at Hoya::X::Business::Payment::Epsilon
 
