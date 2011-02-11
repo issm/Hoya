@@ -30,6 +30,10 @@ my @METHODS = qw/BEFORE GET POST AFTER/;
 my $CONTENT_TYPE = {
     json => 'text/javascript',  #'application/json',
     xml  => 'application/xml',  #'text/xml',
+
+    # binary
+    zip  => 'application/zip',
+    pdf  => 'application/pdf',
 };
 
 
@@ -56,6 +60,7 @@ sub new {
            status content_type charset
            data
            _super
+           _as_binary _filehandle
           /
     );
 
@@ -617,6 +622,28 @@ sub is_as_xml {
     return shift->content_type eq $CONTENT_TYPE->{xml} ? 1 : 0;
 }
 
+sub as_binary {
+    my ($self, $type) = @_;
+    $self->_as_binary(1);
+    $self->content_type( $CONTENT_TYPE->{$type} )
+        if defined $type  &&  defined $CONTENT_TYPE->{$type};
+    return;
+}
+sub is_as_binary {
+    my ($self) = @_;
+    return $self->_as_binary ? 1 : 0;
+}
+
+sub filehandle {
+    my ($self, $path) = @_;
+    unless ( -f $path ) {
+        carp $!;
+        return;
+    }
+    open my $fh, '<', $path  or  (carp $!  &&  return);
+    $self->_filehandle($fh);
+}
+
 
 # $pagination = $a->get_pagination($total, $num, $page);
 sub get_pagination {
@@ -858,6 +885,18 @@ XML-response mode.
 =item is_as_xml
 
 Is XML-response mode?
+
+=item as_binary($type)
+
+Binary-response mode. To respond binary data, ->filehandle($fh) or ->data($data) is required.
+
+=item $bool = is_as_binary
+
+Is binary-response mode?
+
+=item filehandle($path)
+
+Sets filehandle of file which described in $path.
 
 =item BEFORE \&callback
 
