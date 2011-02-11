@@ -845,7 +845,19 @@ Returns new Hoya::Form::Validator object.
 
 =item as_json
 
-...
+JSON-response mode.
+
+=item $bool = is_as_json
+
+Is JSON-response mode?
+
+=item as_xml
+
+XML-response mode.
+
+=item is_as_xml
+
+Is XML-response mode?
 
 =item BEFORE \&callback
 
