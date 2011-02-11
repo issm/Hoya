@@ -131,10 +131,20 @@ sub go {
             )
         );
 
+        #
+        # バイナリ出力モード
+        #   ファイルハンドルまたはdataプロパティをレスポンスボディとする
+        #
+        if ($action->is_as_binary) {
+            my $body = $action->_filehandle;
+            $body = $action->data  unless defined $body;
+            $res->content($body);
+        }
+        #
         # json出力モード
         #   戻り値をレスポンスボディとする
         #
-        if ($action->is_as_json) {
+        elsif ($action->is_as_json) {
             JSON->use;
             my $json = de JSON::encode_json($action->data || {});
             if (my $_callback = $q->get('callback')) {
