@@ -5,7 +5,7 @@ use warnings;
 use parent qw/Plack::Middleware/;
 use Plack::App::File;
 
-use Plack::Util::Accessor qw/path encoding/;
+use Plack::Util::Accessor qw/path encoding cut/;
 
 use Hoya::Util;
 use Hoya::Re;
@@ -26,6 +26,9 @@ sub _handle_static {
     my $path_re = $self->path || Hoya::Re::PATH_STATIC_UPLOAD;
     my $path = do {
         local $_ = $env->{PATH_INFO};
+        if ( defined (my $re_cut = $self->cut) ) {
+            $_ =~ s/$re_cut//;
+        }
         my $matched = $_ =~ $path_re;
         return  unless $matched;
         $_;
