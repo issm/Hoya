@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.0003_13  2011-02-28 22:32
+           - Parameter "cut" is available in Hoya::Plack::Middleware::Static::(Skin|Upload).
+
 0.0003_12  2011-02-11 18:26
            - Binary response is available. (now only "zip" and "pdf")
 
