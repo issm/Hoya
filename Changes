@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.0003_14  2011-03-19 21:55
+           - Fixed resultset wrapping of Hoya::DSH::DBIx::Skinny
+
 0.0003_13  2011-02-28 22:32
            - Parameter "cut" is available in Hoya::Plack::Middleware::Static::(Skin|Upload).
 
