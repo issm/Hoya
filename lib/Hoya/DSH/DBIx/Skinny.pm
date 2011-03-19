@@ -309,10 +309,6 @@ sub resultset {
             if (ref $l eq 'ARRAY') {
                 $l = $self->column(@$l);
             }
-            # r
-            if (ref $r eq 'ARRAY') {
-                $r = $self->column(@$r);
-            }
 
             $rs->add_where($l => $r);
         }
