@@ -316,7 +316,12 @@ sub ngram {
 
 sub mark_commas {
     my $n = shift;
-    $n =~ s/(\d{1,3})(?=(?:\d\d\d)+(?!\d))/$1,/g;
+    # ref: http://www.din.or.jp/~ohzaki/perl.htm#NumberWithComma
+    if ($n =~ /^[-+]?\d\d\d\d+/g) {
+        for (my $i = pos($n) - 3, my $j = $n =~ /^[-+]/; $i > $j; $i -= 3) {
+            substr($n, $i, 0) = ',';
+        }
+    }
     return $n;
 }
 
