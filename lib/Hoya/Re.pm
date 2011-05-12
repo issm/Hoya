@@ -192,7 +192,7 @@ sub DOMAIN {
 sub EMAIL {
     my $DOMAIN = DOMAIN;
     return qr/^
-              [^\@]+
+              [^\@ ]+
               \@
               ${DOMAIN}
             $/ix;

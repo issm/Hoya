@@ -521,6 +521,7 @@ $cases  = {
     ],
 
     fail => [
+        'aaa bbb@example.com',
     ],
 };
 test_these;
