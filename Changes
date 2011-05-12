@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.0003_16  2011-05-12 16:00
+           - Fixed: Hoya::Re::EMAIL does not match "foo bar@example.com"
+
 0.0003_15  2011-04-18 13:45
            - Fixed "decimal-place-comma" bug in Hoya::Util::mark_commas
 
