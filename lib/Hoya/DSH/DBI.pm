@@ -8,6 +8,7 @@ use DBI;
 use YAML::Syck;
 use Digest::SHA1 qw/sha1_hex/;
 use Carp;
+use Hash::MultiValue;
 use Try::Tiny;
 
 use Hoya::Util;
@@ -234,18 +235,46 @@ sub _q_mysql {
             ?  $self->execute(@$bind)
             :  $self->execute()
         ;
-        use Hash::MultiValue;
+
         my $fetch = $ref_type eq 'hash'
             ? sub {
                 my $_key = shift;
                 try {
                     # see: http://blog.iwa-ya.net/2010/02/18/192601
-                    my $ret = $sth->fetchall_hmv($_key);
+                    my $ret = sub {
+                        my ($key_field) = @_;
+
+                        my $hash_key_name = $sth->{FetchHashKeyName} || 'NAME';
+                        my $names_hash = $sth->FETCH("${hash_key_name}_hash");
+                        my @key_fields = (ref $key_field) ? @$key_field : ($key_field);
+                        my @key_indexes;
+                        my $num_of_fields = $sth->FETCH('NUM_OF_FIELDS');
+                        foreach (@key_fields) {
+                            my $index = $names_hash->{$_};  # perl index not column
+                            $index = $_ - 1 if !defined $index && DBI::looks_like_number($_) && $_>=1 && $_ <= $num_of_fields;
+                            return $sth->set_err($DBI::stderr, "Field '$_' does not exist (not one of @{[keys %$names_hash]})")
+                                unless defined $index;
+                            push @key_indexes, $index;
+                        }
+                        my $hmv = Hash::MultiValue->new;
+                        my $rows = {};
+                        my $NAME = $sth->FETCH($hash_key_name);
+                        my @row = (undef) x $num_of_fields;
+                        $sth->bind_columns(\(@row));
+                        while ($sth->fetch) {
+                            my $ref = $rows;
+                            $ref = $ref->{$row[$_]} ||= {} for @key_indexes;
+                            @{$ref}{@$NAME} = @row;
+                            $hmv->add($row[$key_indexes[0]], $ref);
+                        }
+                        return $hmv;
+                    }->($_key);
+
                     die  unless is_def $ret;
                     return $ret;
                 }
                 catch {
-                    carp 'DBI::st::fetchall_hmv is not defined, call DBI::st::fetchall_hashref, instead';
+                    carp 'Counld not make results as Hash::MultiValue object, call DBI::st::fetchall_hashref, instead';
                     return ($sth->fetchall_hashref($_key) || {});
                 };
             }->($key)
