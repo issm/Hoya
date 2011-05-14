@@ -1,5 +1,10 @@
 Revision history for Perl extension Hoya
 
+0.0003_17  2011-05-14 14:00
+           - Fixed: don't depend on DBI::st::fetchall_hmv (originally extended) in Hoya::DSH::DBI
+           - Hoya::DSH::DBI::q always return Hash::MultiValue object
+             when spedified to return as hashref (3rd parameter is "hash")
+
 0.0003_16  2011-05-12 16:00
            - Fixed: Hoya::Re::EMAIL does not match "foo bar@example.com"
 
