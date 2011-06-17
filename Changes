@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.0003_18  2011-06-17 13:05
+           - Added Hoya::DSH::DBIx::Skinny::count_from_resultset.
+
 0.0003_17  2011-05-14 14:00
            - Fixed: don't depend on DBI::st::fetchall_hmv (originally extended) in Hoya::DSH::DBI
            - Hoya::DSH::DBI::q always return Hash::MultiValue object
