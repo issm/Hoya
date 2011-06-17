@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.0003_19  2011-06-17 15:40
+           - Modified Hoya::DSH::DBIx::Skinny::count_from_resultset.
+
 0.0003_18  2011-06-17 13:05
            - Added Hoya::DSH::DBIx::Skinny::count_from_resultset.
 
