@@ -318,10 +318,11 @@ sub resultset {
 }
 
 
-# $count = $h->count_from_resultset( $rs, $col );
+# $count = $h->count_from_resultset( $rs, $col, \%opts );
 sub count_from_resultset {
-    my ($self, $rs, $col) = @_;
+    my ($self, $rs, $col, $opts) = @_;
     return  unless  defined $rs  &&  defined $col;
+    $opts = +{}  unless  defined $opts  &&  ref($opts) eq 'HASH';
 
     my $count = 0;
 
@@ -330,14 +331,19 @@ sub count_from_resultset {
         select => $rs->select,
         limit  => $rs->limit,
         offset => $rs->offset,
+        group  => $rs->group,
     };
 
     # COUNT文発行に向けてプロパティをすげ替える
     $rs->select([
-        $self->column( $col->[0], $col->[1], 'cnt', sub { "COUNT( $_[1] )" } )
+        $self->column(
+            $col->[0], $col->[1], 'cnt',
+            sub { $opts->{distinct} ? "COUNT(DISTINCT $_[1])" : "COUNT($_[1])" },
+        ),
     ]);
     $rs->limit(undef);
     $rs->offset(undef);
+    $rs->group(undef);
 
     $count = $rs->retrieve->first->cnt;
 
@@ -345,6 +351,7 @@ sub count_from_resultset {
     $rs->select( $prev->{select} );
     $rs->limit( $prev->{limit} )    if defined $prev->{limit};
     $rs->offset( $prev->{offset} )  if defined $prev->{offset};
+    $rs->group( $prev->{group} )    if defined $prev->{group};
 
     return $count;
 }
