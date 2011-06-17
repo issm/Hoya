@@ -318,6 +318,37 @@ sub resultset {
 }
 
 
+# $count = $h->count_from_resultset( $rs, $col );
+sub count_from_resultset {
+    my ($self, $rs, $col) = @_;
+    return  unless  defined $rs  &&  defined $col;
+
+    my $count = 0;
+
+    # すげ替え対象のプロパティを保持する
+    my $prev = +{
+        select => $rs->select,
+        limit  => $rs->limit,
+        offset => $rs->offset,
+    };
+
+    # COUNT文発行に向けてプロパティをすげ替える
+    $rs->select([
+        $self->column( $col->[0], $col->[1], 'cnt', sub { "COUNT( $_[1] )" } )
+    ]);
+    $rs->limit(undef);
+    $rs->offset(undef);
+
+    $count = $rs->retrieve->first->cnt;
+
+    # すげ替えたプロパティを元に戻す
+    $rs->select( $prev->{select} );
+    $rs->limit( $prev->{limit} )    if defined $prev->{limit};
+    $rs->offset( $prev->{offset} )  if defined $prev->{offset};
+
+    return $count;
+}
+
 
 
 
