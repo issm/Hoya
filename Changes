@@ -1,7 +1,10 @@
 Revision history for Perl extension Hoya
 
+0.0003_21  2011-07-21 12:46
+           - Added Hoya::Action::is_submitted_as.
+
 0.0003_20  2011-07-12 19:55
-           - Added Modified Hoya::DSH::DBIx::Skinny::match_against_strref.
+           - Added Hoya::DSH::DBIx::Skinny::match_against_strref.
 
 0.0003_19  2011-06-17 15:40
            - Modified Hoya::DSH::DBIx::Skinny::count_from_resultset.
