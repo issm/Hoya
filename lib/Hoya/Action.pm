@@ -604,6 +604,14 @@ sub new_validator {
 }
 
 
+# $bool = $a->is_submitted_as($name);
+sub is_submitted_as {
+    my ($self, $name) = @_;
+    my $q = $self->q;
+    return ( $q->get($name) || defined $q->get($name . '.x') ) ? 1 : 0;
+}
+
+
 sub as_json {
     my ($self, $param) = @_;
     $self->content_type($CONTENT_TYPE->{json});
