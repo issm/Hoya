@@ -123,6 +123,10 @@ sub _init {
     });
 
 
+    # VIEW
+    $self->_conf->{VIEW} = +{}  unless defined $self->_conf->{VIEW};
+
+
     return $self;
 }
 

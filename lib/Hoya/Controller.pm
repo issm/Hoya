@@ -171,7 +171,7 @@ sub go {
             # view
             my $view = Hoya::View->new({
                 name => $view_info->{name},
-                type => 'MT',
+                type => $conf->{VIEW}{TYPE} || 'MT',
                 env  => $req->env,
                 conf => $conf,
                 q    => $view_info->{q},

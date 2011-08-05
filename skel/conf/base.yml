@@ -13,6 +13,10 @@ YEAR_RELEASE: 2010
 
 WEBSITE_NAME: welcome to my project
 
+VIEW:
+  TYPE: MT
+  #TYPE: Xslate
+
 DSH:
   skinny:
     #CLASS:  DBIx::Skinny
