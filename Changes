@@ -1,5 +1,10 @@
 Revision history for Perl extension Hoya
 
+0.0004_01  2011-08-05 23:00
+           - Added Hoya::View::Xslate.
+             In template engine, Text::Xslate (with Kolon syntax) is available.
+             To use "Xslate" view, set conf.VIEW.TYPE to "Xslate".
+
 0.0003_21  2011-07-21 12:46
            - Added Hoya::Action::is_submitted_as.
 
