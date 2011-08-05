@@ -17,6 +17,7 @@ requires 'Data::Recursive::Encode';       # Hoya::Util
 requires 'Hash::Merge';                   # Hoya::Util, Hoya::Mapper::URL
 requires 'Hash::MultiValue';              # Hoya::Util, Hoya::Action, Hoya::Action::* (dynamically), Hoya::Model::* (dynamically), Hoya::Form::Validator, Hoya::Mapper::URL, 
 requires 'XML::TreePP';                   # Hoya::View
+requires 'Text::Xslate';                  # Hoya::View::Xslate
 requires 'Text::MicroTemplate::Extended'; # Hoya::View::MT
 requires 'Cache::FileCache';              # Hoya::DSH;
 requires 'DBI';                           # Hoya::DSH::DBIx::Skinny, Hoya::DSH::DBI
