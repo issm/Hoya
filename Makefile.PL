@@ -54,8 +54,17 @@ test_requires 'Data::Random::WordList';   # Hoya::Re
 test_requires 'Clone';                    # Hoya::Action, Hoya::X::Params::Validate::Spec
 test_requires 'Text::MediawikiFormat';    # Hoya::X::Text::MediawikiFormat
 
+my %params_test_target_common = (
+    includes     => [qw{lib t/lib}],
+    load_modules => [qw/local::lib=extlib/],
+    env          => {},
+);
 
-tests 't/*.t t/*/*.t t/*/*/*.t';
+default_test_target (
+    %params_test_target_common,
+    tests => [ 't/*.t', 't/*/*.t', 't/*/*/*.t' ],
+);
+
 author_tests 'xt';
 
 
