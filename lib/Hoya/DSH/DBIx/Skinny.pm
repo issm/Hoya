@@ -357,21 +357,30 @@ sub count_from_resultset {
 }
 
 
-# $strref = $h->match_against_strref( $keywords );
-# $strref = $h->match_against_strref( \@keywords );
+# $strref = $h->match_against_strref( $keywords, $mode );
+# $strref = $h->match_against_strref( \@keywords, $mode );
+#
+# $mode:
+#   0 => (default)
+#   1 => boolean mode
 sub match_against_strref {
-    my ($self, $keywords) = @_;
+    my ($self, $keywords, $mode) = @_;
     my $ret = '';
 
+    $mode = 0  unless defined $mode;
     $keywords = [ $keywords ]  if (ref $keywords) eq '';
 
     my $keywords_against = join ' ', map {
+        if ( $mode ) { s/^-// }
         # $_ に対してSQLインジェクション無効化処理を行う！
         s/([\'\+\(\)])/\\$1/g;
-        "+$_";
+        $mode ? "+$_" : $_;
     } @$keywords;
 
-    $ret = \( de qq{AGAINST( '${keywords_against}' IN BOOLEAN MODE)} );
+    $ret = $mode
+        ?  \( de qq{AGAINST( '${keywords_against}' IN BOOLEAN MODE)} )
+        :  \( de qq{AGAINST( '${keywords_against}' )} )
+    ;
     return $ret;
 }
 
