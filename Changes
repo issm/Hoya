@@ -1,5 +1,9 @@
 Revision history for Perl extension Hoya
 
+0.0004_02  2011-10-27 13:00
+           - Fixed Hoya::DSH::DBIx::Skinny::match_against_strref.
+             Can toggle enabled/disabled "IN BOOLEAN MODE".
+
 0.0004_01  2011-08-05 23:00
            - Added Hoya::View::Xslate.
              In template engine, Text::Xslate (with Kolon syntax) is available.
