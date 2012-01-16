@@ -20,7 +20,7 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/name type env conf q qq var action_name content/;
+    $class->mk_accessors(qw/name type env conf q qq var action_name content/);
 
     return $self->_init;
 }

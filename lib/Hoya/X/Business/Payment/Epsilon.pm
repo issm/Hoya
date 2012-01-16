@@ -14,9 +14,10 @@ use Try::Tiny;
 use Hoya::Util;
 
 
-__PACKAGE__->mk_accessors qw/contract_code passwd
-                             _conf
-                            /;
+__PACKAGE__->mk_accessors(qw/
+    contract_code passwd
+    _conf
+/);
 
 
 my $_conf = {

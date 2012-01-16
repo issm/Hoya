@@ -8,14 +8,15 @@ use LWP::UserAgent;
 use Hoya::Util;
 
 
-__PACKAGE__->mk_accessors qw/type ua status result
-                             test
-                            /;
+__PACKAGE__->mk_accessors(qw/
+   type ua status result
+   test
+/);
 
 
 sub new {
     my ($class, $param) = @_;
-    #$class->mk_accessors qw/type ua status result/;
+    #$class->mk_accessors(qw/type ua status result/);
 
     $param->{type} = ucfirst ($param->{type} || '');
 

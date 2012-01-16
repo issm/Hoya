@@ -28,7 +28,7 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/name env conf type/;
+    $class->mk_accessors(qw/name env conf type/);
 
     return $self->_init;
 }

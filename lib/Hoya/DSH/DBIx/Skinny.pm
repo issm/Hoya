@@ -14,9 +14,10 @@ sub new {
     my $class = shift;
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
-    $class->mk_accessors qw/name env conf cache
-                            skinny
-                           /;
+    $class->mk_accessors(qw/
+        name env conf cache
+        skinny
+    /);
     return $self->_init;
 }
 

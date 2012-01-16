@@ -29,10 +29,11 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/name req conf q qq up mm view_name
-                            cookies vars
-                            base_name sub_name backward_name
-                           /;
+    $class->mk_accessors(qw/
+        name req conf q qq up mm view_name
+        cookies vars
+        base_name sub_name backward_name
+    /);
 
     return $self->_init;
 }

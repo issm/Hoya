@@ -15,7 +15,7 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/name env conf dsh/;
+    $class->mk_accessors(qw/name env conf dsh/);
 
     return $self->_init;
 }
@@ -158,7 +158,7 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/name env conf dsh h/;
+    $class->mk_accessors(qw/name env conf dsh h/);
 
     return $self->_init;
 }

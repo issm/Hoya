@@ -29,9 +29,10 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/name env conf
-                            _page_conf
-                           /;
+    $class->mk_accessors(qw/
+        name env conf
+        _page_conf
+    /);
 
     return $self->_init;
 }

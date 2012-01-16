@@ -16,9 +16,10 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/name conf q
-                            _rules
-                           /;
+    $class->mk_accessors(qw/
+        name conf q
+        _rules
+    /);
 
     return $self->_init;
 }

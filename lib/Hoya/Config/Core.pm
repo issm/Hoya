@@ -15,7 +15,7 @@ sub new {
     my $class = shift;
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
-    $class->mk_accessors qw/entry _conf/;
+    $class->mk_accessors(qw/entry _conf/);
     return $self->_init($param);
 }
 

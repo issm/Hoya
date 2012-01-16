@@ -21,9 +21,10 @@ sub new {
     my $param = shift || {};
     my $self = bless $class->SUPER::new($param), $class;
 
-    $class->mk_accessors qw/req conf app_name
-                            _logger _mm
-                           /;
+    $class->mk_accessors(qw/
+        req conf app_name
+        _logger _mm
+    /);
 
     return $self->_init;
 }
