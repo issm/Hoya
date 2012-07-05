@@ -67,6 +67,7 @@ sub _fix_value {
     # z2h (zenkaku to hankaku)
     if ($rule->{z2h}) {
         $value_fixed =~ tr/０-９ａ-ｚＡ-Ｚ　/0-9a-zA-Z /;
+        $value_fixed =~ tr/，．｀～〜！＠＃＄％＾＆＊（）ー－−＿＝＋｜￥  ；：’”［］｛｝＜＞／？/,.`~~!@#$%^&*()\-\-\-_=+|\\  ;:\'"[]{}<>\/?/;
     }
 
     # uc (upper case)
