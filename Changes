@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.05_02  2012-07-05 18:00
+           - Fixed "z2h" rule in Hoya::Form::Validator.
+
 0.05_01  2012-01-16 20:46
          - Fixed "Use of qw(...) as parentheses is deprecated" warning in Perl-5.14.
 
