@@ -59,7 +59,7 @@ sub _setup {
         # そうでない場合，$db_conf から該当する設定を渡して接続する
         else {
             $skinny = ${module_name}->new(+{
-                dsn      => "dbi:$db_conf->{TYPE}:$db_conf->{NAME}",
+                dsn      => "dbi:$db_conf->{TYPE}:$db_conf->{NAME}:$db_conf->{HOST}",
                 username => $db_conf->{USER},
                 password => $db_conf->{PASSWD},
             });
