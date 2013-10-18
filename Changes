@@ -1,5 +1,8 @@
 Revision history for Perl extension Hoya
 
+0.05_04  2013-10-18 13:58
+         - Fixed "defined(@array)" wanings.
+
 0.05_03  2013-01-23 02:40
          - Fixed Hoya::DSH::DBIx::Skinny.
 

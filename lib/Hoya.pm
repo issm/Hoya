@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use utf8;
 use 5.008_001;
-our $VERSION = '0.05_03';
+our $VERSION = '0.05_04';
 
 use base qw/Class::Accessor::Faster/;
 use Hoya::Controller;
