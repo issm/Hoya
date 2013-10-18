@@ -61,8 +61,8 @@ sub init {
 sub self_param {
     #@_ = @$_[0]  if( ref $_[0] eq 'ARRAY' );
     return  (scalar @_) % 2
-        ?  (shift, defined @_ ? {@_} : {})
-        :  ({}, defined @_ ? {@_} : {})
+        ?  (shift, +{@_})
+        :  ({}, +{@_})
     ;
 }
 

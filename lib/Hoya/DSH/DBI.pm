@@ -116,7 +116,7 @@ sub prepare {
 #
 sub execute {
     my $self = shift;
-    $self->_sth->execute(defined @_ ? @_ : undef);
+    $self->_sth->execute(@_ || undef);
 }
 
 
